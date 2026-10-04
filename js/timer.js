@@ -1,0 +1,111 @@
+// Temporizador de descanso: círculo grande + mini barra cuando te mueves de pantalla.
+// Se basa en la hora de fin (no en contar ticks), así que sigue exacto aunque bloquees el teléfono.
+import { S, guardar } from './store.js';
+import { $, fmt, sonar, vibrar } from './util.js';
+
+const R = 118, L = 2 * Math.PI * R;
+let t = null, raf = 0, ultimoSeg = null, terminando = false, grande = false;
+
+export const descansoActivo = () => !!t;
+
+export function iniciarDescanso(seg, titulo, sub = '') {
+  t = { fin: Date.now() + seg * 1000, total: seg, titulo, sub };
+  S().timer = t; guardar();
+  terminando = false; ultimoSeg = null;
+  $('#descanso').classList.remove('listo'); $('#mini').classList.remove('listo');
+  mostrar(true);
+  bucle();
+}
+
+export function restaurarDescanso() {
+  const x = S().timer;
+  if (x && x.fin > Date.now()) { t = x; mostrar(false); bucle(); }
+  else if (x) { S().timer = null; guardar(); }
+}
+
+function mostrar(g) {
+  grande = g;
+  const d = $('#descanso');
+  if (g) {
+    d.hidden = false;
+    requestAnimationFrame(() => requestAnimationFrame(() => d.classList.add('abierto')));
+  } else {
+    d.classList.remove('abierto');
+    setTimeout(() => { if (!grande) d.hidden = true; }, 280);
+  }
+  $('#mini').hidden = g || !t;
+  document.body.classList.toggle('con-mini', !g && !!t);
+  if (t) {
+    $('#descanso .descanso-titulo').textContent = t.titulo;
+    $('#descanso .descanso-sub').textContent = t.sub;
+    $('#mini .mini-txt').textContent = t.titulo;
+  }
+  pintar();
+}
+
+function pintar() {
+  if (!t) return;
+  const resta = (t.fin - Date.now()) / 1000;
+  const frac = Math.max(0, resta / t.total);
+  $('#reloj-arco').style.strokeDashoffset = L * (1 - frac);
+  const txt = terminando ? '¡Dale!' : fmt(resta);
+  $('#descanso .reloj-num').textContent = txt;
+  $('#mini .mini-num').textContent = txt;
+  $('#mini .mini-barra').style.transform = `scaleX(${frac})`;
+  const seg = Math.ceil(resta);
+  if (seg !== ultimoSeg) {
+    if (seg <= 3 && seg > 0 && ultimoSeg !== null) sonar.tic();
+    ultimoSeg = seg;
+  }
+  if (resta <= 0) terminar();
+}
+
+function bucle() {
+  cancelAnimationFrame(raf);
+  const paso = () => { pintar(); if (t && !terminando) raf = requestAnimationFrame(paso); };
+  raf = requestAnimationFrame(paso);
+}
+
+function terminar() {
+  if (terminando) return;
+  terminando = true;
+  $('#descanso .reloj-num').textContent = '¡Dale!';
+  $('#mini .mini-num').textContent = '¡Dale!';
+  $('#descanso').classList.add('listo'); $('#mini').classList.add('listo');
+  sonar.fin();
+  vibrar([260, 120, 260]);
+  setTimeout(cerrar, 1700);
+}
+
+function cerrar() {
+  cancelAnimationFrame(raf);
+  t = null; terminando = false;
+  S().timer = null; guardar();
+  mostrar(false);
+}
+
+function ajustar(d) {
+  if (!t || terminando) return;
+  t.fin += d * 1000;
+  if (d > 0) t.total += d;
+  S().timer = t; guardar();
+  vibrar();
+  pintar();
+}
+
+export function initTimer() {
+  const arco = $('#reloj-arco');
+  arco.setAttribute('r', R);
+  arco.style.strokeDasharray = L;
+  $('#descanso').addEventListener('click', e => {
+    const b = e.target.closest('[data-t]');
+    if (!b) return;
+    const a = b.dataset.t;
+    if (a === 'min') mostrar(false);
+    else if (a === 'saltar') { vibrar(); cerrar(); }
+    else ajustar(Number(a));
+  });
+  $('#mini').addEventListener('click', () => { if (t) mostrar(true); });
+  document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible' && t) { pintar(); bucle(); } });
+  restaurarDescanso();
+}

@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="es-VE">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Mi Rutina</title>
+  <meta name="description" content="La rutina de gimnasio de Carlos: series, pesos, descansos y progreso.">
+  <meta name="theme-color" content="#0F1419">
+  <meta name="color-scheme" content="dark">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Mi Rutina">
+  <meta name="format-detection" content="telephone=no">
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="modulepreload" href="js/data.js">
+</head>
+<body>
+  <main id="vista" class="vista"></main>
+
+  <!-- Descanso: círculo grande -->
+  <div id="descanso" class="descanso" hidden>
+    <div class="descanso-fondo" data-t="min"></div>
+    <section class="descanso-panel" role="dialog" aria-label="Descanso">
+      <button class="descanso-min" data-t="min" aria-label="Minimizar">
+        <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+      </button>
+      <p class="eyebrow">Descanso</p>
+      <p class="descanso-titulo"></p>
+      <div class="reloj">
+        <svg viewBox="0 0 260 260" aria-hidden="true">
+          <defs><linearGradient id="rg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#FF6B4A"/><stop offset="1" stop-color="#FF9F43"/></linearGradient></defs>
+          <circle cx="130" cy="130" r="118" fill="none" stroke="var(--linea)" stroke-width="12"/>
+          <circle id="reloj-arco" cx="130" cy="130" r="118" fill="none" stroke="url(#rg)" stroke-width="12" stroke-linecap="round" transform="rotate(-90 130 130)"/>
+        </svg>
+        <div class="reloj-num" aria-live="off">0:00</div>
+      </div>
+      <p class="descanso-sub"></p>
+      <div class="descanso-btns">
+        <button data-t="-15">−15 s</button>
+        <button data-t="saltar" class="primario">Saltar</button>
+        <button data-t="15">+15 s</button>
+      </div>
+    </section>
+  </div>
+
+  <!-- Descanso: mini barra -->
+  <button id="mini" class="mini" hidden aria-label="Abrir descanso">
+    <span class="mini-barra"></span>
+    <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2.5 2.5M9 2h6"/></svg>
+    <span class="mini-txt"></span>
+    <span class="mini-num">0:00</span>
+  </button>
+
+  <!-- Trote guiado -->
+  <div id="carrera" class="carrera" hidden role="dialog" aria-label="Trote guiado">
+    <div class="car-top">
+      <button class="car-x" data-c="cerrar" aria-label="Cerrar">
+        <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
+      </button>
+      <span id="car-sem"></span>
+      <span id="car-total"></span>
+    </div>
+    <div class="car-centro">
+      <p id="car-ronda"></p>
+      <h2 id="car-fase"></h2>
+      <p id="car-desc"></p>
+      <div id="car-reloj">0:00</div>
+      <p id="car-sig"></p>
+    </div>
+    <div class="car-barra"><div id="car-segs"></div><div id="car-marca"></div></div>
+    <div class="car-btns">
+      <button id="car-pausa" class="car-b" data-c="pausa"></button>
+      <button class="car-b" data-c="saltar">
+        <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 5l10 7-10 7z" fill="currentColor"/><path d="M19 5v14"/></svg><span>Saltar tramo</span>
+      </button>
+      <button class="car-b car-listo" data-c="cerrar"><span>Cerrar</span></button>
+    </div>
+  </div>
+
+  <div id="hoja" class="hoja-raiz" hidden></div>
+  <div id="aviso" class="aviso" role="status" aria-live="polite"></div>
+  <canvas id="confeti" class="confeti" aria-hidden="true"></canvas>
+
+  <nav id="tabs" class="tabs" aria-label="Secciones">
+    <button data-v="hoy"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6.5 6.5v11M17.5 6.5v11M3.5 9.5v5M20.5 9.5v5M6.5 12h11"/></svg><span>Hoy</span></button>
+    <button data-v="progreso"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4v16h16"/><path d="M8 15l3.5-4 3 2.5L20 7"/></svg><span>Progreso</span></button>
+    <button data-v="guia"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 5.5A2.5 2.5 0 0 1 7.5 3H19v14H7.5A2.5 2.5 0 0 0 5 19.5z"/><path d="M5 19.5A2.5 2.5 0 0 0 7.5 22H19v-5"/></svg><span>Guía</span></button>
+    <button data-v="ajustes"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h9M17 7h3M4 17h3M11 17h9"/><circle cx="15" cy="7" r="2"/><circle cx="9" cy="17" r="2"/></svg><span>Ajustes</span></button>
+  </nav>
+
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>
