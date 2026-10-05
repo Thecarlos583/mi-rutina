@@ -1,5 +1,6 @@
 // Pantalla "Guía": reglas, el plan completo y el mapa de colores
-import { GRUPOS, ZONAS, PLAN, REGLAS, TROTE, INICIO } from './data.js';
+import { GRUPOS, ZONAS, PLAN, REGLAS, TROTE, INICIO, EJERCICIOS } from './data.js';
+import { guiaAgarresHTML } from './agarres.js';
 import { NOMBRE_DIA } from './calendario.js';
 import { ejercicio, unidadDe, sugeridoVista } from './rutina.js';
 import { cuerpo } from './cuerpo.js';
@@ -33,6 +34,8 @@ export function renderGuia(el) {
         <div class="plan-dia quieto"><span class="dia-n">Domingo</span><span class="dia-t">Descanso</span></div>
       </div>
     </section>
+
+    ${guiaAgarresHTML(Object.values(EJERCICIOS))}
 
     <section class="card">
       <div class="card-cab"><h3>Colores de cada músculo</h3></div>

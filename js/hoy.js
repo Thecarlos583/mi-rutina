@@ -8,6 +8,7 @@ import { $, ico, anillo, moverAnillo, vibrar, sonar, aviso, abrirHoja, cerrarHoj
 import { iniciarDescanso } from './timer.js';
 import { sabadoHTML, accionSabado } from './sabado.js';
 import { montar, tieneVideo, musculosDe } from './anim.js';
+import { chipsAgarre, hojaAgarre } from './agarres.js';
 
 export const LOGO = `<svg viewBox="0 0 512 512" aria-hidden="true"><defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#FF6B4A"/><stop offset="1" stop-color="#FF9F43"/></linearGradient></defs>
   <circle cx="256" cy="256" r="168" fill="none" stroke="#26303B" stroke-width="40"/>
@@ -102,7 +103,7 @@ function tarjeta(f, s) {
       </span>
       <span class="ej-chev">${ico('abajo')}</span>
     </button>
-    <div class="ej-tags">${chip(e.g)}${s.cambio ? `<span class="tag marca">${ico('cambiar')} ${s.cambio === 'hoy' ? 'Solo hoy' : 'Siempre'}</span><button class="tag volver" data-a="revertir">${ico('deshacer')} Original</button>` : ''}</div>
+    <div class="ej-tags">${chip(e.g)}${chipsAgarre(e.agarre, 'data-a')}${s.cambio ? `<span class="tag marca">${ico('cambiar')} ${s.cambio === 'hoy' ? 'Solo hoy' : 'Siempre'}</span><button class="tag volver" data-a="revertir">${ico('deshacer')} Original</button>` : ''}</div>
     <div class="series" role="group" aria-label="Series">${s.hechas.map((h, k) => `<button class="serie ${h ? 'hecha' : ''}" data-a="serie" data-i="${k}" aria-pressed="${h}" aria-label="Serie ${k + 1}"><span class="serie-n">${k + 1}</span>${ico('check', 'serie-ok')}</button>`).join('')}</div>
     <div class="peso">
       <button class="peso-btn" data-a="peso" data-d="-${paso}" aria-label="Bajar ${num(paso)} ${u}">${ico('menos')}</button>
@@ -208,6 +209,7 @@ function alTocar(e) {
       break;
     }
     case 'cambiar': hojaCambio(f, card.dataset.slot); break;
+    case 'agarre': { const x = slotDe(f, card.dataset.slot).s.ej; hojaAgarre(x.n, x.agarre); break; }
     case 'video': hojaVideo(slotDe(f, card.dataset.slot).s.ej); break;
     case 'unidad': {
       const id = slotDe(f, card.dataset.slot).s.ej.id;
@@ -318,7 +320,7 @@ function hojaCambio(f, slotId) {
     const e = ejercicio(id, base.id), actual = s.ej.id === id;
     return `<button class="alt ${actual ? 'actual' : ''}" data-id="${id}">
       <span class="alt-cab"><span class="alt-n">${e.n}</span><b class="alt-sr">${se}×${re}</b></span>
-      <span class="alt-p">${e.p[0]}</span>${actual ? '<span class="alt-tag">Ahora</span>' : ''}</button>`;
+      <span class="alt-p">${e.p[0]}</span>${e.agarre ? `<span class="alt-ag">${chipsAgarre(e.agarre)}</span>` : ''}${actual ? '<span class="alt-tag">Ahora</span>' : ''}</button>`;
   }).join('');
   const h = abrirHoja(`<h3 class="hoja-t">Cambiar ejercicio</h3>
     <p class="hoja-sub">En lugar de <b>${base.n}</b> · ${s.orig.series}×${s.orig.reps}</p>
