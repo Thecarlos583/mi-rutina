@@ -4,7 +4,7 @@ const KEY = 'mi-rutina:v1';
 const base = () => ({
   v: 1,
   ajustes: { inicio: null, sonido: true, haptica: true, pantalla: true },
-  log: {},       // 'AAAA-MM-DD' → { plan, series, pesos, cambios, sab, habitos }
+  log: {},       // 'AAAA-MM-DD' → { plan, series, pesos, cambios, sab } (habitos: de versiones viejas, ya no se usa)
   siempre: {},   // ejercicio original → alternativa elegida con "Usar siempre"
   cintura: {},   // lunes de la semana → cm
   timer: null,   // descanso en curso

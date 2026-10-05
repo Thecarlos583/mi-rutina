@@ -236,20 +236,11 @@ body.sin-tabs .tabs { display: none; }
 .hero.reposo .hero-sub { font-size: 16px; color: #C9D3DD; max-width: 32ch; }
 .manana h3 { font-size: 20px; font-weight: 800; margin: 4px 0 2px; }
 
-/* ── Hábitos ────────────────────────────────────────────────── */
-.hab-lista { display: grid; gap: 8px; }
-.hab {
-  display: flex; align-items: center; gap: 12px; min-height: 50px; padding: 0 14px; border-radius: 15px;
-  background: var(--bg); text-align: left; font-size: 15px; font-weight: 600; transition: background .25s, color .25s;
-}
-.hab-c {
-  width: 26px; height: 26px; border-radius: 9px; border: 2px solid var(--linea); display: grid; place-items: center; flex: none;
-  transition: background .25s, border-color .25s;
-}
-.hab-c .ico { width: 16px; height: 16px; stroke-width: 3; color: #0F1419; opacity: 0; transform: scale(.4); transition: opacity .2s, transform .3s var(--resorte); }
-.hab.on { background: rgba(46, 212, 122, .1); color: #BFF3D6; }
-.hab.on .hab-c { background: var(--bien); border-color: var(--bien); }
-.hab.on .hab-c .ico { opacity: 1; transform: scale(1); }
+/* ── Sugerencias (antes hábitos): solo consejos, nada que marcar ── */
+.sugerencias ul { margin: 0; padding: 0; list-style: none; display: grid; gap: 10px; }
+.sugerencias li { display: flex; gap: 12px; align-items: flex-start; font-size: 15px; color: #C9D3DD; }
+.sugerencias li .ico { flex: none; width: 20px; height: 20px; margin-top: 1px; color: var(--acento2); }
+.sugerencias li b { color: var(--txt); font-weight: 700; }
 
 .tip { display: flex; gap: 10px; align-items: flex-start; padding: 4px 6px 8px; color: var(--txt2); font-size: 14px; }
 .tip b { color: var(--txt); }
@@ -537,3 +528,57 @@ body.sin-tabs .tabs { display: none; }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
 }
+
+/* ── Videos de los ejercicios ───────────────────────────────── */
+:root { --fig: #E6ECF2; --fig2: #9AA7B4; --equipo: #4E5C6B; --equipo2: #566474; --pad: #44525F; --video-bg: #1C242D; --video-bg2: #12181E; }
+.video { position: relative; border-radius: 20px; overflow: hidden; background: radial-gradient(120% 90% at 50% 15%, var(--video-bg), var(--video-bg2)); }
+.video-svg { display: block; width: 100%; height: auto; }
+.video-svg .cuerpo { fill: var(--fig); }
+.video-svg .cuerpo.fondo { fill: var(--fig2); opacity: .75; }
+.video-svg .cabeza { fill: var(--fig); }
+.video-svg .sombra { fill: #000; opacity: .35; }
+.video-svg .suelo { stroke: var(--linea); stroke-width: 2; stroke-linecap: round; }
+.video-svg .pad { stroke: var(--pad); stroke-linecap: round; }
+.video-svg .pata, .video-svg .riel-s { stroke: var(--equipo); stroke-width: 3; stroke-linecap: round; }
+.video-svg .torre { fill: var(--pad); stroke: var(--equipo); stroke-width: 1.5; }
+.video-svg .pila { fill: var(--equipo2); }
+.video-svg .barra-fija { stroke: var(--fig2); stroke-width: 4; stroke-linecap: round; }
+.video-svg .muro { fill: var(--equipo); }
+.video-svg .colchoneta { fill: var(--equipo); }
+.video-svg .escalon { fill: var(--equipo2); }
+.video-svg .fitball { fill: #3E6FB0; opacity: .9; }
+.video-svg .cable { stroke: var(--fig2); stroke-width: 1.4; }
+.video-svg .polea { fill: var(--equipo2); stroke: var(--fig2); stroke-width: 1.5; }
+.video-svg .agarre { fill: var(--fig2); }
+.video-svg .riel { stroke: var(--equipo); stroke-width: 4; stroke-linecap: round; }
+.video-svg .carro { stroke: var(--equipo2); stroke-width: 6; stroke-linecap: round; }
+.video-svg .rodillo { fill: var(--pad); stroke: var(--equipo2); stroke-width: 1.5; }
+.video-svg .banda { stroke: var(--acento); stroke-width: 3; stroke-linecap: round; }
+.video-svg .barra { stroke: #B8C2CC; stroke-width: 3; stroke-linecap: round; }
+.video-svg .disco { fill: #2A333D; stroke: #B8C2CC; stroke-width: 2; }
+.video-svg .disco-c { fill: #B8C2CC; }
+.video-svg .manc { fill: #2A333D; stroke: #B8C2CC; stroke-width: 1.6; }
+.video-svg .manc-c, .video-svg .manc-b { fill: #B8C2CC; }
+.video-svg .balon { fill: #8A5A3C; stroke: #C99A72; stroke-width: 1.5; }
+.video-svg .marca { fill: rgba(255, 159, 67, .2); stroke: var(--acento2); stroke-width: 2.5; }
+.video-svg .marca.oculta { display: none; }
+.video-svg .flecha { stroke: var(--acento2); stroke-width: 3; stroke-linecap: round; }
+.video-svg .flecha-p { fill: var(--acento2); }
+.video-punto { position: absolute; left: 10px; right: 10px; top: 10px; padding: 8px 12px; border-radius: 12px; text-align: center; font-size: 14px; font-weight: 700; color: var(--txt); background: rgba(15, 20, 25, .72); }
+.video-punto:empty { display: none; }
+.video-ctrl { display: flex; gap: 8px; margin: 12px 0 0; flex-wrap: wrap; }
+.video-ctrl button { flex: 1; min-height: 46px; padding: 0 10px; border-radius: 14px; background: var(--card2); font-weight: 750; font-size: 15px; }
+.video-ctrl button.act { color: var(--acento2); box-shadow: inset 0 0 0 1.5px var(--acento2); }
+.video-ctrl [data-v=play] { background: var(--grad); color: #1A1110; }
+.video-pasos { margin: 12px 0 0; padding: 0; list-style: none; counter-reset: vp; display: grid; gap: 4px; }
+.video-pasos li { counter-increment: vp; display: flex; gap: 10px; align-items: flex-start; padding: 9px 12px; border-radius: 12px; font-size: 15px; color: var(--txt2); cursor: pointer; transition: background .2s, color .2s; }
+.video-pasos li::before { content: counter(vp); flex: none; width: 24px; height: 24px; border-radius: 8px; display: grid; place-items: center; font-size: 12px; font-weight: 850; background: var(--card2); color: var(--acento2); }
+.video-pasos li.act { background: rgba(255, 107, 74, .12); color: var(--txt); font-weight: 700; }
+.video-pasos li.act::before { background: var(--grad); color: #1A1110; }
+.video-fijas { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 150px), 1fr)); gap: 8px; }
+.video-fijas figure { margin: 0; position: relative; border-radius: 16px; overflow: hidden; background: var(--video-bg); }
+.video-fijas b { position: absolute; top: 8px; left: 8px; width: 24px; height: 24px; border-radius: 8px; display: grid; place-items: center; background: var(--grad); color: #1A1110; font-size: 13px; }
+.musculos-leyenda { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+.ver-video { display: flex; align-items: center; justify-content: center; gap: 8px; }
+.alt-video { margin-top: 10px; }
+@media (prefers-reduced-motion: reduce) { .video-pasos li { transition: none; } }

@@ -1,5 +1,5 @@
-// Pantalla "Hoy": lo que toca entrenar, series, pesos, cambios de ejercicio y hábitos
-import { GRUPOS, PLAN, HABITOS, REGLAS, FRASES_DESCANSO, FRASES_FIN } from './data.js';
+// Pantalla "Hoy": lo que toca entrenar, series, pesos, cambios de ejercicio, videos y sugerencias
+import { GRUPOS, ZONAS, PLAN, SUGERENCIAS, REGLAS, FRASES_DESCANSO, FRASES_FIN } from './data.js';
 import { S, dia, leerDia, guardar } from './store.js';
 import { hoy, info, fechaLarga, sumar, NOMBRE_DIA, proximoLunes } from './calendario.js';
 import { planDe, slots, totalSeries, seriesHechas, ultimoPeso, mejorPeso, ejercicio } from './rutina.js';
@@ -7,6 +7,7 @@ import { cuerpo } from './cuerpo.js';
 import { $, ico, anillo, moverAnillo, vibrar, sonar, aviso, abrirHoja, cerrarHoja, confeti, semilla, num, pantallaEncendida } from './util.js';
 import { iniciarDescanso } from './timer.js';
 import { sabadoHTML, accionSabado } from './sabado.js';
+import { montar, tieneVideo, musculosDe } from './anim.js';
 
 export const LOGO = `<svg viewBox="0 0 512 512" aria-hidden="true"><defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#FF6B4A"/><stop offset="1" stop-color="#FF9F43"/></linearGradient></defs>
   <circle cx="256" cy="256" r="168" fill="none" stroke="#26303B" stroke-width="40"/>
@@ -28,7 +29,7 @@ export function renderHoy(el) {
   document.body.classList.remove('sin-tabs');
   const f = hoy(), p = planDe(f);
   const contenido = p.diaPlan === 'dom' ? descansoHTML(f) : p.diaPlan === 'sab' ? sabadoHTML(f, p) : entrenoHTML(f, p);
-  el.innerHTML = cabecera(f, p) + contenido + habitosHTML(f) + tipHTML(f);
+  el.innerHTML = cabecera(f, p) + contenido + sugerenciasHTML() + tipHTML(f);
   pantallaEncendida(p.diaPlan !== 'dom');
 }
 const refrescar = () => renderHoy(raiz);
@@ -92,6 +93,7 @@ function tarjeta(f, s) {
       ? `Última vez: <b>${num(ult)} lbs</b>${peso == null ? ` <button class="link" data-a="repetir" data-w="${ult}">Repetir</button>` : ''}`
       : 'Primera vez: anota con cuánto arrancas'}</p>
     <div class="mas"><div class="mas-in">
+      ${tieneVideo(e.id) ? `<button class="btn-sec ver-video" data-a="video">${ico('play')} Ver cómo se hace</button>` : ''}
       <div class="mapa">${cuerpo(e.z || [], e.s || [])}</div>
       <h4>Qué trabaja</h4><p class="txt2">${e.t}</p>
       <h4>Cómo hacerlo</h4><ol class="pasos">${e.p.map(x => `<li>${x}</li>`).join('')}</ol>
@@ -119,13 +121,23 @@ function descansoHTML(f) {
     </section>` : ''}`;
 }
 
-// ── Hábitos ─────────────────────────────────────────────────
-function habitosHTML(f) {
-  const hb = leerDia(f).habitos || {}, n = HABITOS.filter(h => hb[h.id]).length;
-  return `<section class="card habitos">
-    <div class="card-cab"><h3>Hábitos de hoy</h3><span class="cont" id="hab-cont">${n}/${HABITOS.length}</span></div>
-    <div class="hab-lista">${HABITOS.map(h => `<button class="hab ${hb[h.id] ? 'on' : ''}" data-a="habito" data-id="${h.id}" aria-pressed="${!!hb[h.id]}"><span class="hab-c">${ico('check')}</span><span>${h.n}</span></button>`).join('')}</div>
+// ── Sugerencias del día (solo consejos, nada que marcar) ─────
+function sugerenciasHTML() {
+  return `<section class="card sugerencias">
+    <div class="card-cab"><h3>Sugerencias para hoy</h3></div>
+    <ul>${SUGERENCIAS.map(x => `<li>${ico(x.i)}<span><b>${x.b}</b> ${x.t}</span></li>`).join('')}</ul>
   </section>`;
+}
+
+// ── Video del ejercicio ─────────────────────────────────────
+const musculos = e => musculosDe(e.z || [], ZONAS, GRUPOS);
+const leyenda = e => [...new Set((e.z || []).map(z => ZONAS[z]))].map(g => chip(g)).join('');
+function hojaVideo(e) {
+  const h = abrirHoja(`<p class="eyebrow">${ico('play')} Cómo se hace</p>
+    <h3 class="hoja-t">${e.n}</h3>
+    <div class="musculos-leyenda">${leyenda(e)}<span class="txt2 peq">se encienden en el video</span></div>
+    <div class="video-caja"></div>`);
+  montar(h.querySelector('.video-caja'), e.id, musculos(e));
 }
 
 function tipHTML(f) {
@@ -171,10 +183,10 @@ function alTocar(e) {
       break;
     }
     case 'cambiar': hojaCambio(f, card.dataset.slot); break;
+    case 'video': hojaVideo(slotDe(f, card.dataset.slot).s.ej); break;
     case 'revertir': revertir(f, card.dataset.slot); break;
     case 'elegir-dia': hojaDia(f); break;
     case 'volver-plan': delete dia(f).plan; guardar(); refrescar(); break;
-    case 'habito': marcarHabito(f, b); break;
     case 'empezar':
       S().ajustes.inicio = $('#inicio').value || proximoLunes(f);
       guardar(); vibrar(); refrescar(); scrollTo(0, 0);
@@ -250,19 +262,6 @@ function guardarPeso(f, inp, revisarRecord) {
 const alEscribir = e => { if (e.target.matches('input[data-peso]')) guardarPeso(hoy(), e.target, false); };
 const alCambiar = e => { if (e.target.matches('input[data-peso]')) guardarPeso(hoy(), e.target, true); };
 
-function marcarHabito(f, b) {
-  const d = dia(f);
-  d.habitos ||= {};
-  const on = (d.habitos[b.dataset.id] = !d.habitos[b.dataset.id]);
-  guardar();
-  b.classList.toggle('on', on);
-  b.setAttribute('aria-pressed', on);
-  const n = HABITOS.filter(h => d.habitos[h.id]).length;
-  $('#hab-cont').textContent = `${n}/${HABITOS.length}`;
-  vibrar(on ? 14 : 8);
-  if (on && n === HABITOS.length) { sonar.logro(); aviso('¡Hábitos al 100% hoy!', 'check'); }
-}
-
 // ── Cambiar ejercicio ───────────────────────────────────────
 function hojaCambio(f, slotId) {
   const { s } = slotDe(f, slotId), base = s.base;
@@ -279,6 +278,7 @@ function hojaCambio(f, slotId) {
       ${s.cambio ? `<button class="alt original" data-id="${base.id}"><span class="alt-cab"><span class="alt-n">${ico('deshacer')} Volver al original</span><b class="alt-sr">${s.orig.series}×${s.orig.reps}</b></span><span class="alt-p">${base.n}</span></button>` : ''}
       ${alts}
     </div>
+    <div class="alt-video" hidden></div>
     <div class="seg" role="radiogroup" aria-label="Duración del cambio">
       <button class="act" data-m="hoy" role="radio" aria-checked="true">Solo por hoy</button>
       <button data-m="siempre" role="radio" aria-checked="false">Usar siempre</button>
@@ -292,6 +292,9 @@ function hojaCambio(f, slotId) {
       const btn = h.querySelector('[data-listo]');
       btn.disabled = false;
       btn.textContent = sel === base.id ? 'Volver al original' : 'Cambiar';
+      const caja = h.querySelector('.alt-video'), ej = ejercicio(sel, base.id);
+      caja.hidden = !tieneVideo(sel);
+      if (tieneVideo(sel)) montar(caja, sel, musculos(ej));
       vibrar(8);
       return;
     }

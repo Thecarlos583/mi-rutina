@@ -403,13 +403,14 @@ export const SABADO = [
     items: ['Cuádriceps', 'Femoral', 'Glúteo', 'Pantorrilla', 'Espalda'] },
 ];
 
-// ── Hábitos diarios ──────────────────────────────────────────
-export const HABITOS = [
-  { id: 'creatina', n: 'Creatina' },
-  { id: 'agua', n: '2,5-3 L de agua' },
-  { id: 'proteina', n: 'Proteína en cada comida' },
-  { id: 'caminata', n: 'Caminata post-gym' },
-  { id: 'sueno', n: '7-8 h de sueño' },
+// ── Sugerencias del día (antes eran hábitos para marcar) ─────
+// i = ícono de js/util.js
+export const SUGERENCIAS = [
+  { i: 'fuego', b: 'Creatina:', t: 'tómala todos los días, entrenes o no.' },
+  { i: 'ola', b: 'Agua:', t: 'apunta a 2,5-3 L en el día.' },
+  { i: 'trofeo', b: 'Proteína:', t: 'un poco en cada comida.' },
+  { i: 'correr', b: 'Caminata:', t: 'unos minutos suaves después del gym.' },
+  { i: 'luna', b: 'Sueño:', t: 'duerme 7-8 horas para recuperarte.' },
 ];
 
 // ── Guía ─────────────────────────────────────────────────────

@@ -10,9 +10,11 @@ manifest.json       datos de la app instalable
 sw.js               caché para usarla sin internet
 css/styles.css      todo el diseño
 icons/              ícono propio (SVG + PNG)
-js/data.js          ← LA RUTINA: ejercicios, alternativas, plan A/B, sábado, hábitos
+js/data.js          ← LA RUTINA: ejercicios, alternativas, plan A/B, sábado, sugerencias
 js/app.js           arranque y pestañas
-js/hoy.js           pantalla Hoy (tarjetas, series, pesos, cambios, hábitos)
+js/hoy.js           pantalla Hoy (tarjetas, series, pesos, cambios, videos, sugerencias)
+js/anim.js          motor de los videos (figura animada en SVG)
+js/poses.js         poses de cada ejercicio para los videos
 js/sabado.js        sábado + trote guiado por intervalos
 js/timer.js         temporizador de descanso
 js/progreso.js      racha, calendario, cintura, gráficas de pesos
