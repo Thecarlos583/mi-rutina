@@ -339,6 +339,11 @@ export const TIPO_PESO = {
   'c/u': 'en cada mano', barra: 'con la barra incluida', maq: 'en la máquina', asist: 'de asistencia',
   discos: 'en discos, sin contar el carro', corp: 'tu peso corporal', banda: 'banda ligera', una: 'con una mancuerna',
 };
+// Qué barra usa cada ejercicio con barra (las demás, olímpica de 45 lbs / 20 kg)
+export const BARRA = {
+  'curl-z': 'z', 'curl-barra-recta': 'z', 'curl-inverso-z': 'z', 'curl-predicador': 'z', 'curl-21': 'z', 'drag-curl': 'z', 'frances-z': 'z',
+  'sentadilla-smith-adelantados': 'smith', 'hip-thrust-smith': 'smith', 'pantorrilla-smith': 'smith',
+};
 export const INICIO = {
   // Espalda
   'remo-barra': [65, 'barra'], 'remo-mancuernas-pecho': [20, 'c/u'], 'remo-maquina': [50, 'maq'], 'remo-polea-abierto': [50, 'maq'],

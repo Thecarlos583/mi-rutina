@@ -609,3 +609,7 @@ body.sin-tabs .tabs { display: none; }
 .unid > span { margin-right: auto; font-size: 13px; color: var(--txt2); }
 .unid button { min-height: 40px; min-width: 52px; padding: 0 12px; border-radius: 12px; background: var(--bg); color: var(--txt2); font-weight: 750; font-size: 14px; }
 .unid button[aria-pressed="true"] { background: rgba(255, 107, 74, .14); color: var(--acento2); box-shadow: inset 0 0 0 1.5px var(--acento); }
+
+/* Cómo armar el peso */
+.carga { display: flex; gap: 10px; align-items: flex-start; margin: 10px 2px 0; padding: 10px 12px; border-radius: 14px; background: var(--bg); font-size: 14px; color: #D5DEE7; }
+.carga .ico { flex: none; width: 18px; height: 18px; color: var(--acento2); margin-top: 1px; }

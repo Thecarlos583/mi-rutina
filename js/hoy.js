@@ -2,7 +2,7 @@
 import { GRUPOS, ZONAS, PLAN, SUGERENCIAS, REGLAS, FRASES_DESCANSO, FRASES_FIN, INICIO, TIPO_PESO, CALENTAMIENTO } from './data.js';
 import { S, dia, leerDia, guardar } from './store.js';
 import { hoy, info, fechaLarga, sumar, NOMBRE_DIA, proximoLunes } from './calendario.js';
-import { planDe, slots, totalSeries, seriesHechas, ultimoPeso, mejorPeso, ejercicio, tocaSubir, unidadDe, aVista, aLbs, sugeridoVista, pasoDe } from './rutina.js';
+import { planDe, slots, totalSeries, seriesHechas, ultimoPeso, mejorPeso, ejercicio, tocaSubir, unidadDe, aVista, aLbs, sugeridoVista, pasoDe, comoCargar } from './rutina.js';
 import { cuerpo } from './cuerpo.js';
 import { $, ico, anillo, moverAnillo, vibrar, sonar, aviso, abrirHoja, cerrarHoja, confeti, semilla, num, pantallaEncendida } from './util.js';
 import { iniciarDescanso } from './timer.js';
@@ -109,6 +109,7 @@ function tarjeta(f, s) {
       <label class="peso-in"><input type="number" inputmode="decimal" step="any" min="0" data-peso="${e.id}" value="${peso ?? ''}" placeholder="${ult ?? ini ?? '0'}" aria-label="Peso en ${u === 'kg' ? 'kilos' : 'libras'}"><span>${u}</span></label>
       <button class="peso-btn" data-a="peso" data-d="${paso}" aria-label="Subir ${num(paso)} ${u}">${ico('mas')}</button>
     </div>
+    <p class="carga" data-carga="${e.id}"${comoCargar(e.id, peso ?? ult ?? ini) ? '' : ' hidden'}>${ico('hoy')}<span>${comoCargar(e.id, peso ?? ult ?? ini)}</span></p>
     ${sube && (peso == null || peso < sube) ? `<p class="subir">${ico('subir')}<span><b>Toca subir:</b> completaste todo con ${num(ult)} ${u} dos sesiones seguidas. Hoy prueba <b>${num(sube)} ${u}</b>. <button class="link" data-a="repetir" data-w="${sube}">Usar</button></span></p>` : ''}
     <p class="ultima">${ult != null
       ? `Última vez: <b>${num(ult)} ${u}</b>${peso == null ? ` <button class="link" data-a="repetir" data-w="${ult}">Repetir</button>` : ''}`
@@ -273,14 +274,26 @@ function marcarSerie(f, card, i, btn) {
 
 function pasoPeso(f, card, delta) {
   const inp = card.querySelector('input[data-peso]');
-  const actual = inp.value !== '' ? parseFloat(inp.value) : (aVista(inp.dataset.peso, ultimoPeso(inp.dataset.peso, f)) ?? 0);
+  // Sin nada escrito, parte de lo sugerido (última vez o "Empieza con")
+  const actual = inp.value !== '' ? parseFloat(inp.value) : (parseFloat(inp.placeholder) || 0);
   inp.value = Math.max(0, actual + delta);
   card.querySelectorAll('[data-a="repetir"], .subir').forEach(x => x.remove());
   guardarPeso(f, inp, true);
   vibrar(8);
 }
 
+// Actualiza "cómo armar el peso" con lo que está escrito (o lo sugerido)
+function actualizarCarga(inp) {
+  const p = inp.closest('.ej')?.querySelector('[data-carga]');
+  if (!p) return;
+  const v = parseFloat(String(inp.value || inp.placeholder).replace(',', '.'));
+  const t = Number.isFinite(v) ? comoCargar(inp.dataset.peso, v) : '';
+  p.hidden = !t;
+  p.querySelector('span').textContent = t;
+}
+
 function guardarPeso(f, inp, revisarRecord) {
+  actualizarCarga(inp);
   const d = dia(f), id = inp.dataset.peso, v = parseFloat(String(inp.value).replace(',', '.'));
   d.pesos ||= {};
   if (Number.isFinite(v) && v >= 0) d.pesos[id] = aLbs(id, v); else delete d.pesos[id];
