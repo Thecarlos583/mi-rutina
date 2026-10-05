@@ -603,3 +603,9 @@ body.sin-tabs .tabs { display: none; }
 .subir { display: flex; gap: 10px; align-items: flex-start; margin: 10px 2px 0; padding: 10px 12px; border-radius: 14px; background: rgba(46, 212, 122, .1); color: #BFF3D6; font-size: 14px; }
 .subir .ico { flex: none; color: var(--bien); }
 .subir b { color: var(--txt); }
+
+/* Switch de discos en kg o lbs (por ejercicio) */
+.unid { display: flex; align-items: center; gap: 6px; margin: 10px 2px 0; }
+.unid > span { margin-right: auto; font-size: 13px; color: var(--txt2); }
+.unid button { min-height: 40px; min-width: 52px; padding: 0 12px; border-radius: 12px; background: var(--bg); color: var(--txt2); font-weight: 750; font-size: 14px; }
+.unid button[aria-pressed="true"] { background: rgba(255, 107, 74, .14); color: var(--acento2); box-shadow: inset 0 0 0 1.5px var(--acento); }

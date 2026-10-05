@@ -7,6 +7,7 @@ const base = () => ({
   log: {},       // 'AAAA-MM-DD' → { plan, series, pesos, cambios, sab } (habitos: de versiones viejas, ya no se usa)
   siempre: {},   // ejercicio original → alternativa elegida con "Usar siempre"
   cintura: {},   // lunes de la semana → cm
+  unidades: {},  // ejercicio → 'kg' si sus discos o su máquina están en kilos (por defecto lbs)
   timer: null,   // descanso en curso
   carrera: null, // trote guiado en curso
 });

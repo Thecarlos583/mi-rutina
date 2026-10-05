@@ -2,7 +2,7 @@
 import { GRUPOS, ZONAS, PLAN, SUGERENCIAS, REGLAS, FRASES_DESCANSO, FRASES_FIN, INICIO, TIPO_PESO, CALENTAMIENTO } from './data.js';
 import { S, dia, leerDia, guardar } from './store.js';
 import { hoy, info, fechaLarga, sumar, NOMBRE_DIA, proximoLunes } from './calendario.js';
-import { planDe, slots, totalSeries, seriesHechas, ultimoPeso, mejorPeso, ejercicio, tocaSubir } from './rutina.js';
+import { planDe, slots, totalSeries, seriesHechas, ultimoPeso, mejorPeso, ejercicio, tocaSubir, unidadDe, aVista, aLbs, sugeridoVista, pasoDe } from './rutina.js';
 import { cuerpo } from './cuerpo.js';
 import { $, ico, anillo, moverAnillo, vibrar, sonar, aviso, abrirHoja, cerrarHoja, confeti, semilla, num, pantallaEncendida } from './util.js';
 import { iniciarDescanso } from './timer.js';
@@ -76,7 +76,8 @@ const r5 = x => Math.max(5, Math.round(x / 5) * 5);
 function calentamientoHTML(f, d, ss, hechas) {
   const piernas = /pierna/i.test(d.t), lista = piernas ? CALENTAMIENTO.piernas : CALENTAMIENTO.superior;
   const pri = ss[0], w = pri && (leerDia(f).pesos?.[pri.ej.id] ?? ultimoPeso(pri.ej.id, f) ?? INICIO[pri.ej.id]?.[0]);
-  const aprox = w ? `10 reps con <b>${r5(w / 2)} lbs</b> y 5 reps con <b>${r5(w * 0.75)} lbs</b>` : '10 reps con la mitad del peso y 5 reps con tres cuartos';
+  const u = pri && unidadDe(pri.ej.id), parte = x => (u === 'kg' ? sugeridoVista(pri.ej.id, x) : r5(x));
+  const aprox = w ? `10 reps con <b>${num(parte(w / 2))} ${u}</b> y 5 reps con <b>${num(parte(w * 0.75))} ${u}</b>` : '10 reps con la mitad del peso y 5 reps con tres cuartos';
   const fila = x => `<li><span><b>${x.n}</b><small>${x.d}</small></span>${x.id ? `<button class="ver-mini" data-a="video-cal" data-id="${x.id}" aria-label="Ver cómo se hace ${x.n}">${ico('play')}</button>` : ''}</li>`;
   return `<details class="card calent" ${hechas ? '' : 'open'}>
     <summary><span><b>Calentamiento</b><small>≈10 min · antes de empezar</small></span>${ico('abajo')}</summary>
@@ -87,8 +88,10 @@ function calentamientoHTML(f, d, ss, hechas) {
 
 function tarjeta(f, s) {
   const e = s.ej, c = GRUPOS[e.g].c, completa = s.hechas.every(Boolean);
-  const peso = leerDia(f).pesos?.[e.id], ult = ultimoPeso(e.id, f);
-  const [ini, tipo] = INICIO[e.id] || [];
+  const u = unidadDe(e.id), paso = pasoDe(e.id);
+  const peso = aVista(e.id, leerDia(f).pesos?.[e.id]), ult = aVista(e.id, ultimoPeso(e.id, f));
+  const [iniLbs, tipo] = INICIO[e.id] || [];
+  const ini = iniLbs ? sugeridoVista(e.id, iniLbs) : iniLbs;
   const sube = tocaSubir(e.id, f);
   return `<article class="ej ${abiertas.has(s.slot) ? 'abierta' : ''} ${completa ? 'completa' : ''}" data-slot="${s.slot}" style="--c:${c}">
     <button class="ej-cab" data-a="abrir" aria-expanded="${abiertas.has(s.slot)}">
@@ -102,15 +105,16 @@ function tarjeta(f, s) {
     <div class="ej-tags">${chip(e.g)}${s.cambio ? `<span class="tag marca">${ico('cambiar')} ${s.cambio === 'hoy' ? 'Solo hoy' : 'Siempre'}</span><button class="tag volver" data-a="revertir">${ico('deshacer')} Original</button>` : ''}</div>
     <div class="series" role="group" aria-label="Series">${s.hechas.map((h, k) => `<button class="serie ${h ? 'hecha' : ''}" data-a="serie" data-i="${k}" aria-pressed="${h}" aria-label="Serie ${k + 1}"><span class="serie-n">${k + 1}</span>${ico('check', 'serie-ok')}</button>`).join('')}</div>
     <div class="peso">
-      <button class="peso-btn" data-a="peso" data-d="-5" aria-label="Bajar 5 lbs">${ico('menos')}</button>
-      <label class="peso-in"><input type="number" inputmode="decimal" step="any" min="0" data-peso="${e.id}" value="${peso ?? ''}" placeholder="${ult ?? ini ?? '0'}" aria-label="Peso en libras"><span>lbs</span></label>
-      <button class="peso-btn" data-a="peso" data-d="5" aria-label="Subir 5 lbs">${ico('mas')}</button>
+      <button class="peso-btn" data-a="peso" data-d="-${paso}" aria-label="Bajar ${num(paso)} ${u}">${ico('menos')}</button>
+      <label class="peso-in"><input type="number" inputmode="decimal" step="any" min="0" data-peso="${e.id}" value="${peso ?? ''}" placeholder="${ult ?? ini ?? '0'}" aria-label="Peso en ${u === 'kg' ? 'kilos' : 'libras'}"><span>${u}</span></label>
+      <button class="peso-btn" data-a="peso" data-d="${paso}" aria-label="Subir ${num(paso)} ${u}">${ico('mas')}</button>
     </div>
-    ${sube && (peso == null || peso < sube) ? `<p class="subir">${ico('subir')}<span><b>Toca subir:</b> completaste todo con ${num(ult)} lbs dos sesiones seguidas. Hoy prueba <b>${num(sube)} lbs</b>. <button class="link" data-a="repetir" data-w="${sube}">Usar</button></span></p>` : ''}
+    ${sube && (peso == null || peso < sube) ? `<p class="subir">${ico('subir')}<span><b>Toca subir:</b> completaste todo con ${num(ult)} ${u} dos sesiones seguidas. Hoy prueba <b>${num(sube)} ${u}</b>. <button class="link" data-a="repetir" data-w="${sube}">Usar</button></span></p>` : ''}
     <p class="ultima">${ult != null
-      ? `Última vez: <b>${num(ult)} lbs</b>${peso == null ? ` <button class="link" data-a="repetir" data-w="${ult}">Repetir</button>` : ''}`
-      : ini ? `Empieza con <b>${ini} lbs</b> ${TIPO_PESO[tipo]}${peso == null ? ` <button class="link" data-a="repetir" data-w="${ini}">Usar</button>` : ''}<br><span class="peq">Si te sobran más de 3 reps, súbele 5 lbs.</span>`
+      ? `Última vez: <b>${num(ult)} ${u}</b>${peso == null ? ` <button class="link" data-a="repetir" data-w="${ult}">Repetir</button>` : ''}`
+      : ini ? `Empieza con <b>${u === 'kg' ? '≈ ' : ''}${num(ini)} ${u}</b> ${TIPO_PESO[tipo]}${peso == null ? ` <button class="link" data-a="repetir" data-w="${ini}">Usar</button>` : ''}<br><span class="peq">Si te sobran más de 3 reps, súbele ${num(paso)} ${u}.</span>`
       : tipo ? `Empieza con ${TIPO_PESO[tipo]}.` : 'Primera vez: anota con cuánto arrancas'}</p>
+    <div class="unid" role="group" aria-label="Discos de este ejercicio en"><span>Discos en</span>${['lbs', 'kg'].map(x => `<button data-a="unidad" data-u="${x}" aria-pressed="${x === u}">${x}</button>`).join('')}</div>
     <div class="mas"><div class="mas-in">
       ${tieneVideo(e.id) ? `<button class="btn-sec ver-video" data-a="video">${ico('play')} Ver cómo se hace</button>` : ''}
       <div class="mapa">${cuerpo(e.z || [], e.s || [])}</div>
@@ -204,6 +208,16 @@ function alTocar(e) {
     }
     case 'cambiar': hojaCambio(f, card.dataset.slot); break;
     case 'video': hojaVideo(slotDe(f, card.dataset.slot).s.ej); break;
+    case 'unidad': {
+      const id = slotDe(f, card.dataset.slot).s.ej.id;
+      if (unidadDe(id) === b.dataset.u) break;
+      S().unidades ||= {};
+      if (b.dataset.u === 'kg') S().unidades[id] = 'kg'; else delete S().unidades[id];
+      guardar(); vibrar(8);
+      const y = scrollY; refrescar(); scrollTo(0, y);
+      aviso(b.dataset.u === 'kg' ? 'Este ejercicio va en kilos' : 'Este ejercicio va en libras', 'check');
+      break;
+    }
     case 'video-cal': { const x = [...CALENTAMIENTO.superior, ...CALENTAMIENTO.piernas].find(c => c.id === b.dataset.id); hojaVideo({ ...x, id: x.id }); break; }
     case 'revertir': revertir(f, card.dataset.slot); break;
     case 'elegir-dia': hojaDia(f); break;
@@ -259,9 +273,9 @@ function marcarSerie(f, card, i, btn) {
 
 function pasoPeso(f, card, delta) {
   const inp = card.querySelector('input[data-peso]');
-  const actual = inp.value !== '' ? parseFloat(inp.value) : (ultimoPeso(inp.dataset.peso, f) ?? 0);
+  const actual = inp.value !== '' ? parseFloat(inp.value) : (aVista(inp.dataset.peso, ultimoPeso(inp.dataset.peso, f)) ?? 0);
   inp.value = Math.max(0, actual + delta);
-  card.querySelector('[data-a="repetir"]')?.remove();
+  card.querySelectorAll('[data-a="repetir"], .subir').forEach(x => x.remove());
   guardarPeso(f, inp, true);
   vibrar(8);
 }
@@ -269,15 +283,15 @@ function pasoPeso(f, card, delta) {
 function guardarPeso(f, inp, revisarRecord) {
   const d = dia(f), id = inp.dataset.peso, v = parseFloat(String(inp.value).replace(',', '.'));
   d.pesos ||= {};
-  if (Number.isFinite(v) && v >= 0) d.pesos[id] = v; else delete d.pesos[id];
+  if (Number.isFinite(v) && v >= 0) d.pesos[id] = aLbs(id, v); else delete d.pesos[id];
   guardar();
   if (!revisarRecord || !Number.isFinite(v)) return;
   const mejor = mejorPeso(id, f);
-  if (mejor != null && v > mejor) {
+  if (mejor != null && aLbs(id, v) > mejor + 0.01) {
     const card = inp.closest('.ej');
     card.classList.remove('record'); void card.offsetWidth; card.classList.add('record');
     clearTimeout(guardarPeso.t);
-    guardarPeso.t = setTimeout(() => { aviso(`¡Nuevo récord! ${num(v)} lbs en ${ejercicio(id).n}`, 'trofeo'); sonar.logro(); }, 500);
+    guardarPeso.t = setTimeout(() => { aviso(`¡Nuevo récord! ${num(v)} ${unidadDe(id)} en ${ejercicio(id).n}`, 'trofeo'); sonar.logro(); }, 500);
   }
 }
 const alEscribir = e => { if (e.target.matches('input[data-peso]')) guardarPeso(hoy(), e.target, false); };

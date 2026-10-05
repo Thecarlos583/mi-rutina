@@ -2,7 +2,7 @@
 import { GRUPOS } from './data.js';
 import { S, guardar } from './store.js';
 import { hoy, aFecha, iso, sumar, lunesDe, diaDe, fechaCorta, MESES } from './calendario.js';
-import { racha, resumenDia, historialPesos, ejercicio } from './rutina.js';
+import { racha, resumenDia, historialPesos, historialVista, unidadDe, ejercicio } from './rutina.js';
 import { $, ico, num, vibrar, aviso } from './util.js';
 
 let mes = 0;          // 0 = mes actual, -1 = anterior…
@@ -85,19 +85,19 @@ function cintura(f) {
 function pesos() {
   const ids = new Set();
   for (const d of Object.values(S().log)) for (const id of Object.keys(d.pesos || {})) ids.add(id);
-  const lista = [...ids].map(id => ({ id, e: ejercicio(id), h: historialPesos(id) }))
+  const lista = [...ids].map(id => ({ id, e: ejercicio(id), h: historialVista(id), u: unidadDe(id) }))
     .filter(x => x.e && x.h.length)
     .sort((a, b) => b.h.at(-1).f.localeCompare(a.h.at(-1).f));
-  const cuerpo = lista.length ? lista.map(({ id, e, h }) => {
+  const cuerpo = lista.length ? lista.map(({ id, e, h, u }) => {
     const c = GRUPOS[e.g]?.c ?? '#FF6B4A', ult = h.at(-1).w, dif = Math.round((ult - h[0].w) * 10) / 10;
     return `<div class="pe ${abierto === id ? 'abierto' : ''}" style="--c:${c}">
       <button class="pe-cab" data-a="pe" data-id="${id}" aria-expanded="${abierto === id}">
         <i class="punto"></i>
-        <span class="pe-n">${e.n}<small>${h.length} ${h.length === 1 ? 'registro' : 'registros'}${dif ? ` · ${dif > 0 ? '+' : ''}${num(dif)} lbs` : ''}</small></span>
+        <span class="pe-n">${e.n}<small>${h.length} ${h.length === 1 ? 'registro' : 'registros'}${dif ? ` · ${dif > 0 ? '+' : ''}${num(dif)} ${u}` : ''}</small></span>
         ${chispa(h, c)}
-        <b class="pe-v">${num(ult)}<small>lbs</small></b>
+        <b class="pe-v">${num(ult)}<small>${u}</small></b>
       </button>
-      ${abierto === id ? grafica(h, { color: c, unidad: 'lbs', id: 'pe-' + id }) : ''}
+      ${abierto === id ? grafica(h, { color: c, unidad: u, id: 'pe-' + id }) : ''}
     </div>`;
   }).join('') : `<p class="vacio">${ico('progreso')}Cuando anotes pesos en tus ejercicios, aquí vas a ver cómo subes.</p>`;
   return `<section class="card"><div class="card-cab"><h3>Pesos</h3><span class="cont">toca uno para ver la curva</span></div><div class="pe-lista">${cuerpo}</div></section>`;
@@ -165,8 +165,8 @@ function alTocar(e) {
     const fig = hit.closest('.grafica'), g = fig.dataset.g, i = Number(hit.dataset.i);
     const datos = g === 'cintura'
       ? Object.entries(S().cintura).sort(([a], [b]) => a.localeCompare(b)).map(([f, w]) => ({ f, w }))
-      : historialPesos(g.slice(3));
-    tocarGrafica(fig, i, datos, g === 'cintura' ? 'cm' : 'lbs');
+      : historialVista(g.slice(3));
+    tocarGrafica(fig, i, datos, g === 'cintura' ? 'cm' : unidadDe(g.slice(3)));
     return;
   }
   const b = e.target.closest('[data-a]');

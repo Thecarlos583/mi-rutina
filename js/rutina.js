@@ -78,6 +78,18 @@ export function racha(f) {
 }
 
 // ── Pesos ───────────────────────────────────────────────────
+// Los pesos se guardan siempre en lbs. Cada ejercicio puede mostrarse en kg si sus discos o su máquina están en kilos.
+export const LB = 2.20462;
+export const unidadDe = id => (S().unidades?.[id] === 'kg' ? 'kg' : 'lbs');
+export const enKg = id => unidadDe(id) === 'kg';
+// lbs guardadas → número en la unidad del ejercicio (kg a medio kilo)
+export const aVista = (id, lbs) => (lbs == null ? null : enKg(id) ? Math.round((lbs / LB) * 2) / 2 : Math.round(lbs * 10) / 10);
+// número en la unidad del ejercicio → lbs para guardar
+export const aLbs = (id, v) => (enKg(id) ? v * LB : v);
+// Una sugerencia en lbs llevada a discos reales: de 5 en 5 lbs o de 2,5 en 2,5 kg
+export const sugeridoVista = (id, lbs) => (enKg(id) ? Math.max(2.5, Math.round(lbs / LB / 2.5) * 2.5) : lbs);
+export const pasoDe = id => (enKg(id) ? 2.5 : 5);
+export const historialVista = id => historialPesos(id).map(x => ({ f: x.f, w: aVista(id, x.w) }));
 export function historialPesos(ejId) {
   const log = S().log;
   return Object.keys(log).sort()
@@ -101,7 +113,8 @@ export function tocaSubir(ejId, antesDe) {
   const h = historialPesos(ejId).filter(x => x.f < antesDe).slice(-2);
   if (h.length < 2 || !h[1].w || h[0].w !== h[1].w) return null;
   if (!h.every(x => completoEn(ejId, x.f))) return null;
-  return h[1].w + incremento(ejId);
+  // En la unidad del ejercicio: +10 / +5 lbs, o +5 / +2,5 kg
+  return aVista(ejId, h[1].w) + (enKg(ejId) ? incremento(ejId) / 2 : incremento(ejId));
 }
 export function mejorPeso(ejId, antesDe) {
   const h = historialPesos(ejId).filter(x => x.f < antesDe);
