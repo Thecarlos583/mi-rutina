@@ -653,3 +653,35 @@ export const AGARRES = {
   'dead-bug': ag('ninguno', 'n/a', 'ninguno', 'Sin agarre; brazos estirados hacia el techo'),
 };
 for (const [id, a] of Object.entries(AGARRES)) if (EJERCICIOS[id]) EJERCICIOS[id].agarre = a;
+
+// Contexto para los dibujos: 'posición/implemento' (ver POSES en agarres.js); en piernas 'P:carga' (cómo se lleva el peso)
+const CONTEXTO = {
+  'remo-barra': 'colgando/barra', 'remo-mancuernas-pecho': 'colgando/mancuernas', 'remo-maquina': 'jalarFrente/manijas', 'remo-polea-abierto': 'jalarFrente/barraRemo',
+  'jalon-ancho': 'arriba/barraJalon', 'dominadas-asistidas': 'arriba/barraFija', 'jalon-hammer': 'arriba/manijas', 'jalon-un-brazo': 'arriba/manija',
+  'remo-polea-cerrado': 'jalarFrente/triangulo', 'remo-una-mano': 'colgando/mancuernaUna', 'remo-polea-un-brazo': 'jalarFrente/manija', 'jalon-v': 'arriba/triangulo',
+  'jalon-supino': 'arriba/barraCorta', 'dominadas-supinas': 'arriba/barraFija', 'jalon-brazos-rectos': 'arriba/barraCorta', 'pullover-mancuerna': 'arriba/mancuerna1',
+  'pullover-cuerda': 'arriba/cuerda', 'remo-supino': 'colgando/barra', 'remo-polea-supino': 'jalarFrente/barraCorta', 'remo-mancuernas-supino': 'colgando/mancuernas',
+  'remo-gironda': 'jalarFrente/triangulo',
+  'curl-z': 'colgando/barraZ', 'curl-barra-recta': 'colgando/barraCorta', 'curl-mancuernas': 'colgando/mancuernas', 'curl-polea-baja': 'colgando/barraCorta',
+  'curl-martillo': 'colgando/mancuernas', 'martillo-cuerda': 'colgando/cuerda', 'curl-inverso-z': 'colgando/barraZ', 'curl-predicador': 'jalarFrente/barraZ',
+  'predicador-maquina': 'jalarFrente/manijas', 'curl-arana': 'colgando/mancuernas', 'curl-polea-detras': 'colgando/manija', 'curl-concentrado': 'colgando/mancuernaUna',
+  'curl-polea-una-mano': 'colgando/manija', 'curl-21': 'colgando/barraZ', 'drag-curl': 'colgando/barraZ', 'curl-polea-barra': 'colgando/barraCorta', 'martillo-sentado': 'colgando/mancuernas',
+  'sentadilla': 'P:espalda', 'sentadilla-goblet': 'P:goblet', 'sentadilla-smith-adelantados': 'P:espalda', 'zancadas-caminando': 'P:lados', 'step-up': 'P:lados',
+  'zancada-reversa': 'P:lados', 'goblet-talones': 'P:goblet', 'desplantes': 'P:lados', 'rumano-mancuernas': 'P:frenteMuslos', 'rumano-barra': 'P:colgandoBarra',
+  'buenos-dias': 'P:espalda', 'bulgara': 'P:lados', 'hip-thrust': 'P:cadera', 'hip-thrust-smith': 'P:cadera', 'puente-mancuerna': 'P:caderaManc',
+  'pantorrilla-smith': 'P:espalda', 'pantorrilla-una-pierna': 'P:unaMano', 'pantorrilla-sentado-mancuerna': 'P:rodilla',
+  'militar-mancuernas': 'empujeArriba/mancuernas', 'militar-hammer': 'empujeArriba/manijas', 'press-arnold': 'empujeArriba/mancuernas', 'militar-barra': 'empujeArriba/barra',
+  'laterales': 'colgando/mancuernas', 'laterales-polea': 'colgando/manija', 'posterior-maquina': 'jalarFrente/manijas', 'pajaro': 'colgando/mancuernas',
+  'posterior-polea': 'jalarFrente/manijas', 'face-pull': 'jalarCara/cuerda',
+  'inclinado-mancuernas': 'empujeFrente/mancuernas', 'inclinado-barra': 'empujeFrente/barra', 'inclinado-maquina': 'empujeFrente/manijas', 'cruces-abajo': 'jalarFrente/manijas',
+  'press-plano-barra': 'empujeFrente/barra', 'press-plano-mancuernas': 'empujeFrente/mancuernas', 'press-pecho-maquina': 'empujeFrente/manijas', 'flexiones': 'piso/piso',
+  'frances-z': 'empujeArriba/barraZ', 'frances-mancuernas': 'empujeArriba/mancuernas', 'triceps-sobre-cabeza': 'empujeArriba/cuerda', 'triceps-polea': 'triceps/barraCorta',
+  'triceps-cuerda': 'triceps/cuerda', 'fondos-maquina': 'triceps/manijas', 'triceps-predicador': 'empujeFrente/mancuernaUna', 'triceps-un-brazo-polea': 'triceps/manija',
+  'frances-una-mancuerna': 'empujeArriba/mancuerna1', 'patada-triceps-polea': 'colgando/manija', 'patada-mancuerna': 'colgando/mancuernaUna',
+  'crunch-maquina': 'espalda/manijas', 'crunch-polea': 'espalda/cuerda', 'elevacion-colgado': 'arriba/barraFija', 'rodillas-paralelas': 'triceps/manijas', 'russian-twist': 'sostener/mancuerna1',
+};
+for (const [id, c] of Object.entries(CONTEXTO)) {
+  const a = AGARRES[id];
+  if (!a) continue;
+  if (c.startsWith('P:')) a.carga = c.slice(2); else [a.pos, a.imp] = c.split('/');
+}
