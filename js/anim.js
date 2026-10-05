@@ -246,6 +246,7 @@ function equipoMovil(def, f, p, vista, detras = false) {
     if (q.tipo === 'rodillo') { const r = { rodilla: f.p1.rod, tobillo: f.p1.tob, hombro: f.hom, cadera: f.cad, codo: f.b1.cod }[q.en] || f.cad; s += `<circle class="rodillo" cx="${f1(r[0] + (q.dx ?? 0))}" cy="${f1(r[1] + (q.dy ?? -8))}" r="${q.r ?? 6.5}"/>`; }
     if (q.tipo === 'almohadillas' && fm) s += f.fr.map(r => `<rect class="rodillo" x="${f1(r[0] + (r[0] < 120 ? -11 : 4))}" y="${f1(r[1] - 7)}" width="7" height="16" rx="3.5"/>`).join('');
     if (q.tipo === 'banda' && fm) s += `<line class="banda" x1="${f1(f.fr[0][0])}" y1="${f1(f.fr[0][1] - 4)}" x2="${f1(f.fr[1][0])}" y2="${f1(f.fr[1][1] - 4)}"/>`;
+    if (q.tipo === 'bandaManos') { const [m1, m2] = fm ? f.fm : [f.b1.mano, f.b2.mano]; s += `<line class="banda" x1="${f1(m1[0])}" y1="${f1(m1[1])}" x2="${f1(m2[0])}" y2="${f1(m2[1])}"/>`; }
     if (q.tipo === 'pesoCadera') s += `<line class="barra" x1="${f1(f.cad[0] - 2)}" y1="${f1(f.cad[1] - 9)}" x2="${f1(f.cad[0] + 2)}" y2="${f1(f.cad[1] - 9)}"/>${disco([f.cad[0], f.cad[1] - 9], 10)}`;
     if (q.tipo === 'balonPies') { const r = Math.max(8, Math.min(14, (SUELO - f.p1.tob[1]) / 2)); s += `<circle class="fitball" cx="${f1(f.p1.tob[0] + 4)}" cy="${f1(SUELO - r)}" r="${f1(r)}"/>`; }
     if (q.tipo === 'carroSmith') s += `<line class="barra" x1="${f1(q.x - 6)}" y1="${f1(f.b1.mano[1])}" x2="${f1(q.x + 6)}" y2="${f1(f.b1.mano[1])}"/>`;

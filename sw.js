@@ -1,6 +1,6 @@
 // Service worker: guarda la app completa para que funcione sin internet en el gym.
 // Al cambiar cualquier archivo, sube VERSION para que el teléfono descargue lo nuevo.
-const VERSION = 'mi-rutina-v2';
+const VERSION = 'mi-rutina-v3';
 const ARCHIVOS = [
   './', './index.html', './manifest.json', './css/styles.css',
   './js/app.js', './js/data.js', './js/store.js', './js/calendario.js', './js/util.js',

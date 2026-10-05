@@ -582,3 +582,24 @@ body.sin-tabs .tabs { display: none; }
 .ver-video { display: flex; align-items: center; justify-content: center; gap: 8px; }
 .alt-video { margin-top: 10px; }
 @media (prefers-reduced-motion: reduce) { .video-pasos li { transition: none; } }
+
+.ini-g { display: block; font-size: 12px; color: var(--txt2); }
+.ultima .peq { font-size: 12px; color: var(--txt2); }
+
+/* ── Calentamiento y aviso de subir ─────────────────────────── */
+.calent { padding: 0; overflow: hidden; }
+.calent summary { list-style: none; display: flex; align-items: center; gap: 12px; padding: 16px 18px; cursor: pointer; min-height: 56px; }
+.calent summary::-webkit-details-marker { display: none; }
+.calent summary > span { flex: 1; display: grid; gap: 2px; }
+.calent summary b { font-size: 17px; font-weight: 800; }
+.calent summary small, .cal-lista small { color: var(--txt2); font-size: 13px; }
+.calent summary .ico { transition: transform .25s; color: var(--txt2); }
+.calent[open] summary .ico { transform: rotate(180deg); }
+.cal-lista { margin: 0; padding: 0 18px 16px; list-style: none; counter-reset: cl; display: grid; gap: 8px; }
+.cal-lista li { counter-increment: cl; display: flex; align-items: center; gap: 12px; padding: 10px 12px; border-radius: 14px; background: var(--bg); }
+.cal-lista li::before { content: counter(cl); flex: none; width: 24px; height: 24px; border-radius: 8px; display: grid; place-items: center; font-size: 12px; font-weight: 850; background: var(--card2); color: var(--acento2); }
+.cal-lista li > span { flex: 1; min-width: 0; display: grid; gap: 2px; font-size: 15px; }
+.ver-mini { flex: none; width: 44px; height: 44px; border-radius: 12px; display: grid; place-items: center; background: var(--card2); color: var(--acento2); }
+.subir { display: flex; gap: 10px; align-items: flex-start; margin: 10px 2px 0; padding: 10px 12px; border-radius: 14px; background: rgba(46, 212, 122, .1); color: #BFF3D6; font-size: 14px; }
+.subir .ico { flex: none; color: var(--bien); }
+.subir b { color: var(--txt); }

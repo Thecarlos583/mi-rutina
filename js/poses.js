@@ -529,4 +529,47 @@ export const ANIM = {
       { n: 'Estira un brazo y la pierna contraria', giro: -90, cadera: 90, rodilla: 90, cadera2: 15, rodilla2: 0, hombro: 170, hombro2: 90, codo: 0, pausa: 400, ms: 1000, punto: { zona: 'espalda', txt: 'Espalda baja pegada al piso' } },
       { n: 'Vuelve y cambia de lado', giro: -90, cadera: 15, rodilla: 0, cadera2: 90, rodilla2: 90, hombro: 90, hombro2: 170, codo: 0, pausa: 400, ms: 1000 },
     ] },
+
+  // ── Prensa (alternativa de la sentadilla) ──────────────────
+  'prensa': { vistas: ['lado'], ancla: 'cadera', x0: 82, y0: 140, sigue: 'pies',
+    equipo: [{ tipo: 'pad', x1: 44, y1: 150, x2: 96, y2: 150, w: 7 }, { tipo: 'pata', x1: 66, y1: 154 }, { tipo: 'respaldo' }, { tipo: 'carro', riel: 135 }],
+    poses: [
+      { n: 'Espalda y cadera pegadas, piernas casi estiradas', torso: -50, cadera: 85, rodilla: 6, punta: -135, hombro: 75, codo: 10, pausa: 400, ms: 1600 },
+      { n: 'Baja hasta 90° sin despegar la cadera', torso: -50, cadera: 130, rodilla: 92, punta: -135, hombro: 75, codo: 10, pausa: 300, ms: 1000, punto: { zona: 'rodilla', txt: 'Empuja con todo el pie, sin bloquear' } },
+    ] },
+
+  // ── Calentamiento ──────────────────────────────────────────
+  'cal-brazos': { vistas: ['lado'], x0: 124, vuelta: ['hombro', 'hombro2'], sigue: 'manos',
+    poses: [
+      { n: 'De pie, brazos estirados abajo', hombro: 0, codo: 5, ms: 420 },
+      { n: 'Súbelos por delante', hombro: 90, codo: 5, ms: 420 },
+      { n: 'Pásalos por arriba', hombro: 180, codo: 5, ms: 420 },
+      { n: 'Bájalos por detrás; luego al revés', hombro: 270, codo: 5, ms: 420 },
+    ] },
+  'cal-pullapart': { vistas: ['frente'], x0: 120, brazosF: true, sigue: 'manos', equipo: [{ tipo: 'bandaManos' }],
+    poses: [
+      { n: 'Banda al frente del pecho, brazos estirados', hF: 40, cF: -110, hF2: 40, cF2: -110, pausa: 300, ms: 700 },
+      { n: 'Abre los brazos hasta que la banda toque el pecho', hF: 88, cF: 0, hF2: 88, cF2: 0, pausa: 400, ms: 900, punto: { zona: 'hombro', txt: 'Hombros abajo, sin encogerlos' } },
+    ] },
+  'cal-torso': { vistas: ['frente'], x0: 120, brazosF: true, ancho: 15, sigue: 'manos',
+    poses: [
+      { n: 'De pie, manos frente al pecho', rodilla: 8, hF: 20, hF2: -20, cF: 40, cF2: -40, tr: 0, pausa: 200, ms: 600 },
+      { n: 'Gira el torso a un lado', rodilla: 8, hF: 50, hF2: -30, cF: -20, cF2: 60, tr: -45, pausa: 200, ms: 700 },
+      { n: 'Y al otro lado, suave', rodilla: 8, hF: -30, hF2: 50, cF: 60, cF2: -20, tr: 45, pausa: 200, ms: 700, punto: { zona: 'cadera', txt: 'La cadera mira al frente' } },
+    ] },
+  'cal-balanceo': { vistas: ['lado'], x0: 128, apoyo: 2, sigue: 'pies', equipo: [{ tipo: 'pata', x1: 162, y1: 80 }],
+    poses: [
+      { n: 'Agarrado de algo, pierna atrás', torso: 4, cadera: -28, rodilla: 10, punta: 10, cadera2: 0, rodilla2: 0, hombro: -40, codo: 20, hombro2: 70, codo2: 20, ms: 600 },
+      { n: 'Balancéala adelante, cada vez un poco más alto', torso: 0, cadera: 65, rodilla: 5, cadera2: 0, rodilla2: 0, hombro: 40, codo: 20, hombro2: 70, codo2: 20, ms: 600, punto: { zona: 'espalda', txt: 'Suelto, sin forzar' } },
+    ] },
+  'cal-sentadilla': { vistas: ['lado', 'frente'], x0: 128, ancho: 14, sigue: 'cadera',
+    poses: [
+      { n: 'De pie, brazos al frente', torso: 2, hombro: 80, codo: 0, pausa: 200, ms: 1500 },
+      { n: 'Baja lento y sube', torso: 28, cadera: 104, rodilla: 110, hombro: 88, codo: 0, pausa: 200, ms: 1200, punto: { zona: 'pies', txt: 'Talones pegados al piso' } },
+    ] },
+  'cal-tobillo': { vistas: ['lado'], x0: 150, sigue: 'rodilla', equipo: [{ tipo: 'muro', x: 172 }],
+    poses: [
+      { n: 'Pie cerca de la pared', torso: 6, cadera: 28, rodilla: 30, cadera2: -24, rodilla2: 18, punta2: 35, hombro: 70, codo: 30, pausa: 300, ms: 900 },
+      { n: 'Lleva la rodilla hacia la pared', torso: 8, cadera: 48, rodilla: 78, cadera2: -24, rodilla2: 22, punta2: 40, hombro: 75, codo: 40, pausa: 400, ms: 900, punto: { zona: 'pies', txt: 'El talón no se despega' } },
+    ] },
 };

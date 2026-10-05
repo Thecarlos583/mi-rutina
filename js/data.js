@@ -132,7 +132,8 @@ export const EJERCICIOS = {
   'sentadilla': { n: 'Sentadilla libre o Smith', g: 'cuadriceps', z: ['cuadriceps', 'gluteo'], s: ['femoral', 'lumbar', 'abdomen'], d: 120,
     t: 'La reina de las piernas: cuádriceps y glúteo, con el core sosteniendo todo.',
     p: ['Pies al ancho de los hombros.', 'Pecho arriba.', 'Baja hasta paralelo.', 'Rodillas en línea con los pies, sin irse hacia adentro.'],
-    a: [['sentadilla-goblet', 4, '10-12'], ['sentadilla-hack', 4, '10'], ['sentadilla-smith-adelantados', 4, '10']] },
+    a: [['sentadilla-goblet', 4, '10-12'], ['sentadilla-hack', 4, '10'], ['sentadilla-smith-adelantados', 4, '10'], ['prensa', 4, '10-12']] },
+  'prensa': { n: 'Prensa de piernas', p: ['Espalda y cadera pegadas al respaldo, baja hasta 90° y empuja con todo el pie sin bloquear las rodillas.'] },
   'sentadilla-goblet': { n: 'Sentadilla goblet', p: ['Mancuerna pegada al pecho, baja con el torso recto entre las rodillas.'] },
   'sentadilla-hack': { n: 'Sentadilla hack en máquina', p: ['Espalda pegada al respaldo, baja a 90° y sube empujando con todo el pie.'] },
   'sentadilla-smith-adelantados': { n: 'Sentadilla en Smith pies adelantados', p: ['Pies un paso delante de la barra; carga más el cuádriceps.'] },
@@ -329,6 +330,76 @@ export const EJERCICIOS = {
   'dead-bug': { n: 'Dead bug', p: ['Boca arriba, estira brazo y pierna contrarios sin despegar la espalda baja.'] },
 };
 
+// ── Pesos para empezar ───────────────────────────────────────
+// Pensados para Carlos: 19 años, 60 kg, mesomorfo y un año sin entrenar (con algo más de fuerza en pierna). Son conservadores a propósito:
+// la semana 1 te deben sobrar 2-3 repeticiones. Si te sobran más, súbele 5 lbs en la serie siguiente.
+// [lbs, tipo]: c/u = en cada mano · barra = barra incluida · maq = en la máquina o polea ·
+// asist = asistencia de la máquina (más asistencia = más fácil) · discos = sin contar el carro · corp = peso corporal · banda
+export const TIPO_PESO = {
+  'c/u': 'en cada mano', barra: 'con la barra incluida', maq: 'en la máquina', asist: 'de asistencia',
+  discos: 'en discos, sin contar el carro', corp: 'tu peso corporal', banda: 'banda ligera', una: 'con una mancuerna',
+};
+export const INICIO = {
+  // Espalda
+  'remo-barra': [65, 'barra'], 'remo-mancuernas-pecho': [20, 'c/u'], 'remo-maquina': [50, 'maq'], 'remo-polea-abierto': [50, 'maq'],
+  'jalon-ancho': [60, 'maq'], 'dominadas-asistidas': [60, 'asist'], 'jalon-hammer': [50, 'maq'], 'jalon-un-brazo': [25, 'maq'],
+  'remo-polea-cerrado': [60, 'maq'], 'remo-una-mano': [25, 'una'], 'remo-polea-un-brazo': [25, 'maq'],
+  'jalon-v': [60, 'maq'], 'jalon-supino': [55, 'maq'], 'dominadas-supinas': [60, 'asist'],
+  'jalon-brazos-rectos': [30, 'maq'], 'pullover-mancuerna': [20, 'una'], 'pullover-cuerda': [30, 'maq'],
+  'remo-supino': [65, 'barra'], 'remo-polea-supino': [55, 'maq'], 'remo-mancuernas-supino': [20, 'c/u'], 'remo-gironda': [55, 'maq'],
+  // Bíceps
+  'curl-z': [35, 'barra'], 'curl-barra-recta': [35, 'barra'], 'curl-mancuernas': [15, 'c/u'], 'curl-polea-baja': [30, 'maq'],
+  'curl-martillo': [15, 'c/u'], 'martillo-cuerda': [30, 'maq'], 'curl-inverso-z': [25, 'barra'],
+  'curl-predicador': [25, 'barra'], 'predicador-maquina': [30, 'maq'], 'curl-arana': [10, 'c/u'], 'curl-polea-detras': [15, 'maq'],
+  'curl-concentrado': [15, 'una'], 'curl-polea-una-mano': [15, 'maq'], 'curl-21': [25, 'barra'], 'drag-curl': [30, 'barra'],
+  'curl-polea-barra': [30, 'maq'], 'martillo-sentado': [15, 'c/u'],
+  // Cuádriceps
+  'sentadilla': [75, 'barra'], 'prensa': [90, 'discos'], 'sentadilla-goblet': [30, 'una'], 'sentadilla-hack': [70, 'discos'], 'sentadilla-smith-adelantados': [65, 'barra'],
+  'zancadas-caminando': [20, 'c/u'], 'step-up': [15, 'c/u'], 'zancada-reversa': [15, 'c/u'], 'extensiones': [60, 'maq'],
+  'goblet-talones': [25, 'una'], 'sissy': [0, 'corp'], 'desplantes': [15, 'c/u'],
+  // Femoral y glúteo
+  'femoral-acostado': [45, 'maq'], 'femoral-sentado': [60, 'maq'], 'femoral-fitball': [0, 'corp'], 'femoral-pie': [25, 'maq'],
+  'rumano-mancuernas': [30, 'c/u'], 'rumano-barra': [85, 'barra'], 'hiperextensiones': [0, 'corp'], 'buenos-dias': [55, 'barra'],
+  'bulgara': [15, 'c/u'], 'curl-femoral-maquina': [60, 'maq'], 'nordico': [0, 'corp'],
+  'hip-thrust': [115, 'barra'], 'hip-thrust-smith': [95, 'barra'], 'puente-mancuerna': [45, 'una'], 'patada-gluteo-polea': [15, 'maq'],
+  'abductor': [80, 'maq'], 'abduccion-polea': [10, 'maq'], 'caminata-banda': [0, 'banda'], 'elevacion-pelvis': [0, 'corp'], 'puente-una-pierna': [0, 'corp'],
+  // Pantorrilla
+  'pantorrilla-pie': [90, 'maq'], 'pantorrilla-smith': [85, 'barra'], 'pantorrilla-una-pierna': [15, 'una'],
+  'pantorrilla-sentado': [60, 'discos'], 'pantorrilla-sentado-mancuerna': [45, 'una'],
+  // Hombros
+  'militar-mancuernas': [20, 'c/u'], 'militar-hammer': [40, 'maq'], 'press-arnold': [15, 'c/u'], 'militar-barra': [45, 'barra'],
+  'laterales': [10, 'c/u'], 'laterales-polea': [10, 'maq'], 'laterales-maquina': [30, 'maq'],
+  'posterior-maquina': [40, 'maq'], 'pajaro': [10, 'c/u'], 'posterior-polea': [10, 'maq'], 'face-pull': [30, 'maq'],
+  // Pecho
+  'inclinado-mancuernas': [25, 'c/u'], 'inclinado-barra': [65, 'barra'], 'inclinado-maquina': [50, 'maq'], 'cruces-abajo': [15, 'maq'],
+  'press-plano-barra': [75, 'barra'], 'press-plano-mancuernas': [30, 'c/u'], 'press-pecho-maquina': [60, 'maq'], 'flexiones': [0, 'corp'],
+  // Tríceps
+  'frances-z': [30, 'barra'], 'frances-mancuernas': [15, 'c/u'], 'triceps-sobre-cabeza': [30, 'maq'], 'triceps-polea': [40, 'maq'],
+  'triceps-cuerda': [35, 'maq'], 'fondos-maquina': [60, 'maq'], 'triceps-predicador': [15, 'una'], 'triceps-un-brazo-polea': [15, 'maq'],
+  'frances-una-mancuerna': [25, 'una'], 'patada-triceps-polea': [15, 'maq'], 'patada-mancuerna': [10, 'una'],
+  // Core
+  'crunch-maquina': [40, 'maq'], 'crunch-polea': [40, 'maq'], 'crunch-piso': [0, 'corp'], 'elevacion-piernas': [0, 'corp'],
+  'elevacion-colgado': [0, 'corp'], 'rodillas-paralelas': [0, 'corp'], 'crunch-lateral': [0, 'corp'], 'russian-twist': [10, 'una'],
+  'plancha-lateral': [0, 'corp'], 'plancha': [0, 'corp'], 'plancha-toque': [0, 'corp'], 'dead-bug': [0, 'corp'],
+};
+
+// ── Calentamiento antes de la rutina (~10 min) ───────────────
+// id = video en js/poses.js; z = músculos que se encienden en el video
+export const CALENTAMIENTO = {
+  general: { n: 'Cardio suave', d: '5 min en bici, elíptica o caminadora' },
+  superior: [
+    { id: 'cal-brazos', n: 'Círculos de brazos', d: '10 adelante y 10 atrás', z: ['deltoides'] },
+    { id: 'cal-pullapart', n: 'Pull-apart con banda', d: '2 × 15', z: ['deltoidesPost', 'trapecio'] },
+    { id: 'cal-torso', n: 'Rotaciones de torso', d: '10 por lado', z: ['oblicuos'] },
+  ],
+  piernas: [
+    { id: 'cal-balanceo', n: 'Balanceos de pierna', d: '10 por pierna', z: ['gluteo', 'femoral'] },
+    { id: 'cal-sentadilla', n: 'Sentadilla sin peso', d: '15 lentas', z: ['cuadriceps', 'gluteo'] },
+    { id: 'elevacion-pelvis', n: 'Puente de glúteo', d: '12', z: ['gluteo'] },
+    { id: 'cal-tobillo', n: 'Movilidad de tobillo en la pared', d: '10 por pie', z: ['pantorrilla'] },
+  ],
+};
+
 // ── Plan semanal ─────────────────────────────────────────────
 // Cada ejercicio del día: [id, series, reps, nota opcional]
 const VIERNES_A = [
@@ -416,8 +487,10 @@ export const SUGERENCIAS = [
 // ── Guía ─────────────────────────────────────────────────────
 export const REGLAS = [
   { t: 'Progresión', c: '#FF6B4A', items: [
-    'Semana 1: usa pesos con los que te sobren unas 3 repeticiones.',
-    'Semanas 2-4: si completas todas las series con las reps máximas, sube un poco el peso.'] },
+    'Semana 1: usa pesos con los que te sobren unas 3 repeticiones. El "Empieza con" de cada ejercicio ya está pensado para ti (60 kg, un año sin entrenar).',
+    'Cuándo subir: si completas todas las series con las reps máximas dos sesiones seguidas con el mismo peso, sube. La app te avisa en la tarjeta con "Toca subir".',
+    'Cuánto subir: 10 lbs en sentadilla, prensa, hack, hip thrust, peso muerto y pantorrilla; 5 lbs en todo lo demás.',
+    'Si al subir no completas las reps, quédate con ese peso hasta lograrlas. Nunca subas dos veces seguidas.'] },
   { t: 'Técnica', c: '#4C8DFF', items: [
     'Baja lento (2 s) y sube con fuerza.',
     'Técnica antes que peso. Siempre.',

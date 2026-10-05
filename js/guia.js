@@ -1,5 +1,5 @@
 // Pantalla "Guía": reglas, el plan completo y el mapa de colores
-import { GRUPOS, ZONAS, PLAN, REGLAS, TROTE } from './data.js';
+import { GRUPOS, ZONAS, PLAN, REGLAS, TROTE, INICIO } from './data.js';
 import { NOMBRE_DIA } from './calendario.js';
 import { ejercicio } from './rutina.js';
 import { cuerpo } from './cuerpo.js';
@@ -25,7 +25,7 @@ export function renderGuia(el) {
       <div class="plan">${['lun', 'mar', 'mie', 'jue', 'vie'].map(d => {
         const p = PLAN[variante][d];
         return `<details class="plan-dia"><summary><span class="dia-n">${NOMBRE_DIA[d]}</span><span class="dia-t">${p.t} · ${p.sub}</span>${ico('abajo')}</summary>
-          <ul>${p.e.map(([id, s, r, nota]) => { const e = ejercicio(id); return `<li style="--c:${GRUPOS[e.g].c}"><i class="punto"></i><span>${e.n}${nota ? ` <small>(${nota})</small>` : ''}</span><b>${s}×${r}</b></li>`; }).join('')}</ul></details>`;
+          <ul>${p.e.map(([id, s, r, nota]) => { const e = ejercicio(id); return `<li style="--c:${GRUPOS[e.g].c}"><i class="punto"></i><span>${e.n}${nota ? ` <small>(${nota})</small>` : ''}${INICIO[id]?.[0] ? `<small class="ini-g">Empieza con ${INICIO[id][0]} lbs</small>` : ''}</span><b>${s}×${r}</b></li>`; }).join('')}</ul></details>`;
       }).join('')}
         <details class="plan-dia"><summary><span class="dia-n">Sábado</span><span class="dia-t">Trote y afloje</span>${ico('abajo')}</summary>
           <ul>${[1, 2, 3, 4].map(k => `<li style="--c:#38BDF8"><i class="punto"></i><span>Semana ${k}</span><b class="trote-b">${TROTE[k].resumen}</b></li>`).join('')}</ul>

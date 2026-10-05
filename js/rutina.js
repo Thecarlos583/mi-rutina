@@ -88,6 +88,21 @@ export function ultimoPeso(ejId, antesDe) {
   const h = historialPesos(ejId).filter(x => x.f < antesDe);
   return h.length ? h[h.length - 1].w : null;
 }
+// ¿Hizo todas las series de ese ejercicio en esa fecha?
+function completoEn(ejId, f) {
+  const p = planDe(f);
+  return slots(f, p.variante, p.diaPlan).some(s => s.ej.id === ejId && s.hechas.every(Boolean));
+}
+// Ejercicios grandes de pierna: suben de 10 en 10 lbs; el resto de 5 en 5
+const GRANDES = new Set(['sentadilla', 'prensa', 'sentadilla-hack', 'sentadilla-smith-adelantados', 'hip-thrust', 'hip-thrust-smith', 'rumano-barra', 'buenos-dias', 'pantorrilla-pie', 'pantorrilla-smith']);
+export const incremento = ejId => (GRANDES.has(ejId) ? 10 : 5);
+// Toca subir: las dos últimas sesiones con el mismo peso y todas las series hechas
+export function tocaSubir(ejId, antesDe) {
+  const h = historialPesos(ejId).filter(x => x.f < antesDe).slice(-2);
+  if (h.length < 2 || !h[1].w || h[0].w !== h[1].w) return null;
+  if (!h.every(x => completoEn(ejId, x.f))) return null;
+  return h[1].w + incremento(ejId);
+}
 export function mejorPeso(ejId, antesDe) {
   const h = historialPesos(ejId).filter(x => x.f < antesDe);
   return h.length ? Math.max(...h.map(x => x.w)) : null;

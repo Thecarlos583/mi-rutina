@@ -1,8 +1,8 @@
 // Pantalla "Hoy": lo que toca entrenar, series, pesos, cambios de ejercicio, videos y sugerencias
-import { GRUPOS, ZONAS, PLAN, SUGERENCIAS, REGLAS, FRASES_DESCANSO, FRASES_FIN } from './data.js';
+import { GRUPOS, ZONAS, PLAN, SUGERENCIAS, REGLAS, FRASES_DESCANSO, FRASES_FIN, INICIO, TIPO_PESO, CALENTAMIENTO } from './data.js';
 import { S, dia, leerDia, guardar } from './store.js';
 import { hoy, info, fechaLarga, sumar, NOMBRE_DIA, proximoLunes } from './calendario.js';
-import { planDe, slots, totalSeries, seriesHechas, ultimoPeso, mejorPeso, ejercicio } from './rutina.js';
+import { planDe, slots, totalSeries, seriesHechas, ultimoPeso, mejorPeso, ejercicio, tocaSubir } from './rutina.js';
 import { cuerpo } from './cuerpo.js';
 import { $, ico, anillo, moverAnillo, vibrar, sonar, aviso, abrirHoja, cerrarHoja, confeti, semilla, num, pantallaEncendida } from './util.js';
 import { iniciarDescanso } from './timer.js';
@@ -67,12 +67,29 @@ function entrenoHTML(f, p) {
       </div>
       <div id="hero-anillo">${anillo(h / tot, { tam: 94, grosor: 9, id: 'ah', centro: `<b class="an-num">${h}</b><span>de ${tot}</span>` })}</div>
     </section>
+    ${calentamientoHTML(f, d, ss, h)}
     <div class="lista-ej">${ss.map(s => tarjeta(f, s)).join('')}</div>`;
+}
+
+// ── Calentamiento antes de la rutina ────────────────────────
+const r5 = x => Math.max(5, Math.round(x / 5) * 5);
+function calentamientoHTML(f, d, ss, hechas) {
+  const piernas = /pierna/i.test(d.t), lista = piernas ? CALENTAMIENTO.piernas : CALENTAMIENTO.superior;
+  const pri = ss[0], w = pri && (leerDia(f).pesos?.[pri.ej.id] ?? ultimoPeso(pri.ej.id, f) ?? INICIO[pri.ej.id]?.[0]);
+  const aprox = w ? `10 reps con <b>${r5(w / 2)} lbs</b> y 5 reps con <b>${r5(w * 0.75)} lbs</b>` : '10 reps con la mitad del peso y 5 reps con tres cuartos';
+  const fila = x => `<li><span><b>${x.n}</b><small>${x.d}</small></span>${x.id ? `<button class="ver-mini" data-a="video-cal" data-id="${x.id}" aria-label="Ver cómo se hace ${x.n}">${ico('play')}</button>` : ''}</li>`;
+  return `<details class="card calent" ${hechas ? '' : 'open'}>
+    <summary><span><b>Calentamiento</b><small>≈10 min · antes de empezar</small></span>${ico('abajo')}</summary>
+    <ol class="cal-lista">${fila(CALENTAMIENTO.general)}${lista.map(fila).join('')}
+      <li><span><b>Series de aproximación</b><small>Antes de ${pri?.ej.n.toLowerCase() || 'el primer ejercicio'}: ${aprox}</small></span></li></ol>
+  </details>`;
 }
 
 function tarjeta(f, s) {
   const e = s.ej, c = GRUPOS[e.g].c, completa = s.hechas.every(Boolean);
   const peso = leerDia(f).pesos?.[e.id], ult = ultimoPeso(e.id, f);
+  const [ini, tipo] = INICIO[e.id] || [];
+  const sube = tocaSubir(e.id, f);
   return `<article class="ej ${abiertas.has(s.slot) ? 'abierta' : ''} ${completa ? 'completa' : ''}" data-slot="${s.slot}" style="--c:${c}">
     <button class="ej-cab" data-a="abrir" aria-expanded="${abiertas.has(s.slot)}">
       <span class="ej-num">${completa ? ico('check') : s.i + 1}</span>
@@ -86,12 +103,14 @@ function tarjeta(f, s) {
     <div class="series" role="group" aria-label="Series">${s.hechas.map((h, k) => `<button class="serie ${h ? 'hecha' : ''}" data-a="serie" data-i="${k}" aria-pressed="${h}" aria-label="Serie ${k + 1}"><span class="serie-n">${k + 1}</span>${ico('check', 'serie-ok')}</button>`).join('')}</div>
     <div class="peso">
       <button class="peso-btn" data-a="peso" data-d="-5" aria-label="Bajar 5 lbs">${ico('menos')}</button>
-      <label class="peso-in"><input type="number" inputmode="decimal" step="any" min="0" data-peso="${e.id}" value="${peso ?? ''}" placeholder="${ult ?? '0'}" aria-label="Peso en libras"><span>lbs</span></label>
+      <label class="peso-in"><input type="number" inputmode="decimal" step="any" min="0" data-peso="${e.id}" value="${peso ?? ''}" placeholder="${ult ?? ini ?? '0'}" aria-label="Peso en libras"><span>lbs</span></label>
       <button class="peso-btn" data-a="peso" data-d="5" aria-label="Subir 5 lbs">${ico('mas')}</button>
     </div>
+    ${sube && (peso == null || peso < sube) ? `<p class="subir">${ico('subir')}<span><b>Toca subir:</b> completaste todo con ${num(ult)} lbs dos sesiones seguidas. Hoy prueba <b>${num(sube)} lbs</b>. <button class="link" data-a="repetir" data-w="${sube}">Usar</button></span></p>` : ''}
     <p class="ultima">${ult != null
       ? `Última vez: <b>${num(ult)} lbs</b>${peso == null ? ` <button class="link" data-a="repetir" data-w="${ult}">Repetir</button>` : ''}`
-      : 'Primera vez: anota con cuánto arrancas'}</p>
+      : ini ? `Empieza con <b>${ini} lbs</b> ${TIPO_PESO[tipo]}${peso == null ? ` <button class="link" data-a="repetir" data-w="${ini}">Usar</button>` : ''}<br><span class="peq">Si te sobran más de 3 reps, súbele 5 lbs.</span>`
+      : tipo ? `Empieza con ${TIPO_PESO[tipo]}.` : 'Primera vez: anota con cuánto arrancas'}</p>
     <div class="mas"><div class="mas-in">
       ${tieneVideo(e.id) ? `<button class="btn-sec ver-video" data-a="video">${ico('play')} Ver cómo se hace</button>` : ''}
       <div class="mapa">${cuerpo(e.z || [], e.s || [])}</div>
@@ -178,12 +197,14 @@ function alTocar(e) {
       const inp = card.querySelector('input[data-peso]');
       inp.value = b.dataset.w;
       guardarPeso(f, inp, false);
-      b.remove();
+      card.querySelector('.subir')?.remove();
+      card.querySelectorAll('[data-a="repetir"]').forEach(x => x.remove());
       vibrar(8);
       break;
     }
     case 'cambiar': hojaCambio(f, card.dataset.slot); break;
     case 'video': hojaVideo(slotDe(f, card.dataset.slot).s.ej); break;
+    case 'video-cal': { const x = [...CALENTAMIENTO.superior, ...CALENTAMIENTO.piernas].find(c => c.id === b.dataset.id); hojaVideo({ ...x, id: x.id }); break; }
     case 'revertir': revertir(f, card.dataset.slot); break;
     case 'elegir-dia': hojaDia(f); break;
     case 'volver-plan': delete dia(f).plan; guardar(); refrescar(); break;
