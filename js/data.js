@@ -405,6 +405,36 @@ export const CALENTAMIENTO = {
   ],
 };
 
+// ── Vuelta a la calma: al terminar, ahí mismo en el gimnasio ──
+// Caminata suave y estiramientos de lo que se entrenó ese día. t: segundos (con lados, la mitad por lado).
+export const ENFRIAMIENTO = {
+  caminata: {
+    piernas: { min: 5, n: 'Caminata suave', d: 'En la caminadora plana o alrededor del gimnasio, a paso lento. Suelta las piernas.' },
+    superior: { min: 8, n: 'Caminata', d: 'En la caminadora, a un paso en el que puedas conversar. Baja el ritmo el último minuto.' },
+  },
+  estiramientos: {
+    espalda: [
+      { n: 'Colgarte de la barra', d: 'Agarre ancho y brazos estirados; deja caer el peso. Si no aguantas, apoya las puntas de los pies.', t: 30 },
+      { n: 'Dorsal en la pared', d: 'Manos en la pared a la altura de la cadera; lleva la cadera hacia atrás hasta sentir los costados.', t: 30 },
+    ],
+    biceps: [{ n: 'Bíceps en la pared', d: 'Palma en la pared a la altura del hombro, brazo estirado; gira el cuerpo hacia el otro lado.', t: 60, lados: true }],
+    hombros: [{ n: 'Hombro cruzado', d: 'Lleva un brazo estirado al otro lado del pecho y sujétalo con la otra mano.', t: 60, lados: true }],
+    triceps: [{ n: 'Tríceps sobre la cabeza', d: 'Mano entre los omóplatos; con la otra mano empuja el codo hacia atrás, suave.', t: 60, lados: true }],
+    pecho: [{ n: 'Pecho en una columna', d: 'Antebrazo apoyado en una columna, codo a la altura del hombro; da un paso al frente.', t: 60, lados: true }],
+    cuadriceps: [
+      { n: 'Cuádriceps de pie', d: 'Agárrate el pie por detrás y lleva el talón al glúteo, rodillas juntas. Apóyate en algo si hace falta.', t: 60, lados: true },
+      { n: 'Flexor de cadera en zancada', d: 'Rodilla de atrás en el piso; empuja la cadera hacia adelante sin arquear la espalda.', t: 60, lados: true },
+    ],
+    femoral: [
+      { n: 'Isquios en un banco', d: 'Talón en un banco bajo y pierna estirada; inclínate desde la cadera con la espalda recta.', t: 60, lados: true },
+      { n: 'Glúteo en figura 4', d: 'Sentado en un banco, tobillo sobre la rodilla contraria; inclínate un poco al frente.', t: 60, lados: true },
+    ],
+    pantorrilla: [{ n: 'Pantorrilla en la pared', d: 'Manos en la pared, una pierna atrás estirada con el talón pegado al piso.', t: 60, lados: true }],
+    core: [{ n: 'Cobra suave', d: 'Boca abajo, apoya los antebrazos y sube el pecho sin forzar la espalda baja.', t: 30 }],
+  },
+  final: { n: 'Respira y suelta', d: '5 respiraciones lentas: 4 segundos tomando aire y 6 botándolo.', t: 50 },
+};
+
 // ── Plan semanal ─────────────────────────────────────────────
 // Cada ejercicio del día: [id, series, reps, nota opcional]
 const VIERNES_A = [

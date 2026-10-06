@@ -8,8 +8,9 @@ let t = null, raf = 0, ultimoSeg = null, terminando = false, grande = false, cie
 
 export const descansoActivo = () => !!t;
 
-export function iniciarDescanso(seg, titulo, sub = '') {
-  t = { fin: Date.now() + seg * 1000, total: seg, titulo, sub };
+// tipo: 'descanso' (entre series) o 'calma' (caminata y estiramientos al final)
+export function iniciarDescanso(seg, titulo, sub = '', tipo = 'descanso') {
+  t = { fin: Date.now() + seg * 1000, total: seg, titulo, sub, tipo };
   S().timer = t; guardar();
   terminando = false; ultimoSeg = null; clearTimeout(cierre);
   $('#descanso').classList.remove('listo'); $('#mini').classList.remove('listo');
@@ -40,6 +41,7 @@ function mostrar(g) {
   $('#mini').hidden = g || !t;
   document.body.classList.toggle('con-mini', !g && !!t);
   if (t) {
+    $('#descanso .descanso-tipo').textContent = t.tipo === 'calma' ? 'Para cerrar' : 'Descanso';
     $('#descanso .descanso-titulo').textContent = t.titulo;
     $('#descanso .descanso-sub').textContent = t.sub;
     $('#mini .mini-txt').textContent = t.titulo;
@@ -77,8 +79,9 @@ function terminar() {
   if (!grande) mostrar(true);
   $('#descanso .reloj-num').textContent = '¡Listo!';
   $('#mini .mini-num').textContent = '¡Listo!';
-  $('#descanso .descanso-titulo').textContent = '¡Descanso terminado!';
-  $('#descanso .descanso-sub').textContent = 'A la siguiente serie.';
+  const calma = t?.tipo === 'calma';
+  $('#descanso .descanso-titulo').textContent = calma ? '¡Tiempo!' : '¡Descanso terminado!';
+  $('#descanso .descanso-sub').textContent = calma ? 'Pasa al siguiente de la lista.' : 'A la siguiente serie.';
   $('#descanso').classList.add('listo'); $('#mini').classList.add('listo');
   $('#descanso [data-t=saltar]').textContent = 'Seguir';
   sonar.fin();

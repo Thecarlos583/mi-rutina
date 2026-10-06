@@ -1,5 +1,5 @@
 // Pantalla "Hoy": lo que toca entrenar, series, pesos, cambios de ejercicio, videos y sugerencias
-import { GRUPOS, ZONAS, PLAN, SUGERENCIAS, REGLAS, FRASES_DESCANSO, FRASES_FIN, INICIO, TIPO_PESO, CALENTAMIENTO } from './data.js';
+import { GRUPOS, ZONAS, PLAN, SUGERENCIAS, REGLAS, FRASES_DESCANSO, FRASES_FIN, INICIO, TIPO_PESO, CALENTAMIENTO, ENFRIAMIENTO } from './data.js';
 import { S, dia, leerDia, guardar } from './store.js';
 import { hoy, info, fechaLarga, sumar, NOMBRE_DIA, proximoLunes } from './calendario.js';
 import { planDe, slots, totalSeries, seriesHechas, ultimoPeso, mejorPeso, ejercicio, tocaSubir, unidadDe, aVista, aLbs, sugeridoVista, pasoDe, comoCargar, equivalencia } from './rutina.js';
@@ -72,7 +72,27 @@ function entrenoHTML(f, p) {
     </section>
     ${calentamientoHTML(f, d, ss, h)}
     <div class="unid-global" role="radiogroup" aria-label="Ver los pesos en"><span>${ico('balanza')} Pesos en</span>${['lbs', 'kg'].map(x => `<button data-a="unidad" data-u="${x}" role="radio" aria-checked="${x === unidadDe()}">${x}</button>`).join('')}</div>
-    <div class="lista-ej">${ss.map(s => tarjeta(f, s)).join('')}</div>`;
+    <div class="lista-ej">${ss.map(s => tarjeta(f, s)).join('')}</div>
+    ${enfriamientoHTML(ss, h === tot)}`;
+}
+
+// ── Vuelta a la calma: caminata y estiramientos de lo que se entrenó hoy ──
+const PIERNA = ['cuadriceps', 'femoral', 'pantorrilla'];
+function pasosEnfriamiento(ss) {
+  const grupos = [...new Set(ss.map(s => s.ej.g))];
+  const piernas = grupos.some(g => PIERNA.includes(g));
+  const c = ENFRIAMIENTO.caminata[piernas ? 'piernas' : 'superior'];
+  const est = grupos.flatMap(g => ENFRIAMIENTO.estiramientos[g] || []);
+  return [{ ...c, t: c.min * 60, caminata: true }, ...est, ENFRIAMIENTO.final];
+}
+function enfriamientoHTML(ss, terminado) {
+  const pasos = pasosEnfriamiento(ss);
+  const min = Math.round(pasos.reduce((a, x) => a + x.t, 0) / 60);
+  const dur = x => (x.caminata ? `${x.min} min` : x.lados ? `${x.t / 2} s por lado` : `${x.t} s`);
+  return `<details class="card calent enfria" id="enfria" ${terminado ? 'open' : ''}>
+    <summary><span><b>Para cerrar: afloja y suelta</b><small>≈${min} min · al terminar, ahí mismo</small></span>${ico('abajo')}</summary>
+    <ol class="cal-lista">${pasos.map((x, i) => `<li><span><b>${x.n} · ${dur(x)}</b><small>${x.d}</small></span><button class="ver-mini" data-a="enfria" data-i="${i}" aria-label="Empezar ${x.n}: ${dur(x)}">${ico('reloj')}</button></li>`).join('')}</ol>
+  </details>`;
 }
 
 // ── Calentamiento antes de la rutina ────────────────────────
@@ -232,6 +252,11 @@ function alTocar(e) {
       abrirCalculadora(Number.isFinite(v) && v > 0 ? v : '', unidadDe());
       break;
     }
+    case 'enfria': {
+      const p = planDe(f), x = pasosEnfriamiento(slots(f, p.variante, p.diaPlan))[Number(b.dataset.i)];
+      iniciarDescanso(x.t, x.n, x.lados ? `Cambia de lado a la mitad (${x.t / 2} s)` : x.caminata ? 'A paso cómodo, que puedas conversar' : '', 'calma');
+      break;
+    }
     case 'video-cal': { const x = [...CALENTAMIENTO.superior, ...CALENTAMIENTO.piernas].find(c => c.id === b.dataset.id); hojaVideo({ ...x, id: x.id }); break; }
     case 'revertir': revertir(f, card.dataset.slot); break;
     case 'elegir-dia': hojaDia(f); break;
@@ -273,6 +298,9 @@ function marcarSerie(f, card, i, btn) {
 
   if (d.completo && !antes) {
     setTimeout(() => { confeti(); sonar.logro(); vibrar([80, 60, 80]); aviso(FRASES_FIN[semilla(f) % FRASES_FIN.length], 'trofeo'); }, 220);
+    // Terminaste: abre la vuelta a la calma
+    const enf = $('#enfria');
+    if (enf) { enf.open = true; setTimeout(() => enf.scrollIntoView({ behavior: 'smooth', block: 'start' }), 900); }
     return;
   }
   if (!arr[i]) return;
