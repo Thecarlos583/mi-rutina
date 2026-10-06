@@ -2,12 +2,14 @@
 import { GRUPOS, ZONAS, PLAN, SUGERENCIAS, REGLAS, FRASES_DESCANSO, FRASES_FIN, INICIO, TIPO_PESO, CALENTAMIENTO } from './data.js';
 import { S, dia, leerDia, guardar } from './store.js';
 import { hoy, info, fechaLarga, sumar, NOMBRE_DIA, proximoLunes } from './calendario.js';
-import { planDe, slots, totalSeries, seriesHechas, ultimoPeso, mejorPeso, ejercicio, tocaSubir, unidadDe, aVista, aLbs, sugeridoVista, pasoDe, comoCargar } from './rutina.js';
+import { planDe, slots, totalSeries, seriesHechas, ultimoPeso, mejorPeso, ejercicio, tocaSubir, unidadDe, aVista, aLbs, sugeridoVista, pasoDe, comoCargar, equivalencia } from './rutina.js';
+import { abrirCalculadora } from './calc.js';
 import { cuerpo } from './cuerpo.js';
 import { $, ico, anillo, moverAnillo, vibrar, sonar, aviso, abrirHoja, cerrarHoja, confeti, semilla, num, pantallaEncendida } from './util.js';
 import { iniciarDescanso } from './timer.js';
 import { sabadoHTML, accionSabado } from './sabado.js';
 import { montar, tieneVideo, musculosDe } from './anim.js';
+import { tienePasos, montarPasos } from './pasos.js';
 import { chipsAgarre, hojaAgarre } from './agarres.js';
 
 export const LOGO = `<svg viewBox="0 0 512 512" aria-hidden="true"><defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#FF6B4A"/><stop offset="1" stop-color="#FF9F43"/></linearGradient></defs>
@@ -69,6 +71,7 @@ function entrenoHTML(f, p) {
       <div id="hero-anillo">${anillo(h / tot, { tam: 94, grosor: 9, id: 'ah', centro: `<b class="an-num">${h}</b><span>de ${tot}</span>` })}</div>
     </section>
     ${calentamientoHTML(f, d, ss, h)}
+    <div class="unid-global" role="radiogroup" aria-label="Ver los pesos en"><span>${ico('balanza')} Pesos en</span>${['lbs', 'kg'].map(x => `<button data-a="unidad" data-u="${x}" role="radio" aria-checked="${x === unidadDe()}">${x}</button>`).join('')}</div>
     <div class="lista-ej">${ss.map(s => tarjeta(f, s)).join('')}</div>`;
 }
 
@@ -110,13 +113,13 @@ function tarjeta(f, s) {
       <label class="peso-in"><input type="number" inputmode="decimal" step="any" min="0" data-peso="${e.id}" value="${peso ?? ''}" placeholder="${ult ?? ini ?? '0'}" aria-label="Peso en ${u === 'kg' ? 'kilos' : 'libras'}"><span>${u}</span></label>
       <button class="peso-btn" data-a="peso" data-d="${paso}" aria-label="Subir ${num(paso)} ${u}">${ico('mas')}</button>
     </div>
+    <div class="equiv-fila"><p class="equiv" data-equiv="${e.id}">${equivalencia(e.id, peso ?? ult ?? ini)}</p><button class="balanza" data-a="calc" aria-label="Abrir la calculadora con este peso">${ico('balanza')}</button></div>
     <p class="carga" data-carga="${e.id}"${comoCargar(e.id, peso ?? ult ?? ini) ? '' : ' hidden'}>${ico('hoy')}<span>${comoCargar(e.id, peso ?? ult ?? ini)}</span></p>
     ${sube && (peso == null || peso < sube) ? `<p class="subir">${ico('subir')}<span><b>Toca subir:</b> completaste todo con ${num(ult)} ${u} dos sesiones seguidas. Hoy prueba <b>${num(sube)} ${u}</b>. <button class="link" data-a="repetir" data-w="${sube}">Usar</button></span></p>` : ''}
     <p class="ultima">${ult != null
       ? `Última vez: <b>${num(ult)} ${u}</b>${peso == null ? ` <button class="link" data-a="repetir" data-w="${ult}">Repetir</button>` : ''}`
       : ini ? `Empieza con <b>${u === 'kg' ? '≈ ' : ''}${num(ini)} ${u}</b> ${TIPO_PESO[tipo]}${peso == null ? ` <button class="link" data-a="repetir" data-w="${ini}">Usar</button>` : ''}<br><span class="peq">Si te sobran más de 3 reps, súbele ${num(paso)} ${u}.</span>`
       : tipo ? `Empieza con ${TIPO_PESO[tipo]}.` : 'Primera vez: anota con cuánto arrancas'}</p>
-    <div class="unid" role="group" aria-label="Discos de este ejercicio en"><span>Discos en</span>${['lbs', 'kg'].map(x => `<button data-a="unidad" data-u="${x}" aria-pressed="${x === u}">${x}</button>`).join('')}</div>
     <div class="mas"><div class="mas-in">
       ${tieneVideo(e.id) ? `<button class="btn-sec ver-video" data-a="video">${ico('play')} Ver cómo se hace</button>` : ''}
       <div class="mapa">${cuerpo(e.z || [], e.s || [])}</div>
@@ -158,6 +161,11 @@ function sugerenciasHTML() {
 const musculos = e => musculosDe(e.z || [], ZONAS, GRUPOS);
 const leyenda = e => [...new Set((e.z || []).map(z => ZONAS[z]))].map(g => chip(g)).join('');
 function hojaVideo(e) {
+  if (tienePasos(e.id)) {
+    const h = abrirHoja(`<p class="eyebrow">${ico('play')} Cómo se hace</p><h3 class="hoja-t">${e.n}</h3><div class="pasos-caja"></div>`);
+    montarPasos(h.querySelector('.pasos-caja'), e.id);
+    return;
+  }
   const h = abrirHoja(`<p class="eyebrow">${ico('play')} Cómo se hace</p>
     <h3 class="hoja-t">${e.n}</h3>
     <div class="musculos-leyenda">${leyenda(e)}<span class="txt2 peq">se encienden en el video</span></div>
@@ -212,13 +220,16 @@ function alTocar(e) {
     case 'agarre': { const x = slotDe(f, card.dataset.slot).s.ej; hojaAgarre(x.n, x.agarre); break; }
     case 'video': hojaVideo(slotDe(f, card.dataset.slot).s.ej); break;
     case 'unidad': {
-      const id = slotDe(f, card.dataset.slot).s.ej.id;
-      if (unidadDe(id) === b.dataset.u) break;
-      S().unidades ||= {};
-      if (b.dataset.u === 'kg') S().unidades[id] = 'kg'; else delete S().unidades[id];
+      if (unidadDe() === b.dataset.u) break;
+      S().ajustes.unidad = b.dataset.u;
       guardar(); vibrar(8);
       const y = scrollY; refrescar(); scrollTo(0, y);
-      aviso(b.dataset.u === 'kg' ? 'Este ejercicio va en kilos' : 'Este ejercicio va en libras', 'check');
+      aviso(b.dataset.u === 'kg' ? 'Todos los pesos en kilos' : 'Todos los pesos en libras', 'check');
+      break;
+    }
+    case 'calc': {
+      const inp = card.querySelector('input[data-peso]'), v = parseFloat(String(inp.value || inp.placeholder).replace(',', '.'));
+      abrirCalculadora(Number.isFinite(v) && v > 0 ? v : '', unidadDe());
       break;
     }
     case 'video-cal': { const x = [...CALENTAMIENTO.superior, ...CALENTAMIENTO.piernas].find(c => c.id === b.dataset.id); hojaVideo({ ...x, id: x.id }); break; }
@@ -292,6 +303,8 @@ function actualizarCarga(inp) {
   const t = Number.isFinite(v) ? comoCargar(inp.dataset.peso, v) : '';
   p.hidden = !t;
   p.querySelector('span').textContent = t;
+  const q = inp.closest('.ej')?.querySelector('[data-equiv]');
+  if (q) q.textContent = Number.isFinite(v) ? equivalencia(inp.dataset.peso, v) : '';
 }
 
 function guardarPeso(f, inp, revisarRecord) {
@@ -344,7 +357,8 @@ function hojaCambio(f, slotId) {
       btn.textContent = sel === base.id ? 'Volver al original' : 'Cambiar';
       const caja = h.querySelector('.alt-video'), ej = ejercicio(sel, base.id);
       caja.hidden = !tieneVideo(sel);
-      if (tieneVideo(sel)) montar(caja, sel, musculos(ej));
+      if (tienePasos(sel)) montarPasos(caja, sel);
+      else if (tieneVideo(sel)) montar(caja, sel, musculos(ej));
       vibrar(8);
       return;
     }

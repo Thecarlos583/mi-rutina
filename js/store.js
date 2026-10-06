@@ -3,18 +3,24 @@ const KEY = 'mi-rutina:v1';
 
 const base = () => ({
   v: 1,
-  ajustes: { inicio: null, sonido: true, haptica: true, pantalla: true },
+  ajustes: { inicio: null, sonido: true, haptica: true, pantalla: true, unidad: 'lbs' },
   log: {},       // 'AAAA-MM-DD' → { plan, series, pesos, cambios, sab } (habitos: de versiones viejas, ya no se usa)
   siempre: {},   // ejercicio original → alternativa elegida con "Usar siempre"
   cintura: {},   // lunes de la semana → cm
-  unidades: {},  // ejercicio → 'kg' si sus discos o su máquina están en kilos (por defecto lbs)
+  unidades: {},  // (versión vieja) ejercicio → 'kg'; hoy manda ajustes.unidad para toda la app
   timer: null,   // descanso en curso
   carrera: null, // trote guiado en curso
 });
 
 const fusionar = d => {
   const b = base();
-  return { ...b, ...d, ajustes: { ...b.ajustes, ...(d.ajustes || {}) } };
+  const ajustes = { ...b.ajustes, ...(d.ajustes || {}) };
+  // Migración: antes cada ejercicio tenía su unidad. Si casi todos estaban en kg, la app arranca en kg.
+  if (!d.ajustes?.unidad) {
+    const u = Object.values(d.unidades || {}), kg = u.filter(x => x === 'kg').length;
+    ajustes.unidad = kg >= 3 ? 'kg' : 'lbs';
+  }
+  return { ...b, ...d, ajustes };
 };
 
 function cargar() {

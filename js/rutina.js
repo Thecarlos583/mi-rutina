@@ -78,12 +78,20 @@ export function racha(f) {
 }
 
 // ── Pesos ───────────────────────────────────────────────────
-// Los pesos se guardan siempre en lbs. Cada ejercicio puede mostrarse en kg si sus discos o su máquina están en kilos.
+// Los pesos se guardan siempre en lbs, con todos sus decimales (lo anotado en kg se convierte sin redondear).
+// La app entera se ve en lbs o en kg según ajustes.unidad; se redondea solo al mostrar.
 export const LB = 2.20462;
-export const unidadDe = id => (S().unidades?.[id] === 'kg' ? 'kg' : 'lbs');
+export const unidadDe = () => (S().ajustes.unidad === 'kg' ? 'kg' : 'lbs');
 export const enKg = id => unidadDe(id) === 'kg';
-// lbs guardadas → número en la unidad del ejercicio (kg a medio kilo)
-export const aVista = (id, lbs) => (lbs == null ? null : enKg(id) ? Math.round((lbs / LB) * 2) / 2 : Math.round(lbs * 10) / 10);
+// lbs guardadas → número en la unidad que se ve (1 decimal)
+export const aVista = (id, lbs) => (lbs == null ? null : enKg(id) ? Math.round((lbs / LB) * 10) / 10 : Math.round(lbs * 10) / 10);
+// "40 lbs ≈ 18,1 kg": el mismo peso en la otra unidad
+export function equivalencia(id, v) {
+  if (v == null || !Number.isFinite(v) || v <= 0) return '';
+  const kg = enKg(id), otro = kg ? v * LB : v / LB;
+  const t = x => String(Math.round(x * 10) / 10).replace('.', ',');
+  return `${t(v)} ${kg ? 'kg' : 'lbs'} ≈ ${t(otro)} ${kg ? 'lbs' : 'kg'}`;
+}
 // número en la unidad del ejercicio → lbs para guardar
 export const aLbs = (id, v) => (enKg(id) ? v * LB : v);
 // Una sugerencia en lbs llevada a discos reales: de 5 en 5 lbs o de 2,5 en 2,5 kg
@@ -121,10 +129,13 @@ export function comoCargar(id, v) {
     const b = barraDe(id);
     if (v <= b.w) return `Solo la ${b.n} (${n1(b.w)} ${u}), sin discos.`;
     const { out, sobra } = porLado(v - b.w, u);
+    // Menos de lo que pesa el disco más chico: queda solo la barra
+    if (!out.length) return `Solo la ${b.n} (${n1(b.w)} ${u}); para ${n1(v)} ${u} exactos no hay discos tan chicos.`;
     return `Pon ${agrupar(out, u)} de cada lado de la ${b.n} (${n1(b.w)} ${u})${sobra ? '; no cuadra exacto, usa el disco más cercano' : ''}.`;
   }
   if (tipo === 'discos') {
     const { out, sobra } = porLado(v, u);
+    if (!out.length) return `Sin discos: ${n1(v)} ${u} es menos que el disco más chico.`;
     return `Pon ${agrupar(out, u)} de cada lado, sin contar el carro${sobra ? '; no cuadra exacto, usa el disco más cercano' : ''}.`;
   }
   if (tipo === 'c/u') return `Una mancuerna de ${n1(v)} ${u} en cada mano.`;

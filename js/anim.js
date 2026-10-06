@@ -256,7 +256,12 @@ function equipoMovil(def, f, p, vista, detras = false) {
   if (mano === 'goblet') s += fm ? mancuerna([120 + p.lat, f.fm[0][1] + 3], true) : mancuerna([f.b1.mano[0] + 2, f.b1.mano[1] + 6], true);
   if (mano === 'mancuernas') s += fm ? f.fm.map(x => mancuerna(x)).join('') : mancuerna(f.b2.mano) + mancuerna(f.b1.mano);
   if (mano === 'mancuerna') s += fm ? mancuerna(f.fm[1]) : mancuerna(f.b1.mano);
-  if (mano === 'barra' || mano === 'z') {
+  // Barra sobre los trapecios (sentadillas): de lado va detrás del cuello, no en las manos
+  if (mano === 'barraT' && !fm) {
+    const d = [f.hom[0] - f.cad[0], f.hom[1] - f.cad[1]], l = Math.hypot(...d) || 1, u = [d[0] / l, d[1] / l], n = [u[1], -u[0]];
+    s += disco([f.hom[0] + n[0] * 7 + u[0] * 2, f.hom[1] + n[1] * 7 + u[1] * 2], 11);
+  }
+  if (mano === 'barra' || mano === 'z' || (mano === 'barraT' && fm)) {
     const r = mano === 'z' ? 7.5 : 11;
     s += fm ? `<line class="barra" x1="${f1(f.fm[0][0] - 22)}" y1="${f1(f.fm[0][1])}" x2="${f1(f.fm[1][0] + 22)}" y2="${f1(f.fm[1][1])}"/><rect class="disco" x="${f1(f.fm[0][0] - 26)}" y="${f1(f.fm[0][1] - r)}" width="5" height="${r * 2}" rx="1.5"/><rect class="disco" x="${f1(f.fm[1][0] + 21)}" y="${f1(f.fm[1][1] - r)}" width="5" height="${r * 2}" rx="1.5"/>`
       : disco(manos, r);
@@ -346,6 +351,7 @@ function poseEn(prep, t) {
 
 const defDe = id => { const d = ANIM[id]; return d?.como ? { ...ANIM[d.como], ...d, poses: ANIM[d.como].poses, como: undefined } : d; };
 export const tieneVideo = id => !!defDe(id);
+export const defBase = id => defDe(id) || {};
 
 let detenerActual = null;
 

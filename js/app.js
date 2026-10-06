@@ -5,10 +5,11 @@ import { renderHoy } from './hoy.js';
 import { renderProgreso } from './progreso.js';
 import { renderGuia } from './guia.js';
 import { renderAjustes } from './ajustes.js';
+import { renderCalc } from './calc.js';
 import { initTimer } from './timer.js';
 import { initCarrera } from './sabado.js';
 
-const VISTAS = { hoy: renderHoy, progreso: renderProgreso, guia: renderGuia, ajustes: renderAjustes };
+const VISTAS = { hoy: renderHoy, progreso: renderProgreso, calc: renderCalc, guia: renderGuia, ajustes: renderAjustes };
 let actual = 'hoy', fechaPintada = null;
 const vista = $('#vista');
 
@@ -36,8 +37,9 @@ $('#tabs').addEventListener('click', e => {
 addEventListener('hashchange', () => ir(location.hash.slice(1)));
 addEventListener('mr:refrescar', () => VISTAS[actual](vista));
 
-// iOS solo deja sonar audio después de un toque: lo "despertamos" en cada toque
-addEventListener('pointerdown', desbloquearAudio, { passive: true });
+// iOS solo deja sonar audio dentro de un toque: lo "despertamos" en cada toque.
+// touchend y click cuentan como toque para Safari; pointerdown no siempre.
+for (const ev of ['pointerdown', 'touchend', 'click']) addEventListener(ev, desbloquearAudio, { passive: true, capture: true });
 
 // Si la app queda abierta y cambia el día (medianoche), se actualiza sola
 document.addEventListener('visibilitychange', () => {

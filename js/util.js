@@ -29,6 +29,7 @@ const P = {
   ola: '<path d="M2 12c2.5 0 2.5-2 5-2s2.5 2 5 2 2.5-2 5-2 2.5 2 5 2"/><path d="M2 17c2.5 0 2.5-2 5-2s2.5 2 5 2 2.5-2 5-2 2.5 2 5 2"/>',
   mas: '<path d="M12 5v14M5 12h14"/>',
   menos: '<path d="M5 12h14"/>',
+  balanza: '<path d="M12 3v18M7 21h10M5 7h14M8 4.5l4-1.5 4 1.5"/><path d="M5 7l-3 7a3.2 3.2 0 0 0 6 0zM19 7l-3 7a3.2 3.2 0 0 0 6 0z"/>',
   correr: '<circle cx="14" cy="4.5" r="2"/><path d="M8 21l3-6 3 2v5M6 12l3-3.5 4 1 3 3.5 3-1M11 15l2-5.5"/>',
 };
 export const ico = (n, cls = '') => `<svg class="ico ${cls}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${P[n] || ''}</svg>`;
@@ -68,39 +69,103 @@ export function vibrar(patron = 18) {
 }
 
 // ── Sonido (Web Audio, sin archivos) ────────────────────────
-let actx = null;
+// En iPhone el audio solo arranca dentro de un toque, y el sistema lo suspende al bloquear la pantalla
+// o salir de la app. Por eso: un solo AudioContext que se reanuda antes de cada pitido, y un <audio>
+// de respaldo con un pitido generado en código (WAV en memoria) por si Web Audio no responde.
+let actx = null, respaldo = null, ultimoRespaldo = false;
+// 'transient': suena aunque haya música (la baja un instante en vez de cortarla)
+const sesion = () => { try { if ('audioSession' in navigator) navigator.audioSession.type = 'transient'; } catch { } };
+
+// WAV mono de 16 bits con una lista de pitidos [frecuencia, duración, inicio, volumen]
+function wav(notas) {
+  const sr = 22050, fin = Math.max(...notas.map(([, d, en]) => en + d)) + 0.05, n = Math.ceil(sr * fin);
+  const v = new DataView(new ArrayBuffer(44 + n * 2)), txt = (o, s) => [...s].forEach((c, i) => v.setUint8(o + i, c.charCodeAt(0)));
+  txt(0, 'RIFF'); v.setUint32(4, 36 + n * 2, true); txt(8, 'WAVEfmt '); v.setUint32(16, 16, true); v.setUint16(20, 1, true); v.setUint16(22, 1, true);
+  v.setUint32(24, sr, true); v.setUint32(28, sr * 2, true); v.setUint16(32, 2, true); v.setUint16(34, 16, true); txt(36, 'data'); v.setUint32(40, n * 2, true);
+  const m = new Float32Array(n);
+  for (const [f, d, en, vol] of notas) {
+    const a = Math.floor(en * sr), b = Math.min(n, Math.floor((en + d) * sr));
+    for (let i = a; i < b; i++) { const t = (i - a) / sr, env = Math.min(1, t / 0.01, (d - t) / 0.04); m[i] += Math.sin(2 * Math.PI * f * t) * vol * Math.max(0, env); }
+  }
+  for (let i = 0; i < n; i++) v.setInt16(44 + i * 2, Math.max(-1, Math.min(1, m[i])) * 32767, true);
+  return URL.createObjectURL(new Blob([v.buffer], { type: 'audio/wav' }));
+}
+
+// Sonidos de la app: [frecuencia, duración (s), inicio (s), volumen 0-1]
+const NOTAS = {
+  serie: [[1175, 0.07, 0, 0.15]],
+  tic: [[740, 0.1, 0, 0.35]],
+  // Fin del descanso: 3 pitidos largos y fuertes
+  fin: [[880, 0.3, 0, 0.7], [880, 0.3, 0.42, 0.7], [1320, 0.65, 0.84, 0.8]],
+  trote: [[988, 0.12, 0, 0.35], [1319, 0.3, 0.16, 0.35]],
+  camina: [[784, 0.14, 0, 0.35], [587, 0.32, 0.18, 0.35]],
+  logro: [523, 659, 784, 1047].map((f, i) => [f, 0.22, i * 0.11, 0.3]),
+};
+
+// Se llama en cada toque: crea el contexto la primera vez, lo reanuda y desbloquea el respaldo
 export function desbloquearAudio() {
+  sesion();
   try {
     if (!actx) {
       const AC = window.AudioContext || window.webkitAudioContext;
-      if (!AC) return;
-      // 'transient' baja tu música un instante en vez de cortarla
-      try { if (navigator.audioSession) navigator.audioSession.type = 'transient'; } catch { }
-      actx = new AC();
+      if (AC) actx = new AC();
     }
-    if (actx.state !== 'running') actx.resume();
-    const b = actx.createBuffer(1, 1, 22050), s = actx.createBufferSource();
-    s.buffer = b; s.connect(actx.destination); s.start(0);
+    if (actx) {
+      if (actx.state !== 'running') actx.resume().catch(() => { });
+      const b = actx.createBuffer(1, 1, 22050), s = actx.createBufferSource(); // sonido mudo de 1 cuadro
+      s.buffer = b; s.connect(actx.destination); s.start(0);
+    }
   } catch { }
+  if (!respaldo) {
+    respaldo = {};
+    for (const k of ['tic', 'fin']) {
+      const el = new Audio(wav(NOTAS[k]));
+      el.preload = 'auto'; el.muted = true;
+      el.play().then(() => { el.pause(); el.currentTime = 0; el.muted = false; }).catch(() => { el.muted = false; });
+      respaldo[k] = el;
+    }
+  }
 }
-export function pitido(freq = 880, dur = 0.14, en = 0, vol = 0.28) {
-  if (!S().ajustes.sonido || !actx || actx.state !== 'running') return;
-  const t = actx.currentTime + en, o = actx.createOscillator(), g = actx.createGain();
-  o.type = 'sine'; o.frequency.value = freq;
-  g.gain.setValueAtTime(0.0001, t);
-  g.gain.exponentialRampToValueAtTime(vol, t + 0.012);
-  g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
-  o.connect(g).connect(actx.destination);
-  o.start(t); o.stop(t + dur + 0.03);
+
+// Estado para Ajustes: 'listo' · 'bloqueado' (falta un toque) · 'sin-audio'
+export function estadoAudio() {
+  const hayWA = !!(window.AudioContext || window.webkitAudioContext);
+  if (!hayWA && !window.Audio) return 'sin-audio';
+  if (actx?.state === 'running') return 'listo';
+  // Sin Web Audio, el <audio> de respaldo queda listo después del primer toque
+  return !hayWA && respaldo ? 'listo' : 'bloqueado';
 }
-export const sonar = {
-  serie: () => pitido(1175, 0.07, 0, 0.12),
-  tic: () => pitido(740, 0.08, 0, 0.2),
-  fin: () => { pitido(880, 0.15); pitido(880, 0.15, 0.2); pitido(1320, 0.45, 0.4); },
-  trote: () => { pitido(988, 0.12); pitido(1319, 0.3, 0.16); },
-  camina: () => { pitido(784, 0.14); pitido(587, 0.32, 0.18); },
-  logro: () => [523, 659, 784, 1047].forEach((f, i) => pitido(f, 0.22, i * 0.11, 0.22)),
-};
+export const usoRespaldo = () => ultimoRespaldo || (!(window.AudioContext || window.webkitAudioContext) && !!respaldo);
+
+async function contextoListo() {
+  if (!actx) return false;
+  if (actx.state === 'running') return true;
+  try { await Promise.race([actx.resume(), new Promise(r => setTimeout(r, 250))]); } catch { }
+  return actx.state === 'running';
+}
+function programar(notas) {
+  const t0 = actx.currentTime + 0.02;
+  for (const [f, d, en, vol] of notas) {
+    const t = t0 + en, o = actx.createOscillator(), g = actx.createGain();
+    o.type = 'sine'; o.frequency.value = f;
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.exponentialRampToValueAtTime(vol, t + 0.012);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + d);
+    o.connect(g).connect(actx.destination);
+    o.start(t); o.stop(t + d + 0.03);
+  }
+}
+async function tocar(tipo) {
+  if (!S().ajustes.sonido) return;
+  sesion();
+  if (await contextoListo()) { ultimoRespaldo = false; programar(NOTAS[tipo]); return; }
+  // Web Audio no respondió: suena el <audio> de respaldo (solo hay para el tic y el fin)
+  const el = respaldo?.[tipo === 'fin' ? 'fin' : 'tic'];
+  if (!el) return;
+  ultimoRespaldo = true;
+  try { el.currentTime = 0; await el.play(); } catch { }
+}
+export const sonar = Object.fromEntries(Object.keys(NOTAS).map(k => [k, () => tocar(k)]));
 
 // ── Pantalla encendida (Wake Lock) ──────────────────────────
 let lock = null, quiero = false;

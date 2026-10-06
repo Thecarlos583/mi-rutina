@@ -728,3 +728,85 @@ button.ag-chip:active { transform: scale(.97); }
 .ag-t .ag-uso { color: var(--txt2); }
 .ag-truco { background: color-mix(in srgb, var(--ag-acento) 12%, var(--ag-fondo)); }
 .ag-num { width: 32px; height: 32px; border-radius: 10px; display: grid; place-items: center; font-weight: 900; color: var(--ag-acento); background: color-mix(in srgb, var(--ag-acento) 16%, transparent); }
+
+/* Fin del descanso: el círculo se llena de verde y parpadea 2 veces (el iPhone no vibra) */
+.descanso.listo #reloj-arco { stroke: var(--bien); stroke-dashoffset: 0 !important; transition: stroke .3s; }
+.descanso.listo .reloj { animation: fin-descanso .45s ease-in-out 2; }
+.descanso.listo .descanso-titulo { font-size: 24px; font-weight: 850; color: var(--bien); }
+.descanso.listo [data-t="-15"], .descanso.listo [data-t="15"] { visibility: hidden; }
+@keyframes fin-descanso { 50% { opacity: .35; transform: scale(1.04); } }
+
+.estado-audio { margin-top: 10px; font-size: 14px; font-weight: 650; }
+.estado-audio .ok { color: var(--bien); }
+.estado-audio .mal { color: var(--acento); }
+
+/* ── Unidad general y equivalencia ── */
+:root { --disco-1: #E5484D; --disco-2: #3E7BD6; --disco-3: #F2C94C; --disco-4: #3FAF6B; --disco-5: #F2F4F7; --disco-6: #8B98A5; }
+.seg button[aria-checked="true"] { background: var(--card2); color: var(--txt); box-shadow: 0 2px 8px rgba(0, 0, 0, .25); }
+.unid-global { display: flex; align-items: center; gap: 6px; margin: 4px 2px 12px; }
+.unid-global > span { display: inline-flex; align-items: center; gap: 6px; margin-right: auto; font-size: 14px; font-weight: 650; color: var(--txt2); }
+.unid-global > span .ico { width: 18px; height: 18px; color: var(--acento2); }
+.unid-global button { min-height: 44px; min-width: 56px; padding: 0 14px; border-radius: 12px; background: var(--card); color: var(--txt2); font-weight: 750; font-size: 15px; }
+.unid-global button[aria-checked="true"] { background: color-mix(in srgb, var(--acento) 16%, var(--card)); color: var(--acento2); box-shadow: inset 0 0 0 1.5px var(--acento); }
+.equiv-fila { display: flex; align-items: center; gap: 8px; margin: 2px 2px 0; }
+.equiv { flex: 1; font-size: 13px; color: var(--txt2); font-variant-numeric: tabular-nums; min-height: 18px; }
+.balanza { width: 44px; height: 44px; flex: none; display: grid; place-items: center; border-radius: 12px; background: var(--bg); color: var(--acento2); }
+.balanza .ico { width: 22px; height: 22px; }
+
+/* ── Calculadora ── */
+.calc .seg { margin-bottom: 12px; }
+.seg-3 button { font-size: 13px; }
+.calc-in { display: flex; align-items: baseline; gap: 10px; padding: 10px 16px; border-radius: 18px; background: var(--bg); border: 2px solid var(--linea); }
+.calc-in:focus-within { border-color: var(--acento); }
+.calc-in input { flex: 1; min-width: 0; width: 100%; background: none; border: 0; outline: 0; color: var(--txt); font: inherit; font-size: 44px; font-weight: 850; font-variant-numeric: tabular-nums; }
+.calc-in.chico input { font-size: 28px; }
+.calc-in span { font-size: 18px; font-weight: 700; color: var(--txt2); }
+.calc-res { margin: 14px 2px 4px; font-size: 20px; font-weight: 650; color: var(--txt2); }
+.calc-res b { color: var(--txt); font-size: 30px; font-weight: 850; }
+.calc-res small { display: block; font-size: 14px; color: var(--txt2); font-weight: 600; margin-top: 4px; }
+.calc-sub { margin: 16px 2px 8px; font-size: 13px; font-weight: 700; color: var(--txt2); text-transform: uppercase; letter-spacing: .06em; }
+.rapidos { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 8px; }
+.rapidos button { min-height: 44px; padding: 0 12px; border-radius: 12px; background: var(--card2); font-weight: 700; font-size: 15px; }
+.rapidos button:active, .discos-btn button:active { transform: scale(.95); }
+.calc-tabla { margin-top: 12px; border-radius: 14px; background: var(--bg); }
+.calc-tabla summary { display: flex; align-items: center; gap: 8px; min-height: 48px; padding: 0 14px; font-weight: 700; cursor: pointer; list-style: none; }
+.calc-tabla summary::-webkit-details-marker { display: none; }
+.calc-tabla[open] summary .ico { transform: rotate(180deg); }
+.tablas { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 0 12px 12px; }
+.tablas table { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; font-size: 15px; }
+.tablas th { text-align: left; color: var(--txt2); font-size: 13px; padding: 6px 4px; }
+.tablas td { padding: 6px 4px; border-top: 1px solid var(--linea); }
+.tablas td + td { color: var(--acento2); font-weight: 700; }
+.calc-propia { display: flex; align-items: center; gap: 10px; margin: -4px 0 8px; }
+.calc-propia span { font-size: 14px; color: var(--txt2); }
+.calc-propia input { width: 96px; min-height: 44px; padding: 0 12px; border-radius: 12px; border: 2px solid var(--linea); background: var(--bg); color: var(--txt); font: inherit; font-size: 18px; font-weight: 750; }
+.discos-btn { display: flex; flex-wrap: wrap; gap: 8px; }
+.discos-btn button { min-width: 52px; min-height: 52px; padding: 0 10px; border-radius: 50%; font-weight: 850; font-size: 15px; color: var(--bg); background: var(--dc); box-shadow: inset 0 0 0 3px rgba(0, 0, 0, .18); }
+.calc-svg { display: block; width: 100%; height: auto; margin-top: 14px; }
+.calc-svg .b-barra { fill: var(--txt2); }
+.calc-svg .b-agarre { fill: var(--neutro); }
+.calc-svg .b-tope { fill: var(--txt); }
+.calc-meta { margin: 10px 2px 0; font-size: 15px; line-height: 1.45; }
+.tabs button span { white-space: nowrap; }
+
+/* ── Poses fijas (Cómo se hace) ── */
+.pasos-vista { margin: 10px 0 12px; }
+.poses { display: flex; gap: 10px; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; overscroll-behavior-x: contain; margin: 10px -16px 0; padding: 0 16px 4px; scroll-padding: 0 16px; }
+.poses::-webkit-scrollbar { display: none; }
+.pose { position: relative; flex: 0 0 84%; scroll-snap-align: start; margin: 0; border-radius: 20px; overflow: hidden; background: radial-gradient(120% 90% at 50% 15%, var(--video-bg), var(--video-bg2)); }
+.pose figcaption { display: grid; gap: 4px; padding: 4px 14px 14px; }
+.pose figcaption b { font-size: 16px; line-height: 1.3; }
+.pose-n { position: absolute; top: 10px; left: 10px; width: 32px; height: 32px; border-radius: 50%; display: grid; place-items: center; font-weight: 850; background: var(--acento); color: var(--bg); }
+.cuida { justify-self: start; display: inline-flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 750; color: var(--acento); padding: 3px 10px 3px 8px; border-radius: 999px; background: color-mix(in srgb, var(--acento) 14%, transparent); }
+.cuida::before { content: ''; width: 8px; height: 8px; border-radius: 50%; background: var(--acento); }
+.poses-ayuda { font-size: 13px; color: var(--txt2); margin: 8px 2px 0; }
+.si-no { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 16px; }
+.si-no figure { margin: 0; border-radius: 18px; overflow: hidden; background: var(--bg); box-shadow: inset 0 0 0 2px var(--bc); }
+.si-no .si { --bc: color-mix(in srgb, var(--bien) 55%, transparent); }
+.si-no .no { --bc: color-mix(in srgb, var(--acento) 55%, transparent); }
+.si-no figcaption { display: grid; gap: 2px; padding: 0 10px 12px; font-size: 13px; line-height: 1.35; color: var(--txt2); }
+.si-no figcaption b { font-size: 15px; color: var(--txt); }
+.pose .video-svg .marca, .si-no .video-svg .marca { fill: none; stroke: var(--acento); stroke-width: 2; stroke-dasharray: 3 3; }
+.si-no .si .video-svg .marca { stroke: var(--bien); }
+.pose .video-svg .flecha { stroke: var(--acento2); stroke-width: 3; stroke-linecap: round; }
+.pose .video-svg .flecha-p { fill: var(--acento2); }

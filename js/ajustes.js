@@ -1,7 +1,7 @@
 // Pantalla "Ajustes": fecha de inicio, sonido, vibración, respaldo y reinicio
 import { S, guardar, exportar, importar, reiniciar } from './store.js';
 import { hoy, info, fechaLarga } from './calendario.js';
-import { $, ico, vibrar, sonar, desbloquearAudio, aviso } from './util.js';
+import { $, ico, vibrar, sonar, desbloquearAudio, estadoAudio, usoRespaldo, aviso } from './util.js';
 
 let raiz;
 const esIOS = /iP(hone|ad|od)/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
@@ -26,6 +26,8 @@ export function renderAjustes(el) {
       ${interruptor('haptica', 'Vibración', esIOS ? 'En iPhone vibra al tocar (iOS 18 o más). Al final del descanso suena.' : 'Al marcar series y al terminar el descanso')}
       ${interruptor('pantalla', 'Pantalla encendida', 'Que no se apague mientras entrenas')}
       <button class="btn-sec" data-a="probar">${ico('reloj')} Probar sonido</button>
+      <p class="estado-audio" id="aj-audio">${textoAudio()}</p>
+      <p class="txt2 peq">Si no suena, sube el volumen del teléfono con los botones de un lado.</p>
     </section>
 
     <section class="card">
@@ -70,14 +72,22 @@ function alCambiar(e) {
   }
 }
 
+// Estado del audio para saber si el pitido va a sonar
+function textoAudio() {
+  const e = estadoAudio();
+  if (e === 'listo') return `<span class="ok">●</span> Audio listo${usoRespaldo() ? ' (con el sonido de respaldo)' : ''}`;
+  if (e === 'sin-audio') return '<span class="mal">●</span> Este navegador no puede sonar';
+  return '<span class="mal">●</span> Audio bloqueado: toca "Probar sonido" para activarlo';
+}
+
 async function alTocar(e) {
   const b = e.target.closest('[data-a]');
   if (!b) return;
   const a = b.dataset.a;
   if (a === 'probar') {
     desbloquearAudio(); vibrar(30);
-    setTimeout(() => sonar.fin(), 60);
     if (!S().ajustes.sonido) aviso('El sonido está apagado');
+    else sonar.fin().then(() => { const p = $('#aj-audio'); if (p) p.innerHTML = textoAudio(); });
   } else if (a === 'exportar') {
     const nombre = `mi-rutina-${hoy()}.json`;
     const blob = new Blob([exportar()], { type: 'application/json' });
