@@ -830,3 +830,28 @@ button.ag-chip:active { transform: scale(.97); }
 .recupera .ico { width: 15px; height: 15px; }
 .dia-op.reco { box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--bien) 50%, transparent); }
 .dia-op.reco .dia-hoy { background: color-mix(in srgb, var(--bien) 18%, transparent); color: var(--bien); }
+
+/* Organiza tu semana */
+.sem-lista { display: grid; gap: 6px; margin: 4px 0 14px; }
+.sem-dia { display: grid; grid-template-columns: 48px 1fr auto; align-items: center; gap: 10px; width: 100%; min-height: 60px; padding: 10px 12px 10px 10px; border-radius: 16px; background: var(--bg); text-align: left; border: 2px solid transparent; box-shadow: inset 4px 0 0 var(--c); transition: border-color .2s, transform .15s; }
+.sem-dia:active { transform: scale(.99); }
+.sem-dia.sel { border-color: var(--acento); background: color-mix(in srgb, var(--acento) 10%, var(--bg)); }
+.sem-dia.fijo { opacity: .55; }
+.sem-dia.hecho { opacity: .75; }
+.sem-dia.hoy { border-color: color-mix(in srgb, var(--acento2) 45%, transparent); }
+.sem-dia.sel.hoy { border-color: var(--acento); }
+.sem-fecha { display: grid; justify-items: center; line-height: 1.1; }
+.sem-fecha b { font-size: 14px; font-weight: 800; }
+.sem-fecha small { font-size: 18px; font-weight: 850; color: var(--txt2); }
+.sem-rut { display: grid; gap: 2px; min-width: 0; }
+.sem-rut b { font-size: 16px; font-weight: 800; color: var(--txt); }
+.sem-rut small { font-size: 13px; color: var(--txt2); }
+.sem-rut em { font-style: normal; color: var(--acento2); font-weight: 700; }
+.sem-est { display: inline-flex; align-items: center; gap: 4px; font-size: 12px; font-weight: 800; padding: 4px 9px; border-radius: 999px; background: var(--card2); color: var(--txt2); white-space: nowrap; }
+.sem-est .ico { width: 13px; height: 13px; }
+.sem-dia.hecho .sem-est { color: var(--bien); }
+.sem-dia.falta .sem-est { color: var(--acento); background: color-mix(in srgb, var(--acento) 14%, transparent); }
+.sem-dia.hoy .sem-est { color: #fff; background: var(--grad); }
+#sem .btn-sec { margin-top: 10px; }
+#sem .btn-pri { margin-top: 14px; width: 100%; }
+#sem .peq { margin: 6px 2px 0; }

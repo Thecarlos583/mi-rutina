@@ -11,6 +11,7 @@ import { sabadoHTML, accionSabado } from './sabado.js';
 import { montar, tieneVideo, musculosDe } from './anim.js';
 import { tienePasos, montarPasos } from './pasos.js';
 import { chipsAgarre, hojaAgarre } from './agarres.js';
+import { hojaSemana } from './semana.js';
 
 export const LOGO = `<svg viewBox="0 0 512 512" aria-hidden="true"><defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#FF6B4A"/><stop offset="1" stop-color="#FF9F43"/></linearGradient></defs>
   <circle cx="256" cy="256" r="168" fill="none" stroke="#26303B" stroke-width="40"/>
@@ -50,7 +51,8 @@ function cabecera(f, p) {
     </div>
     ${p.antes ? `<div class="nota">${ico('cal')}<span>Tu plan arranca el ${fechaLarga(S().ajustes.inicio).toLowerCase()}. Mientras tanto, esto es lo que viene.</span></div>` : ''}
     <div class="fila-acc">
-      <button class="btn-chip" data-a="elegir-dia">${ico('cal')} Ver otro día</button>
+      <button class="btn-chip acento" data-a="semana">${ico('cal')} Organizar semana</button>
+      <button class="btn-chip" data-a="elegir-dia">${ico('cambiar')} Ver otro día</button>
       ${p.override ? `<button class="btn-chip acento" data-a="volver-plan">${ico('deshacer')} Volver a lo de hoy</button>` : ''}
     </div>`;
 }
@@ -64,7 +66,7 @@ function entrenoHTML(f, p) {
   return `<section class="hero" style="--hc:${GRUPOS[grupos[0]].c}">
       <div class="hero-txt">
         <p class="eyebrow">${NOMBRE_DIA[p.diaPlan]} · Rutina ${p.variante}</p>
-        ${leerDia(f).plan?.desde ? `<p class="recupera">${ico('deshacer')} Recuperando el ${diaFecha(leerDia(f).plan.desde)}</p>` : ''}
+        ${etiquetaCambio(f, p)}
         <h2>${d.t}</h2>
         <p class="hero-sub">${d.sub} · ${ss.length} ejercicios · ≈${min} min</p>
         <div class="chips">${grupos.map(chip).join('')}</div>
@@ -99,43 +101,23 @@ function faltasHTML(f) {
   if (!fs.length) return '';
   return `<section class="card falta">
     <div class="falta-cab">${ico('cal')}<div><b>${fs.length === 1 ? `¿Faltaste el ${diaFecha(fs[0].f)}?` : `Faltaste ${fs.length} días`}</b>
-      <small>Pásala a otro día para no perder esa rutina.</small></div></div>
+      <small>Acomódala en la semana para no perder esa rutina.</small></div></div>
     ${fs.map(x => `<div class="falta-fila"><span><b>${NOMBRE_DIA[diaDe(x.f)]} ${fechaCorta(x.f)}</b><small>${nombreRutina(x.p)}</small></span>
-      <button class="btn-chip acento" data-a="recuperar" data-f="${x.f}">Pasarla a otro día</button>
+      <button class="btn-chip acento" data-a="semana" data-f="${x.f}">Pasarla a otro día</button>
       <button class="link" data-a="no-recuperar" data-f="${x.f}">No la voy a recuperar</button></div>`).join('')}
   </section>`;
 }
-// Elegir a qué día pasarla: de hoy a 6 días adelante, con lo que tiene cada uno
-function hojaRecuperar(f, x) {
-  const px = planDe(x);
-  const ops = Array.from({ length: 7 }, (_, k) => sumar(f, k)).filter(t => {
-    const l = leerDia(t), p = planDe(t);
-    if (l.plan?.desde) return false; // ya recibe otro día
-    return !(t === f && esGym(p) && seriesHechas(slots(t, p.variante, p.diaPlan)) > 0); // hoy, si ya entrenaste
-  });
-  const fila = t => {
-    const p = planDe(t), libre = !esGym(p);
-    const nota = p.diaPlan === 'sab' ? 'En vez del trote' : p.diaPlan === 'dom' ? 'Usas el día de descanso' : `Pierdes ${PLAN[p.variante][p.diaPlan].t.toLowerCase()} de ese día`;
-    return `<button class="dia-op ${libre ? 'reco' : ''}" data-t="${t}"><span class="dia-n">${t === f ? 'Hoy' : NOMBRE_DIA[diaDe(t)]} ${fechaCorta(t)}</span><span class="dia-t">${nombreRutina(p)} · ${nota}</span>${libre ? '<span class="dia-hoy">Recomendado</span>' : ''}</button>`;
-  };
-  const h = abrirHoja(`<h3 class="hoja-t">Recuperar el ${diaFecha(x)}</h3>
-    <p class="hoja-sub">${nombreRutina(px)}. ¿Qué día la haces? Lo mejor es un día sin pesas, como el sábado o el domingo.</p>
-    <div class="dias">${ops.map(fila).join('')}</div>`);
-  h.onclick = e => {
-    const b = e.target.closest('[data-t]');
-    if (!b) return;
-    const t = b.dataset.t, antes = planDe(t);
-    dia(t).plan = { variante: px.variante, dia: px.diaPlan, desde: x };
-    dia(x).movido = t;
-    guardar(); vibrar(); cerrarHoja(); refrescar(); scrollTo({ top: 0, behavior: 'smooth' });
-    aviso(`${t === f ? 'Hoy' : `El ${diaFecha(t)}`} haces ${PLAN[px.variante][px.diaPlan].t.toLowerCase()}${esGym(antes) ? '' : antes.diaPlan === 'sab' ? ' en vez del trote' : ' en vez de descansar'}`, 'check');
-  };
+// Si este día trae una rutina movida: de qué día faltado viene, o que la cambiaste en la semana
+function etiquetaCambio(f, p) {
+  if (!p.override) return '';
+  for (let k = 1; k <= 7; k++) { const x = sumar(f, -k); if (leerDia(x).movido === f) return `<p class="recupera">${ico('deshacer')} Recuperando el ${diaFecha(x)}</p>`; }
+  return `<p class="recupera">${ico('cal')} Cambiada en tu semana</p>`;
 }
-// Quitar una rutina recuperada de un día: vuelve lo que tocaba y el día que faltaste queda pendiente otra vez
+
+// Quitar el cambio de un día: vuelve lo que tocaba y, si traía un día que faltaste, ese queda pendiente otra vez
 function quitarRecuperada(t) {
-  const desde = leerDia(t).plan?.desde;
   delete dia(t).plan;
-  if (desde) delete dia(desde).movido;
+  for (let k = 1; k <= 7; k++) { const x = sumar(t, -k); if (leerDia(x).movido === t) delete dia(x).movido; }
 }
 
 // ── Vuelta a la calma: caminata y estiramientos de lo que se entrenó hoy ──
@@ -323,7 +305,7 @@ function alTocar(e) {
     case 'revertir': revertir(f, card.dataset.slot); break;
     case 'elegir-dia': hojaDia(f); break;
     case 'volver-plan': quitarRecuperada(f); guardar(); refrescar(); break;
-    case 'recuperar': hojaRecuperar(f, b.dataset.f); break;
+    case 'semana': hojaSemana(f, { seleccion: b.dataset.f || null, alCambiar: () => { const y = scrollY; refrescar(); scrollTo(0, y); } }); break;
     case 'no-recuperar': dia(b.dataset.f).ignorar = true; guardar(); vibrar(8); refrescar(); aviso('Listo, ese día no se recupera', 'check'); break;
     case 'empezar':
       S().ajustes.inicio = $('#inicio').value || proximoLunes(f);
