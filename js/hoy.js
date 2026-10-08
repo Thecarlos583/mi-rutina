@@ -1,7 +1,7 @@
 // Pantalla "Hoy": lo que toca entrenar, series, pesos, cambios de ejercicio, videos y sugerencias
 import { GRUPOS, ZONAS, PLAN, SUGERENCIAS, REGLAS, FRASES_DESCANSO, FRASES_FIN, INICIO, TIPO_PESO, CALENTAMIENTO, ENFRIAMIENTO } from './data.js';
 import { S, dia, leerDia, guardar } from './store.js';
-import { hoy, info, fechaLarga, sumar, NOMBRE_DIA, proximoLunes } from './calendario.js';
+import { hoy, info, fechaLarga, fechaCorta, sumar, diaDe, NOMBRE_DIA, proximoLunes } from './calendario.js';
 import { planDe, slots, totalSeries, seriesHechas, ultimoPeso, mejorPeso, ejercicio, tocaSubir, unidadDe, aVista, aLbs, sugeridoVista, pasoDe, comoCargar, equivalencia } from './rutina.js';
 import { abrirCalculadora } from './calc.js';
 import { cuerpo } from './cuerpo.js';
@@ -32,7 +32,7 @@ export function renderHoy(el) {
   document.body.classList.remove('sin-tabs');
   const f = hoy(), p = planDe(f);
   const contenido = p.diaPlan === 'dom' ? descansoHTML(f) : p.diaPlan === 'sab' ? sabadoHTML(f, p) : entrenoHTML(f, p);
-  el.innerHTML = cabecera(f, p) + contenido + sugerenciasHTML() + tipHTML(f);
+  el.innerHTML = cabecera(f, p) + faltasHTML(f) + contenido + sugerenciasHTML() + tipHTML(f);
   pantallaEncendida(p.diaPlan !== 'dom');
 }
 const refrescar = () => renderHoy(raiz);
@@ -64,6 +64,7 @@ function entrenoHTML(f, p) {
   return `<section class="hero" style="--hc:${GRUPOS[grupos[0]].c}">
       <div class="hero-txt">
         <p class="eyebrow">${NOMBRE_DIA[p.diaPlan]} · Rutina ${p.variante}</p>
+        ${leerDia(f).plan?.desde ? `<p class="recupera">${ico('deshacer')} Recuperando el ${diaFecha(leerDia(f).plan.desde)}</p>` : ''}
         <h2>${d.t}</h2>
         <p class="hero-sub">${d.sub} · ${ss.length} ejercicios · ≈${min} min</p>
         <div class="chips">${grupos.map(chip).join('')}</div>
@@ -74,6 +75,67 @@ function entrenoHTML(f, p) {
     <div class="unid-global" role="radiogroup" aria-label="Ver los pesos en"><span>${ico('balanza')} Pesos en</span>${['lbs', 'kg'].map(x => `<button data-a="unidad" data-u="${x}" role="radio" aria-checked="${x === unidadDe()}">${x}</button>`).join('')}</div>
     <div class="lista-ej">${ss.map(s => tarjeta(f, s)).join('')}</div>
     ${enfriamientoHTML(ss, h === tot)}`;
+}
+
+// ── Días que faltaste: pasar esa rutina a otro día para no perderla ──
+const diaFecha = x => `${NOMBRE_DIA[diaDe(x)].toLowerCase()} ${fechaCorta(x)}`;
+const nombreRutina = p => (p.diaPlan === 'sab' ? 'Trote y afloje' : p.diaPlan === 'dom' ? 'Descanso' : `${PLAN[p.variante][p.diaPlan].t} · ${PLAN[p.variante][p.diaPlan].sub}`);
+const esGym = p => p.diaPlan !== 'sab' && p.diaPlan !== 'dom' && !!PLAN[p.variante]?.[p.diaPlan];
+// Días de gimnasio de la última semana sin ninguna serie marcada (y que no se pasaron ni se descartaron)
+function faltas(f) {
+  const ini = S().ajustes.inicio, out = [];
+  for (let k = 1; k <= 7; k++) {
+    const x = sumar(f, -k);
+    if (!ini || x < ini) break;
+    const p = planDe(x), l = leerDia(x);
+    if (!esGym(p) || l.movido || l.ignorar) continue;
+    if (seriesHechas(slots(x, p.variante, p.diaPlan)) > 0) continue;
+    out.push({ f: x, p });
+  }
+  return out;
+}
+function faltasHTML(f) {
+  const fs = faltas(f);
+  if (!fs.length) return '';
+  return `<section class="card falta">
+    <div class="falta-cab">${ico('cal')}<div><b>${fs.length === 1 ? `¿Faltaste el ${diaFecha(fs[0].f)}?` : `Faltaste ${fs.length} días`}</b>
+      <small>Pásala a otro día para no perder esa rutina.</small></div></div>
+    ${fs.map(x => `<div class="falta-fila"><span><b>${NOMBRE_DIA[diaDe(x.f)]} ${fechaCorta(x.f)}</b><small>${nombreRutina(x.p)}</small></span>
+      <button class="btn-chip acento" data-a="recuperar" data-f="${x.f}">Pasarla a otro día</button>
+      <button class="link" data-a="no-recuperar" data-f="${x.f}">No la voy a recuperar</button></div>`).join('')}
+  </section>`;
+}
+// Elegir a qué día pasarla: de hoy a 6 días adelante, con lo que tiene cada uno
+function hojaRecuperar(f, x) {
+  const px = planDe(x);
+  const ops = Array.from({ length: 7 }, (_, k) => sumar(f, k)).filter(t => {
+    const l = leerDia(t), p = planDe(t);
+    if (l.plan?.desde) return false; // ya recibe otro día
+    return !(t === f && esGym(p) && seriesHechas(slots(t, p.variante, p.diaPlan)) > 0); // hoy, si ya entrenaste
+  });
+  const fila = t => {
+    const p = planDe(t), libre = !esGym(p);
+    const nota = p.diaPlan === 'sab' ? 'En vez del trote' : p.diaPlan === 'dom' ? 'Usas el día de descanso' : `Pierdes ${PLAN[p.variante][p.diaPlan].t.toLowerCase()} de ese día`;
+    return `<button class="dia-op ${libre ? 'reco' : ''}" data-t="${t}"><span class="dia-n">${t === f ? 'Hoy' : NOMBRE_DIA[diaDe(t)]} ${fechaCorta(t)}</span><span class="dia-t">${nombreRutina(p)} · ${nota}</span>${libre ? '<span class="dia-hoy">Recomendado</span>' : ''}</button>`;
+  };
+  const h = abrirHoja(`<h3 class="hoja-t">Recuperar el ${diaFecha(x)}</h3>
+    <p class="hoja-sub">${nombreRutina(px)}. ¿Qué día la haces? Lo mejor es un día sin pesas, como el sábado o el domingo.</p>
+    <div class="dias">${ops.map(fila).join('')}</div>`);
+  h.onclick = e => {
+    const b = e.target.closest('[data-t]');
+    if (!b) return;
+    const t = b.dataset.t, antes = planDe(t);
+    dia(t).plan = { variante: px.variante, dia: px.diaPlan, desde: x };
+    dia(x).movido = t;
+    guardar(); vibrar(); cerrarHoja(); refrescar(); scrollTo({ top: 0, behavior: 'smooth' });
+    aviso(`${t === f ? 'Hoy' : `El ${diaFecha(t)}`} haces ${PLAN[px.variante][px.diaPlan].t.toLowerCase()}${esGym(antes) ? '' : antes.diaPlan === 'sab' ? ' en vez del trote' : ' en vez de descansar'}`, 'check');
+  };
+}
+// Quitar una rutina recuperada de un día: vuelve lo que tocaba y el día que faltaste queda pendiente otra vez
+function quitarRecuperada(t) {
+  const desde = leerDia(t).plan?.desde;
+  delete dia(t).plan;
+  if (desde) delete dia(desde).movido;
 }
 
 // ── Vuelta a la calma: caminata y estiramientos de lo que se entrenó hoy ──
@@ -260,7 +322,9 @@ function alTocar(e) {
     case 'video-cal': { const x = [...CALENTAMIENTO.superior, ...CALENTAMIENTO.piernas].find(c => c.id === b.dataset.id); hojaVideo({ ...x, id: x.id }); break; }
     case 'revertir': revertir(f, card.dataset.slot); break;
     case 'elegir-dia': hojaDia(f); break;
-    case 'volver-plan': delete dia(f).plan; guardar(); refrescar(); break;
+    case 'volver-plan': quitarRecuperada(f); guardar(); refrescar(); break;
+    case 'recuperar': hojaRecuperar(f, b.dataset.f); break;
+    case 'no-recuperar': dia(b.dataset.f).ignorar = true; guardar(); vibrar(8); refrescar(); aviso('Listo, ese día no se recupera', 'check'); break;
     case 'empezar':
       S().ajustes.inicio = $('#inicio').value || proximoLunes(f);
       guardar(); vibrar(); refrescar(); scrollTo(0, 0);
@@ -456,7 +520,8 @@ function hojaDia(f) {
     if (!bd) return;
     const dd = bd.dataset.d, auto = info(f, S().ajustes.inicio);
     const igual = dd === auto.dia && (v === auto.variante || dd === 'sab' || dd === 'dom');
-    if (igual) delete dia(f).plan; else dia(f).plan = { variante: v, dia: dd };
+    quitarRecuperada(f);
+    if (!igual) dia(f).plan = { variante: v, dia: dd };
     guardar(); vibrar(); cerrarHoja(); refrescar(); scrollTo({ top: 0, behavior: 'smooth' });
   };
 }

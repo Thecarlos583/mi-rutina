@@ -814,3 +814,19 @@ button.ag-chip:active { transform: scale(.97); }
 /* Vuelta a la calma */
 .enfria { margin-top: 4px; box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--bien) 40%, transparent); }
 .enfria .cal-lista li::before { color: var(--bien); }
+
+/* Día que faltaste */
+.falta { box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--acento) 45%, transparent); }
+.falta-cab { display: flex; gap: 12px; align-items: flex-start; }
+.falta-cab > .ico { flex: none; width: 24px; height: 24px; color: var(--acento2); margin-top: 2px; }
+.falta-cab div { display: grid; gap: 2px; }
+.falta-cab b { font-size: 17px; font-weight: 800; }
+.falta-cab small, .falta-fila small { color: var(--txt2); font-size: 13px; }
+.falta-fila { display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 6px 10px; margin-top: 12px; padding: 12px; border-radius: 14px; background: var(--bg); }
+.falta-fila > span { display: grid; gap: 2px; min-width: 0; }
+.falta-fila .btn-chip { min-height: 44px; }
+.falta-fila .link { grid-column: 1 / -1; justify-self: start; font-size: 13px; color: var(--txt2); min-height: 32px; }
+.recupera { display: inline-flex; align-items: center; gap: 6px; margin-top: 6px; padding: 4px 10px; border-radius: 999px; font-size: 13px; font-weight: 750; color: var(--acento2); background: color-mix(in srgb, var(--acento) 14%, transparent); }
+.recupera .ico { width: 15px; height: 15px; }
+.dia-op.reco { box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--bien) 50%, transparent); }
+.dia-op.reco .dia-hoy { background: color-mix(in srgb, var(--bien) 18%, transparent); color: var(--bien); }
