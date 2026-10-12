@@ -23,22 +23,29 @@ export function slots(f, variante, diaPlan) {
   const d = PLAN[variante]?.[diaPlan];
   if (!d) return [];
   const log = leerDia(f);
-  return d.e.map(([baseId, series, reps, nota], i) => {
-    const slot = `${variante}-${diaPlan}-${i}`;
+  // La Semana B en circuitos usa sus propios puestos ("B2-…") para no chocar con lo anotado en la B vieja
+  const pre = d.circuitos ? `${variante}2` : variante;
+  return d.e.map(([baseId, series, reps, nota, circ, altsPlan, tip], i) => {
+    const slot = `${pre}-${diaPlan}-${i}`;
     const base = ejercicio(baseId);
-    const h = log.cambios?.[slot], sw = S().siempre[baseId];
+    const alts = altsPlan || base.a || [];
+    // "Usar siempre" de la Semana B se guarda aparte: no toca los cambios de la Semana A
+    const clave = d.circuitos ? `B|${baseId}` : baseId;
+    const h = log.cambios?.[slot], swGuardado = S().siempre[clave];
+    const sw = swGuardado && alts.some(a => a[0] === swGuardado) ? swGuardado : null;
     let ejId = baseId, cambio = null;
     if (h && h !== baseId) { ejId = h; cambio = 'hoy'; }
     else if (!h && sw) { ejId = sw; cambio = 'siempre'; }
     let s = series, r = reps, n = nota;
     if (cambio) {
-      const alt = base.a?.find(a => a[0] === ejId);
+      const alt = alts.find(a => a[0] === ejId);
       if (alt) { [, s, r] = alt; n = null; }
     }
     const marcadas = log.series?.[slot] || [];
     return {
       slot, i, base, ej: cambio ? ejercicio(ejId, baseId) : base,
       series: s, reps: r, nota: n, descanso: base.d, cambio, orig: { series, reps },
+      alts, clave, circ: circ ?? null, tip: tip ?? null,
       hechas: Array.from({ length: s }, (_, k) => !!marcadas[k]),
     };
   });

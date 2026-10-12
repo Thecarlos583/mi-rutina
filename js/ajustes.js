@@ -1,6 +1,6 @@
 // Pantalla "Ajustes": fecha de inicio, sonido, vibración, respaldo y reinicio
 import { S, guardar, exportar, importar, reiniciar } from './store.js';
-import { hoy, info, fechaLarga } from './calendario.js';
+import { hoy, info, fechaLarga, lunesDe } from './calendario.js';
 import { $, ico, vibrar, sonar, desbloquearAudio, estadoAudio, usoRespaldo, aviso } from './util.js';
 
 let raiz;
@@ -17,7 +17,8 @@ export function renderAjustes(el) {
     <section class="card">
       <div class="card-cab"><h3>Tu plan</h3></div>
       <label class="campo"><span>Inicio de la semana 1</span><input type="date" id="aj-inicio" value="${a.inicio ?? ''}"></label>
-      <p class="txt2 peq">${a.inicio ? (inf.antes ? `Arrancas el ${fechaLarga(a.inicio).toLowerCase()}.` : `Hoy estás en la semana ${inf.semana} (rutina ${inf.variante})${inf.ciclo > 1 ? `, ciclo ${inf.ciclo}` : ''}. El ciclo de 4 semanas se repite solo.`) : 'Elige cuándo arrancas.'}</p>
+      <p class="txt2 peq">${a.inicio ? (inf.antes ? `Arrancas el ${fechaLarga(lunesDe(a.inicio)).toLowerCase()}.` : `Tu semana 1 empezó el ${fechaLarga(lunesDe(a.inicio)).toLowerCase()}. Hoy: <b>Semana ${inf.semana} · ${inf.variante}</b>${inf.ciclo > 1 ? `, ciclo ${inf.ciclo}` : ''}. Las semanas empiezan los lunes; el ciclo de 4 (A, B, A, B) se repite solo.`) : 'Elige cuándo arrancas.'}</p>
+      <p class="txt2 peq">Si la semana no te cuadra, corrige aquí la fecha en que empezaste.</p>
     </section>
 
     <section class="card">

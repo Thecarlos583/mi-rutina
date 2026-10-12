@@ -328,6 +328,77 @@ export const EJERCICIOS = {
     a: [['plancha-toque', 3, '20'], ['dead-bug', 3, '12/lado']] },
   'plancha-toque': { n: 'Plancha con toque de hombros', p: ['En plancha alta, toca un hombro con la mano contraria sin mover la cadera.'] },
   'dead-bug': { n: 'Dead bug', p: ['Boca arriba, estira brazo y pierna contrarios sin despegar la espalda baja.'] },
+
+  // ── Semana B (circuitos): ejercicios nuevos ────────────────
+  'frontal-z': { n: 'Elevación frontal con barra Z', g: 'hombros', z: ['deltoides'], s: ['trapecio'], d: 60,
+    t: 'La parte delantera del hombro.',
+    p: ['De pie, barra Z frente a los muslos, manos al ancho de los hombros.', 'Sube con los brazos casi rectos hasta la altura de los hombros.', 'Sin balancear el cuerpo.', 'Baja lento en 2 s.'] },
+  'curl-21-recta': { n: '21s con barra recta', g: 'biceps', z: ['biceps'], s: ['antebrazo'], d: 90,
+    t: 'El bíceps en todo su recorrido, por partes. Quema, y bastante.',
+    p: ['7 repeticiones de abajo hasta la mitad.', '7 de la mitad hasta arriba.', '7 completas, de abajo hasta arriba.', 'Codos pegados todo el tiempo.'] },
+  'curl-alterno': { n: 'Curl alterno con mancuernas', g: 'biceps', z: ['biceps'], s: ['antebrazo'], d: 60,
+    t: 'El bíceps de cada brazo por separado.',
+    p: ['De pie, mancuernas a los lados con las palmas enfrentadas.', 'Sube una y gira la muñeca para que la palma mire hacia ti.', 'Baja controlado y cambia de brazo.', 'Codos pegados, sin balancear.'] },
+  'aperturas-maquina': { n: 'Aperturas en máquina', g: 'pecho', z: ['pecho'], s: ['deltoides'], d: 60,
+    t: 'El pecho juntando los brazos, sin que ayude el tríceps.',
+    p: ['Espalda pegada al respaldo, manijas a la altura del pecho.', 'Codos un poco flexionados todo el tiempo.', 'Junta las manos al frente y aprieta 1 s.', 'Abre lento hasta sentir el estiramiento.'] },
+  'crunch-lateral-maquina': { n: 'Crunch lateral en máquina', g: 'core', z: ['oblicuos'], s: ['abdomen'], d: 45,
+    t: 'Los oblicuos, los músculos de los costados del abdomen.',
+    p: ['Ajusta la máquina de crunch lateral o de giro.', 'Dobla el torso hacia un lado, lento.', 'Vuelve sin impulso.', 'Haz todas las de un lado y cambia.'] },
+  'fondos-paralelas': { n: 'Paralelas (fondos)', g: 'pecho', z: ['pecho', 'triceps'], s: ['deltoides'], d: 90,
+    t: 'Pecho bajo y tríceps con tu propio peso.',
+    p: ['Sujétate en las paralelas con los brazos estirados.', 'Inclínate un poco al frente.', 'Baja hasta que los hombros queden a la altura de los codos.', 'Sube sin bloquear los codos de golpe.'] },
+  'rueda': { n: 'Rueda abdominal', g: 'core', z: ['abdomen'], s: ['dorsal'], d: 60,
+    t: 'Todo el abdomen trabajando para que la espalda no se arquee.',
+    p: ['De rodillas sobre una colchoneta, manos en la rueda.', 'Rueda al frente solo hasta donde la espalda baja no se arquee.', 'Aprieta el abdomen y vuelve.', 'Si molesta la espalda baja, haz menos recorrido.'] },
+  'elevacion-paralelas': { n: 'Elevación de piernas en paralelas', g: 'core', z: ['abdomen'], s: ['oblicuos'], d: 60,
+    t: 'El abdomen bajo, sin apoyar la espalda en el piso.',
+    p: ['Antebrazos en los apoyos, espalda pegada al respaldo.', 'Sube las piernas sin balancearte.', 'Baja lento.', 'Si es fácil, una mancuerna de 10 lbs entre los pies.'] },
+  'encogimientos-mancuernas': { n: 'Encogimientos con mancuernas', g: 'espalda', z: ['trapecio'], s: ['antebrazo'], d: 60,
+    t: 'El trapecio de arriba, el que va de los hombros al cuello.',
+    p: ['De pie, una mancuerna en cada mano a los lados.', 'Sube los hombros hacia las orejas.', 'Pausa 1 s arriba.', 'Baja lento, sin girar los hombros.'] },
+  'encogimientos-barra': { n: 'Encogimientos con barra recta', g: 'espalda', z: ['trapecio'], s: ['antebrazo'], d: 60,
+    t: 'El trapecio de arriba.',
+    p: ['De pie, barra frente a los muslos con agarre cerrado.', 'Barra pegada al cuerpo.', 'Sube los hombros hacia las orejas y pausa arriba.', 'Baja lento.'] },
+  'remo-menton-z': { n: 'Remo al mentón con barra Z', g: 'hombros', z: ['deltoides', 'trapecio'], s: ['biceps'], d: 60,
+    t: 'Hombro medio y trapecio.',
+    p: ['De pie, barra Z frente a los muslos, manos al ancho de los hombros.', 'Sube la barra pegada al cuerpo hasta el pecho.', 'Codos como máximo a la altura de los hombros.', 'Baja lento.'] },
+  'stir-pot': { n: 'Stir the pot con pelota de pilates', g: 'core', z: ['abdomen'], s: ['oblicuos'], d: 45,
+    t: 'El abdomen profundo, aguantando para que la cadera no se mueva.',
+    p: ['Antebrazos sobre la pelota en posición de plancha.', 'Haz círculos pequeños con los codos.', 'La cadera no se mueve.', '10 círculos hacia un lado y 10 hacia el otro.'] },
+  // Alternativas nuevas de la Semana B (heredan grupo y descripción del ejercicio principal)
+  'press-hombro-maquina': { n: 'Press en máquina de hombro', p: ['Espalda pegada al respaldo; empuja las manijas hacia arriba sin bloquear los codos.'] },
+  'predicador-mancuerna': { n: 'Curl predicador con mancuerna a una mano', p: ['Brazo apoyado en el banco predicador; sube y baja lento, sin estirar de golpe.'] },
+  'extension-mancuerna-cabeza': { n: 'Extensión sobre la cabeza con mancuerna', p: ['Sentado, una mancuerna con las dos manos detrás de la cabeza; extiende hacia arriba con los codos quietos.'] },
+  'frontal-mancuernas': { n: 'Elevación frontal con mancuernas alternas', p: ['Sube una mancuerna al frente hasta el hombro, baja y cambia de brazo.'] },
+  'frontal-disco': { n: 'Elevación frontal con disco', p: ['Disco agarrado con las dos manos; súbelo al frente hasta la altura de los hombros.'] },
+  'frontal-polea': { n: 'Elevación frontal en polea baja', p: ['De espaldas a la polea baja, sube la manija al frente hasta el hombro.'] },
+  'triceps-barra-v': { n: 'Extensión de tríceps con barra V', p: ['Polea alta con la barra en V; codos pegados, baja hasta estirar los brazos.'] },
+  'martillo-cruzado': { n: 'Martillo cruzado al pecho', p: ['Palma hacia adentro; sube la mancuerna cruzando hacia el hombro contrario.'] },
+  'laterales-pie': { n: 'Laterales de pie', p: ['De pie, sube las mancuernas a los lados hasta la altura de los hombros, codos un poco flexionados.'] },
+  'curl-inclinado': { n: 'Curl en banco inclinado', p: ['Sentado en un banco inclinado, brazos colgando; sube las mancuernas sin adelantar los codos.'] },
+  'fondos-banco': { n: 'Fondos en banco', p: ['Manos en el borde de un banco, piernas al frente; baja doblando los codos hacia atrás y sube.'] },
+  'abduccion-lado': { n: 'Abducción acostado de lado', p: ['Acostado de lado, sube la pierna de arriba recta y baja lento.'] },
+  'aperturas-mancuernas': { n: 'Aperturas con mancuernas', p: ['Acostado en el banco, abre los brazos con los codos un poco flexionados y júntalos arriba.'] },
+  'cruces-medio': { n: 'Cruces de polea a media altura', p: ['Poleas a la altura del pecho; junta las manos al frente en arco.'] },
+  'lenador-polea': { n: 'Leñador en polea', p: ['De lado a la polea, ambas manos en la manija; gira desde la cadera en diagonal.'] },
+  'inclinado-smith': { n: 'Press inclinado en Smith', p: ['Banco a 30° bajo la Smith; baja la barra al pecho alto y empuja.'] },
+  'plano-smith': { n: 'Press plano en Smith', p: ['Banco plano bajo la Smith; baja la barra al pecho medio y empuja.'] },
+  'fondos-asistidos': { n: 'Fondos asistidos en máquina', p: ['Rodillas en el apoyo de la máquina asistida; baja hasta los codos a 90° y sube.'] },
+  'plancha-desplazamiento': { n: 'Plancha con desplazamiento de codos', p: ['En plancha sobre los antebrazos, adelanta y atrasa los codos unos centímetros sin mover la cadera.'] },
+  'rollout-fitball': { n: 'Rollout con fitball', p: ['De rodillas, antebrazos en la pelota; rueda al frente sin arquear la espalda y vuelve.'] },
+  'inclinado-cerrado': { n: 'Press inclinado con agarre cerrado', p: ['Banco a 30°, manos al ancho de los hombros; baja al pecho alto con los codos pegados.'] },
+  'aperturas-inclinadas': { n: 'Aperturas inclinadas con mancuernas', p: ['Banco a 30°; abre los brazos con los codos un poco flexionados y júntalos arriba.'] },
+  'press-cerrado': { n: 'Press con agarre cerrado', p: ['Banco plano, manos al ancho de los hombros, codos pegados al bajar.'] },
+  'crunch-inverso': { n: 'Crunch inverso', p: ['Acostado, rodillas dobladas; despega la cadera del piso llevando las rodillas al pecho.'] },
+  'remo-maquina-un-brazo': { n: 'Remo en máquina a un brazo', p: ['Pecho en el apoyo; jala con un brazo llevando el codo atrás.'] },
+  'encogimientos-smith': { n: 'Encogimientos en Smith', p: ['Barra de la Smith frente a los muslos; sube los hombros y pausa arriba.'] },
+  'encogimientos-maquina': { n: 'Encogimientos en máquina', p: ['Manijas a los lados o cojines en los hombros; sube los hombros y pausa.'] },
+  'remo-banda': { n: 'Remo con banda', p: ['Banda atada al frente a la altura del pecho; jala con los codos atrás y aprieta.'] },
+  'remo-menton-polea': { n: 'Remo al mentón en polea', p: ['Polea baja con barra recta; sube hasta el pecho con los codos a la altura de los hombros como máximo.'] },
+  'remo-invertido': { n: 'Remo invertido', p: ['Bajo una barra fija o de la Smith, cuerpo recto; jala el pecho hacia la barra.'] },
+  'crunch-fitball': { n: 'Crunch con fitball', p: ['Espalda baja sobre la pelota, pies firmes; sube el pecho sin jalar el cuello.'] },
+  'plancha-rodillas': { n: 'Plancha de rodillas', p: ['Antebrazos y rodillas en el piso, cuerpo recto de las rodillas a la cabeza.'] },
 };
 
 // ── Pesos para empezar ───────────────────────────────────────
@@ -343,8 +414,21 @@ export const TIPO_PESO = {
 export const BARRA = {
   'curl-z': 'z', 'curl-barra-recta': 'z', 'curl-inverso-z': 'z', 'curl-predicador': 'z', 'curl-21': 'z', 'drag-curl': 'z', 'frances-z': 'z',
   'sentadilla-smith-adelantados': 'smith', 'hip-thrust-smith': 'smith', 'pantorrilla-smith': 'smith',
+  'frontal-z': 'z', 'curl-21-recta': 'z', 'remo-menton-z': 'z', 'inclinado-smith': 'smith', 'plano-smith': 'smith', 'encogimientos-smith': 'smith',
 };
 export const INICIO = {
+  // Semana B (circuitos)
+  'frontal-z': [20, 'barra'], 'curl-21-recta': [25, 'barra'], 'curl-alterno': [15, 'c/u'], 'aperturas-maquina': [40, 'maq'],
+  'crunch-lateral-maquina': [40, 'maq'], 'fondos-paralelas': [0, 'corp'], 'rueda': [0, 'corp'], 'elevacion-paralelas': [0, 'corp'],
+  'encogimientos-mancuernas': [30, 'c/u'], 'encogimientos-barra': [65, 'barra'], 'remo-menton-z': [30, 'barra'], 'stir-pot': [0, 'corp'],
+  'press-hombro-maquina': [40, 'maq'], 'predicador-mancuerna': [15, 'una'], 'extension-mancuerna-cabeza': [20, 'una'],
+  'frontal-mancuernas': [10, 'c/u'], 'frontal-disco': [10, 'una'], 'frontal-polea': [10, 'maq'], 'triceps-barra-v': [35, 'maq'],
+  'martillo-cruzado': [15, 'c/u'], 'laterales-pie': [10, 'c/u'], 'curl-inclinado': [10, 'c/u'], 'fondos-banco': [0, 'corp'],
+  'abduccion-lado': [0, 'corp'], 'aperturas-mancuernas': [15, 'c/u'], 'cruces-medio': [15, 'maq'], 'lenador-polea': [20, 'maq'],
+  'inclinado-smith': [55, 'barra'], 'plano-smith': [65, 'barra'], 'fondos-asistidos': [60, 'asist'], 'plancha-desplazamiento': [0, 'corp'],
+  'rollout-fitball': [0, 'corp'], 'inclinado-cerrado': [55, 'barra'], 'aperturas-inclinadas': [15, 'c/u'], 'press-cerrado': [55, 'barra'],
+  'crunch-inverso': [0, 'corp'], 'remo-maquina-un-brazo': [25, 'maq'], 'encogimientos-smith': [65, 'barra'], 'encogimientos-maquina': [70, 'maq'],
+  'remo-banda': [0, 'banda'], 'remo-menton-polea': [30, 'maq'], 'remo-invertido': [0, 'corp'], 'crunch-fitball': [0, 'corp'], 'plancha-rodillas': [0, 'corp'],
   // Espalda
   'remo-barra': [65, 'barra'], 'remo-mancuernas-pecho': [20, 'c/u'], 'remo-maquina': [50, 'maq'], 'remo-polea-abierto': [50, 'maq'],
   'jalon-ancho': [60, 'maq'], 'dominadas-asistidas': [60, 'asist'], 'jalon-hammer': [50, 'maq'], 'jalon-un-brazo': [25, 'maq'],
@@ -442,6 +526,104 @@ const VIERNES_A = [
   ['hip-thrust', 3, '12'], ['abductor', 3, '20'], ['pantorrilla-sentado', 4, '15-20'],
 ];
 
+// Ejercicios que ya existían solo como alternativa y ahora son principales en la Semana B: les falta su descripción
+Object.assign(EJERCICIOS['triceps-cuerda'], { g: 'triceps', z: ['triceps'], s: [], d: 60, t: 'El tríceps, sobre todo la parte de afuera; la cuerda deja abrir al final.' });
+Object.assign(EJERCICIOS['sentadilla-smith-adelantados'], { g: 'cuadriceps', z: ['cuadriceps', 'gluteo'], s: ['femoral'], d: 90, t: 'Cuádriceps y glúteo con la barra guiada: más estable que la sentadilla libre.' });
+Object.assign(EJERCICIOS['rumano-barra'], { g: 'femoral', z: ['femoral', 'gluteo'], s: ['lumbar'], d: 90, t: 'Isquiotibiales y glúteo, con la espalda baja sosteniendo.' });
+Object.assign(EJERCICIOS['femoral-sentado'], { g: 'femoral', z: ['femoral'], s: [], d: 60, t: 'Isquiotibiales: la parte de atrás del muslo.' });
+Object.assign(EJERCICIOS['cruces-abajo'], { g: 'pecho', z: ['pecho'], s: ['deltoides'], d: 60, t: 'La parte alta del pecho, con tensión en todo el recorrido.' });
+Object.assign(EJERCICIOS['fondos-maquina'], { g: 'triceps', z: ['triceps'], s: ['pecho'], d: 60, t: 'El tríceps empujando con carga guiada.' });
+Object.assign(EJERCICIOS['remo-mancuernas-pecho'], { g: 'espalda', z: ['dorsal', 'trapecio'], s: ['biceps', 'deltoidesPost'], d: 90, t: 'Espalda media sin trampa: el pecho apoyado no deja ayudar con el cuerpo.' });
+Object.assign(EJERCICIOS['pajaro'], { g: 'hombros', z: ['deltoidesPost'], s: ['trapecio'], d: 60, t: 'El hombro de atrás y la espalda alta.' });
+
+// ── Semana B: circuitos ──────────────────────────────────────
+// Cada ejercicio: [id, reps, clave del día, [alternativas], nota]. Las rondas son del circuito.
+// En PLAN.B cada ejercicio queda como [id, rondas, reps, nota, circuito, alternativas, clave], así lo demás de la app lo lee igual.
+const circ = (n, rondas, ...ej) => ({ n, rondas, ej });
+const activacion = (...ej) => ({ n: 'Activación de espalda', rondas: 1, activacion: true, ej });
+function enCircuitos(t, sub, ...cs) {
+  return {
+    t, sub,
+    circuitos: cs.map(({ n, rondas, activacion }) => ({ n, rondas, activacion: !!activacion })),
+    e: cs.flatMap((c, ci) => c.ej.map(([id, reps, clave, alts = [], nota = null]) => [id, c.rondas, reps, nota, ci, alts.map(a => [a, c.rondas, reps]), clave])),
+  };
+}
+const SEMANA_B = {
+  lun: enCircuitos('Hombros + brazos', 'Bíceps y tríceps en circuitos',
+    circ('Circuito 1', 3,
+      ['militar-mancuernas', '12', 'Desde las orejas hacia arriba, sin arquear la espalda baja.', ['militar-hammer', 'press-arnold', 'press-hombro-maquina']],
+      ['curl-predicador', '10', 'Brazos pegados al banco; no estires de golpe abajo.', ['predicador-maquina', 'predicador-mancuerna', 'curl-arana']],
+      ['frances-z', '10', 'Barra a la frente; solo se mueven los codos.', ['frances-mancuernas', 'triceps-sobre-cabeza', 'extension-mancuerna-cabeza']]),
+    circ('Circuito 2', 3,
+      ['frontal-z', '15', 'Brazos casi rectos al frente, hasta la altura de los hombros.', ['frontal-mancuernas', 'frontal-disco', 'frontal-polea']],
+      ['curl-21-recta', '7+7+7', '7 abajo-mitad, 7 mitad-arriba y 7 completas.', ['curl-21', 'curl-barra-recta', 'curl-polea-barra']],
+      ['triceps-cuerda', '20', 'Codos pegados; abre la cuerda al final.', ['triceps-polea', 'triceps-barra-v', 'triceps-un-brazo-polea']]),
+    circ('Circuito 3', 3,
+      ['posterior-maquina', '12', 'Codos casi rectos, abre hacia atrás y aprieta.', ['pajaro', 'face-pull', 'posterior-polea']],
+      ['martillo-sentado', '10', 'Palmas enfrentadas, sin impulso.', ['martillo-cuerda', 'curl-inverso-z', 'martillo-cruzado']],
+      ['triceps-predicador', '12', 'Brazo apoyado; extiende completo.', ['triceps-un-brazo-polea', 'frances-una-mancuerna', 'patada-mancuerna']]),
+    circ('Circuito 4', 3,
+      ['laterales', '15', 'Hasta la altura del hombro, codos un poco flexionados.', ['laterales-polea', 'laterales-maquina', 'laterales-pie']],
+      ['curl-alterno', '12/brazo', 'Gira la muñeca al subir.', ['curl-z', 'curl-polea-baja', 'curl-inclinado']],
+      ['patada-triceps-polea', '15/brazo', 'Inclinado, codo pegado, extiende hacia atrás.', ['patada-mancuerna', 'triceps-un-brazo-polea', 'fondos-banco']])),
+  mar: enCircuitos('Piernas', 'Cuádriceps, femoral y glúteo en circuitos',
+    circ('Circuito 1', 3,
+      ['sentadilla-smith-adelantados', '12', 'Pies un poco adelante, baja a paralelo, rodillas alineadas con los pies.', ['sentadilla-goblet', 'sentadilla', 'sentadilla-hack']],
+      ['femoral-acostado', '15', 'Cadera pegada al banco, talones al glúteo.', ['femoral-sentado', 'femoral-fitball', 'femoral-pie']],
+      ['abductor', '20', 'Abre controlado y aprieta 1 s.', ['abduccion-polea', 'caminata-banda', 'abduccion-lado']]),
+    circ('Circuito 2', 3,
+      ['rumano-barra', '12', 'Rodillas un poco flexionadas, cadera atrás, barra pegada a las piernas y espalda recta.', ['rumano-mancuernas', 'hiperextensiones', 'buenos-dias']],
+      ['zancadas-caminando', '10/pierna', 'Pasos largos, rodilla de atrás casi al piso.', ['zancada-reversa', 'bulgara', 'step-up']]),
+    circ('Circuito 3', 3,
+      ['femoral-sentado', '12', 'Espalda pegada al respaldo, baja controlado.', ['femoral-acostado', 'nordico', 'femoral-fitball']],
+      ['hip-thrust', '20', 'Espalda alta en el banco, sube a línea recta y aprieta 1 s.', ['hip-thrust-smith', 'elevacion-pelvis', 'patada-gluteo-polea']]),
+    circ('Circuito 4', 3,
+      ['extensiones', '15', 'Aprieta 1 s arriba y baja lento.', ['sissy', 'goblet-talones', 'step-up']],
+      ['femoral-pie', '12/pierna', 'Una pierna; en máquina o en polea con tobillera.', ['femoral-acostado', 'femoral-fitball', 'femoral-sentado']])),
+  mie: enCircuitos('Pecho + abdomen', 'En circuitos de 4 rondas',
+    circ('Circuito 1', 4,
+      ['inclinado-mancuernas', '10', 'Banco a 30°, baja a los lados del pecho.', ['inclinado-barra', 'inclinado-maquina', 'inclinado-smith']],
+      ['aperturas-maquina', '12', 'Codos un poco flexionados, aprieta al centro.', ['aperturas-mancuernas', 'cruces-medio', 'cruces-abajo']],
+      ['crunch-lateral-maquina', '15/lado', 'Lento, sin impulso.', ['crunch-lateral', 'lenador-polea', 'plancha-lateral']]),
+    circ('Circuito 2', 4,
+      ['press-plano-barra', '10', 'Baja al pecho medio con los omóplatos juntos.', ['press-plano-mancuernas', 'press-pecho-maquina', 'plano-smith']],
+      ['fondos-paralelas', 'máx. 15', 'Inclínate un poco al frente; baja hasta que los hombros queden a la altura de los codos.', ['fondos-asistidos', 'flexiones', 'fondos-banco'], 'al fallo técnico'],
+      ['rueda', '12-15', 'De rodillas; sal solo hasta donde la espalda baja no se arquee.', ['plancha-desplazamiento', 'rollout-fitball', 'crunch-polea']]),
+    circ('Circuito 3', 4,
+      ['cruces-abajo', '12', 'Poleas bajas; sube las manos hacia arriba y al centro.', ['inclinado-cerrado', 'aperturas-inclinadas', 'inclinado-maquina']],
+      ['fondos-maquina', '12', 'Codos atrás, hombros lejos de las orejas.', ['fondos-banco', 'triceps-cuerda', 'press-cerrado']],
+      ['elevacion-paralelas', '15-20', 'Sube sin balancearte; si es fácil, mancuerna de 10 lbs entre los pies.', ['elevacion-colgado', 'elevacion-piernas', 'crunch-inverso']])),
+  jue: enCircuitos('Espalda + trapecio', 'Y pantorrilla, en circuitos',
+    activacion(
+      ['jalon-brazos-rectos', '15', 'Ligero: baja la barra en arco hasta los muslos y aprieta los dorsales. Enciende la espalda antes de los remos.', ['pullover-cuerda']]),
+    circ('Circuito 1', 3,
+      ['remo-una-mano', '10/brazo', 'Rodilla y mano en el banco; lleva el codo hacia la cadera.', ['remo-polea-un-brazo', 'remo-mancuernas-pecho', 'remo-maquina-un-brazo']],
+      ['encogimientos-mancuernas', '15', 'Hombros hacia las orejas, pausa 1 s, sin girar.', ['encogimientos-smith', 'encogimientos-barra', 'encogimientos-maquina']]),
+    circ('Circuito 2', 3,
+      ['jalon-ancho', '12-15', 'Barra al pecho alto, codos hacia abajo y atrás.', ['jalon-hammer', 'dominadas-asistidas', 'jalon-supino']],
+      ['remo-polea-cerrado', '15', 'Torso fijo, codos atrás, aprieta 1 s.', ['remo-gironda', 'remo-maquina', 'remo-banda']],
+      ['remo-menton-z', '15', 'Sube solo hasta el pecho; codos como máximo a la altura de los hombros.', ['remo-menton-polea', 'laterales', 'face-pull']]),
+    circ('Circuito 3', 3,
+      ['remo-supino', '12', 'Palmas arriba, torso a 45°, barra al ombligo.', ['remo-barra', 'remo-polea-supino', 'remo-maquina']],
+      ['encogimientos-barra', '20', 'Agarre cerrado, barra pegada al cuerpo, pausa arriba.', ['encogimientos-mancuernas', 'encogimientos-smith', 'encogimientos-maquina']]),
+    circ('Circuito 4', 3,
+      ['pantorrilla-pie', '10+10+10', 'Pies cerrados, rectos y abiertos en la misma serie; recorrido completo.', ['pantorrilla-smith', 'pantorrilla-sentado', 'pantorrilla-una-pierna'], '3 posiciones'])),
+  vie: enCircuitos('Espalda + hombros', 'Y abdomen, en circuitos',
+    circ('Circuito 1', 3,
+      ['remo-barra', '8-10', 'Torso a 45°, barra al ombligo apretando los omóplatos.', ['remo-maquina', 'remo-mancuernas-pecho', 'remo-polea-abierto']],
+      ['laterales', '10-12', 'Hasta la altura del hombro, codos un poco flexionados.', ['laterales-polea', 'laterales-maquina', 'laterales-pie']]),
+    circ('Circuito 2', 3,
+      ['remo-mancuernas-pecho', '10', 'Pecho apoyado y codos atrás: el remo donde más se siente la espalda, porque no hay trampa.', ['remo-maquina', 'remo-gironda', 'remo-invertido']],
+      ['pajaro', '12', 'Inclinado, codos casi rectos, abre los brazos.', ['posterior-maquina', 'face-pull', 'posterior-polea']]),
+    circ('Circuito 3', 3,
+      ['jalon-v', '12', 'Al pecho con los codos pegados.', ['jalon-supino', 'dominadas-asistidas', 'jalon-un-brazo']],
+      ['militar-hammer', '10', 'Empuja sin arquear la espalda baja.', ['militar-mancuernas', 'press-arnold', 'press-hombro-maquina']]),
+    circ('Circuito 4', 4,
+      ['crunch-maquina', '20-30', 'Lento, sin impulso.', ['crunch-polea', 'crunch-piso', 'crunch-fitball']],
+      ['plancha', '1 min', 'Cuerpo recto, aprieta abdomen y glúteo.', ['plancha-rodillas', 'plancha-toque', 'dead-bug']],
+      ['stir-pot', '10/lado', 'Antebrazos en la pelota en plancha; círculos pequeños sin mover la cadera.', ['plancha-desplazamiento', 'rollout-fitball', 'plancha-lateral']])),
+};
+
 export const PLAN = {
   A: {
     lun: { t: 'Espalda + bíceps', sub: 'Grosor', e: [
@@ -459,22 +641,8 @@ export const PLAN = {
       ['curl-predicador', 4, '10-12'], ['curl-concentrado', 3, '12']] },
     vie: { t: 'Piernas', sub: 'Femoral + glúteo', e: VIERNES_A },
   },
-  B: {
-    lun: { t: 'Espalda + bíceps', sub: 'Grosor', e: [
-      ['remo-supino', 4, '10'], ['jalon-ancho', 4, '10-12'], ['remo-una-mano', 3, '10/brazo'],
-      ['curl-z', 4, '10'], ['curl-21', 3, '7+7+7']] },
-    mar: { t: 'Piernas', sub: 'Cuádriceps', e: [
-      ['sentadilla', 4, '8-10'], ['desplantes', 3, '10/pierna'], ['extensiones', 4, '15'],
-      ['femoral-pie', 3, '12/pierna'], ['pantorrilla-pie', 4, '15-20']] },
-    mie: { t: 'Hombros + tríceps', sub: 'Pecho y abdomen', e: [
-      ['militar-hammer', 4, '10'], ['laterales', 4, '15'], ['face-pull', 3, '15'],
-      ['press-plano-barra', 3, '10'], ['triceps-predicador', 3, '12'], ['patada-triceps-polea', 3, '15'],
-      ['crunch-lateral', 3, '20/lado'], ['plancha', 3, '45 s']] },
-    jue: { t: 'Espalda + bíceps', sub: 'Amplitud', e: [
-      ['remo-barra', 4, '8-10'], ['jalon-v', 4, '12'], ['remo-gironda', 3, '12'],
-      ['curl-predicador', 3, '12'], ['martillo-sentado', 3, '10']] },
-    vie: { t: 'Piernas', sub: 'Femoral + glúteo', e: VIERNES_A.map(x => x[0] === 'abductor' ? ['elevacion-pelvis', 3, '20'] : x) },
-  },
+  // Semana B: rutina distinta, en circuitos (ver SEMANA_B arriba)
+  B: SEMANA_B,
 };
 
 // ── Sábado: trote y afloje ───────────────────────────────────
@@ -715,3 +883,71 @@ for (const [id, c] of Object.entries(CONTEXTO)) {
   if (!a) continue;
   if (c.startsWith('P:')) a.carga = c.slice(2); else [a.pos, a.imp] = c.split('/');
 }
+
+// ── Agarres de los ejercicios nuevos de la Semana B ──
+const AGARRES_B = {
+  'frontal-z': ag('pronado', 'hombros', 'ninguno', 'Brazos casi rectos, sube hasta los hombros', D),
+  'curl-21-recta': ag('supino', 'hombros', 'ninguno', 'Codos pegados en las tres partes', D),
+  'curl-alterno': ag('supino', 'n/a', 'ninguno', 'Gira la muñeca al subir'),
+  'aperturas-maquina': ag('neutro', 'n/a', 'ninguno', 'Manijas a la altura del pecho, codos un poco flexionados', D),
+  'crunch-lateral-maquina': ag('neutro', 'n/a', 'ninguno', 'Sujeta las manijas sin jalar con los brazos', D),
+  'fondos-paralelas': ag('neutro', 'hombros', 'ninguno', 'Manos en las barras, hombros lejos de las orejas', D),
+  'rueda': ag('pronado', 'hombros', 'ninguno', 'Manos en las manijas de la rueda, muñecas rectas', D),
+  'elevacion-paralelas': ag('neutro', 'n/a', 'ninguno', 'Antebrazos apoyados, sujeta las manijas', D),
+  'encogimientos-mancuernas': ag('neutro', 'n/a', 'ninguno', 'Mancuernas a los lados, palmas hacia las piernas', D),
+  'encogimientos-barra': ag('pronado', 'cerrado', 'ninguno', 'Agarre cerrado, barra pegada a los muslos', D),
+  'remo-menton-z': ag('pronado', 'hombros', 'ninguno', 'Barra pegada al cuerpo, codos arriba de las manos', D),
+  'stir-pot': ag('ninguno', 'n/a', 'fitball', 'Antebrazos en la pelota, cadera quieta', D),
+  'press-hombro-maquina': ag('neutro/pronado', 'n/a', 'ninguno', 'Elige la manija más cómoda para tu hombro', D),
+  'predicador-mancuerna': ag('supino', 'n/a', 'ninguno', 'Brazo apoyado en el cojín, codo fijo', D),
+  'extension-mancuerna-cabeza': ag('neutro', 'n/a', 'ninguno', 'Ambas manos bajo el disco de arriba', D),
+  'frontal-mancuernas': ag('pronado', 'n/a', 'ninguno', 'Palmas hacia los muslos, sube al frente', D),
+  'frontal-disco': ag('neutro', 'n/a', 'ninguno', 'Manos a los lados del disco', D),
+  'frontal-polea': ag('pronado', 'n/a', 'manija', 'Polea baja detrás de ti, sube al frente', D),
+  'triceps-barra-v': ag('diagonal', 'cerrado', 'barra-z', 'Manos en la V, codos pegados', D),
+  'martillo-cruzado': ag('neutro', 'n/a', 'ninguno', 'Palma hacia adentro, cruza al hombro contrario', D),
+  'laterales-pie': ag('pronado', 'n/a', 'ninguno', 'Palmas hacia el piso, codos un poco flexionados'),
+  'curl-inclinado': ag('supino', 'n/a', 'ninguno', 'Brazos colgando por detrás del cuerpo', D),
+  'fondos-banco': ag('pronado', 'hombros', 'ninguno', 'Dedos al frente, hombros lejos de las orejas'),
+  'abduccion-lado': ag('ninguno', 'n/a', 'ninguno', 'Sin agarre; la cabeza apoyada en el brazo', D),
+  'aperturas-mancuernas': ag('neutro', 'n/a', 'ninguno', 'Palmas enfrentadas, codos un poco flexionados', D),
+  'cruces-medio': ag('neutro', 'n/a', 'manija', 'Una manija en cada mano, codos un poco flexionados', D),
+  'lenador-polea': ag('neutro', 'n/a', 'manija', 'Ambas manos entrelazadas, gira desde la cadera'),
+  'inclinado-smith': ag('pronado', 'ancho', 'ninguno', 'Igual que el plano: antebrazos verticales abajo'),
+  'plano-smith': ag('pronado', 'ancho', 'ninguno', 'Antebrazos verticales abajo, pulgares rodeando siempre'),
+  'fondos-asistidos': ag('neutro', 'hombros', 'ninguno', 'Manos en las agarraderas, hombros lejos de las orejas', D),
+  'plancha-desplazamiento': ag('ninguno', 'n/a', 'ninguno', 'Sin agarre; apoyo en los antebrazos'),
+  'rollout-fitball': ag('ninguno', 'n/a', 'fitball', 'Antebrazos en la pelota, espalda sin arquear', D),
+  'inclinado-cerrado': ag('pronado', 'hombros', 'ninguno', 'Manos al ancho de los hombros, codos pegados', D),
+  'aperturas-inclinadas': ag('neutro', 'n/a', 'ninguno', 'Palmas enfrentadas, codos un poco flexionados', D),
+  'press-cerrado': ag('pronado', 'hombros', 'ninguno', 'Manos al ancho de los hombros, codos pegados', D),
+  'crunch-inverso': ag('ninguno', 'n/a', 'ninguno', 'Manos a los lados en el piso', D),
+  'remo-maquina-un-brazo': ag('neutro', 'n/a', 'ninguno', 'Pecho en el apoyo, lleva el codo atrás', D),
+  'encogimientos-smith': ag('pronado', 'hombros', 'ninguno', 'Barra pegada a los muslos', D),
+  'encogimientos-maquina': ag('neutro', 'n/a', 'ninguno', 'Sujeta las manijas a los lados', D),
+  'remo-banda': ag('neutro', 'hombros', 'banda', 'Banda atada al frente, codos atrás'),
+  'remo-menton-polea': ag('pronado', 'cerrado', 'barra-recta', 'Barra pegada al cuerpo, codos arriba de las manos', D),
+  'remo-invertido': ag('pronado', 'ancho', 'ninguno', 'Cuerpo recto, pecho a la barra'),
+  'crunch-fitball': ag('ninguno', 'n/a', 'fitball', 'Manos en el pecho o junto a las orejas', D),
+  'plancha-rodillas': ag('ninguno', 'n/a', 'ninguno', 'Sin agarre; apoyo en los antebrazos'),
+};
+const CONTEXTO_B = {
+  'frontal-z': 'colgando/barraZ', 'curl-21-recta': 'colgando/barraCorta', 'curl-alterno': 'colgando/mancuernas', 'aperturas-maquina': 'empujeFrente/manijas',
+  'crunch-lateral-maquina': 'espalda/manijas', 'fondos-paralelas': 'triceps/manijas', 'rueda': 'jalarFrente/manijas', 'elevacion-paralelas': 'triceps/manijas',
+  'encogimientos-mancuernas': 'colgando/mancuernas', 'encogimientos-barra': 'colgando/barra', 'remo-menton-z': 'colgando/barraZ',
+  'press-hombro-maquina': 'empujeArriba/manijas', 'predicador-mancuerna': 'jalarFrente/mancuernaUna', 'extension-mancuerna-cabeza': 'empujeArriba/mancuerna1',
+  'frontal-mancuernas': 'colgando/mancuernas', 'frontal-disco': 'colgando/mancuerna1', 'frontal-polea': 'colgando/manija', 'triceps-barra-v': 'triceps/barraZ',
+  'martillo-cruzado': 'colgando/mancuernaUna', 'laterales-pie': 'colgando/mancuernas', 'curl-inclinado': 'colgando/mancuernas', 'fondos-banco': 'triceps/manijas',
+  'aperturas-mancuernas': 'empujeFrente/mancuernas', 'cruces-medio': 'empujeFrente/manijas', 'lenador-polea': 'jalarFrente/manijaJuntas',
+  'inclinado-smith': 'empujeFrente/barra', 'plano-smith': 'empujeFrente/barra', 'fondos-asistidos': 'triceps/manijas', 'inclinado-cerrado': 'empujeFrente/barra',
+  'aperturas-inclinadas': 'empujeFrente/mancuernas', 'press-cerrado': 'empujeFrente/barra', 'remo-maquina-un-brazo': 'jalarFrente/manija',
+  'encogimientos-smith': 'colgando/barra', 'encogimientos-maquina': 'colgando/manijas', 'remo-banda': 'jalarFrente/banda', 'remo-menton-polea': 'colgando/barraCorta',
+  'remo-invertido': 'arriba/barraFija',
+};
+Object.assign(AGARRES, AGARRES_B);
+for (const [id, c] of Object.entries(CONTEXTO_B)) {
+  const a = AGARRES[id];
+  if (!a) continue;
+  if (c.startsWith('P:')) a.carga = c.slice(2); else [a.pos, a.imp] = c.split('/');
+}
+for (const id of Object.keys(AGARRES_B)) if (EJERCICIOS[id]) EJERCICIOS[id].agarre = AGARRES[id];

@@ -5,7 +5,8 @@ const base = () => ({
   v: 1,
   ajustes: { inicio: null, sonido: true, haptica: true, pantalla: true, unidad: 'lbs' },
   log: {},       // 'AAAA-MM-DD' → { plan, series, pesos, cambios, sab } (habitos: de versiones viejas, ya no se usa)
-  siempre: {},   // ejercicio original → alternativa elegida con "Usar siempre"
+  siempre: {},   // ejercicio original → alternativa elegida con "Usar siempre" (en la Semana B: 'B|ejercicio')
+  noSentida: {}, // ejercicio de espalda → { f, w } la última vez que no se sintió la espalda
   cintura: {},   // lunes de la semana → cm
   unidades: {},  // (versión vieja) ejercicio → 'kg'; hoy manda ajustes.unidad para toda la app
   timer: null,   // descanso en curso

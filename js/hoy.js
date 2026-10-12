@@ -1,7 +1,7 @@
 // Pantalla "Hoy": lo que toca entrenar, series, pesos, cambios de ejercicio, videos y sugerencias
 import { GRUPOS, ZONAS, PLAN, SUGERENCIAS, REGLAS, FRASES_DESCANSO, FRASES_FIN, INICIO, TIPO_PESO, CALENTAMIENTO, ENFRIAMIENTO } from './data.js';
 import { S, dia, leerDia, guardar } from './store.js';
-import { hoy, info, fechaLarga, fechaCorta, sumar, diaDe, NOMBRE_DIA, proximoLunes } from './calendario.js';
+import { hoy, info, fechaLarga, fechaCorta, sumar, diaDe, lunesDe, NOMBRE_DIA, proximoLunes } from './calendario.js';
 import { planDe, slots, totalSeries, seriesHechas, ultimoPeso, mejorPeso, ejercicio, tocaSubir, unidadDe, aVista, aLbs, sugeridoVista, pasoDe, comoCargar, equivalencia } from './rutina.js';
 import { abrirCalculadora } from './calc.js';
 import { cuerpo } from './cuerpo.js';
@@ -46,37 +46,70 @@ function cabecera(f, p) {
       <h1>${fechaLarga(f)}</h1>
     </header>
     <div class="ciclo">
-      <div class="ciclo-txt">Semana <b>${p.semana}</b> de 4 · Rutina <b>${p.variante}</b>${p.ciclo > 1 ? ` · ciclo ${p.ciclo}` : ''}</div>
+      <div class="ciclo-txt"><b class="sem-grande">Semana ${p.semana} · ${p.varianteAuto}</b>${p.ciclo > 1 ? `<small>ciclo ${p.ciclo}</small>` : ''}${esDiaGym(p) && p.variante !== p.varianteAuto ? `<small>Hoy haces la ${p.variante}</small>` : ''}</div>
       <div class="ciclo-ps" aria-hidden="true">${puntos}</div>
     </div>
     ${p.antes ? `<div class="nota">${ico('cal')}<span>Tu plan arranca el ${fechaLarga(S().ajustes.inicio).toLowerCase()}. Mientras tanto, esto es lo que viene.</span></div>` : ''}
     <div class="fila-acc">
       <button class="btn-chip acento" data-a="semana">${ico('cal')} Organizar semana</button>
       <button class="btn-chip" data-a="elegir-dia">${ico('cambiar')} Ver otro día</button>
+      ${esDiaGym(p) && !p.antes ? `<button class="btn-chip" data-a="otra-variante">${ico('cambiar')} Cambiar a ${p.variante === 'A' ? 'B' : 'A'} solo hoy</button>` : ''}
       ${p.override ? `<button class="btn-chip acento" data-a="volver-plan">${ico('deshacer')} Volver a lo de hoy</button>` : ''}
     </div>`;
 }
+
+const esDiaGym = p => !!PLAN[p.variante]?.[p.diaPlan];
 
 // ── Día de entrenamiento ────────────────────────────────────
 function entrenoHTML(f, p) {
   const d = PLAN[p.variante][p.diaPlan], ss = slots(f, p.variante, p.diaPlan);
   const tot = totalSeries(ss), h = seriesHechas(ss);
   const grupos = [...new Set(ss.map(s => s.base.g))];
-  const min = Math.round(ss.reduce((a, s) => a + s.series * (45 + s.descanso), 0) / 300) * 5;
+  const min = d.circuitos
+    ? Math.round(d.circuitos.reduce((a, c, ci) => a + c.rondas * (ss.filter(s => s.circ === ci).length * 65 + 70), 0) / 300) * 5
+    : Math.round(ss.reduce((a, s) => a + s.series * (45 + s.descanso), 0) / 300) * 5;
   return `<section class="hero" style="--hc:${GRUPOS[grupos[0]].c}">
       <div class="hero-txt">
         <p class="eyebrow">${NOMBRE_DIA[p.diaPlan]} · Rutina ${p.variante}</p>
         ${etiquetaCambio(f, p)}
         <h2>${d.t}</h2>
-        <p class="hero-sub">${d.sub} · ${ss.length} ejercicios · ≈${min} min</p>
+        <p class="hero-sub">${d.sub} · ${d.circuitos ? `${d.circuitos.filter(c => !c.activacion).length} circuitos` : `${ss.length} ejercicios`} · ≈${min} min</p>
         <div class="chips">${grupos.map(chip).join('')}</div>
       </div>
       <div id="hero-anillo">${anillo(h / tot, { tam: 94, grosor: 9, id: 'ah', centro: `<b class="an-num">${h}</b><span>de ${tot}</span>` })}</div>
     </section>
     ${calentamientoHTML(f, d, ss, h)}
     <div class="unid-global" role="radiogroup" aria-label="Ver los pesos en"><span>${ico('balanza')} Pesos en</span>${['lbs', 'kg'].map(x => `<button data-a="unidad" data-u="${x}" role="radio" aria-checked="${x === unidadDe()}">${x}</button>`).join('')}</div>
-    <div class="lista-ej">${ss.map(s => tarjeta(f, s)).join('')}</div>
+    ${d.circuitos ? circuitosHTML(f, d, ss) : `<div class="lista-ej">${ss.map(s => tarjeta(f, s)).join('')}</div>`}
     ${enfriamientoHTML(ss, h === tot)}`;
+}
+
+// ── Semana B: circuitos ─────────────────────────────────────
+// Ronda en la que va cada circuito: las que hicieron todos sus ejercicios, más 1
+// El circuito en curso se abre solo; los demás, cuando los tocas
+const circAbiertos = new Set(), circCerrados = new Set();
+function estadoCircuitos(d, ss) {
+  let activo = -1;
+  return d.circuitos.map((c, ci) => {
+    const items = ss.filter(s => s.circ === ci);
+    const hechas = Math.min(...items.map(s => s.hechas.filter(Boolean).length));
+    const completo = hechas >= c.rondas;
+    if (!completo && activo < 0) activo = ci;
+    return { c, items, ronda: Math.min(hechas + 1, c.rondas), completo, activo: activo === ci };
+  });
+}
+function circuitosHTML(f, d, ss) {
+  return `<p class="nota circ-aviso">${ico('fuego')}<span>En circuitos usa un peso un poco más bajo que en la Semana A (más o menos 10-15 % menos), porque descansas menos.</span></p>
+    ${estadoCircuitos(d, ss).map((x, ci) => {
+      const abierto = (x.activo && !circCerrados.has(ci)) || circAbiertos.has(ci);
+      const estado = x.completo ? `${ico('check')} Completo` : x.c.activacion ? '1 serie, antes de empezar' : `Ronda ${x.ronda} de ${x.c.rondas}`;
+      return `<section class="circ ${x.completo ? 'completo' : x.activo ? 'activo' : 'pendiente'}" data-circ="${ci}">
+        <button class="circ-cab" data-a="circ" data-ci="${ci}" aria-expanded="${abierto}">
+          <span><b>${x.c.n}</b><small>${estado}</small></span>${ico('abajo')}
+        </button>
+        ${abierto ? `<div class="lista-ej">${x.items.map(s => tarjeta(f, s)).join('')}</div>` : `<p class="circ-lista">${x.items.map(s => s.ej.n).join(' · ')}</p>`}
+      </section>`;
+    }).join('')}`;
 }
 
 // ── Días que faltaste: pasar esa rutina a otro día para no perderla ──
@@ -166,12 +199,13 @@ function tarjeta(f, s) {
       <span class="ej-num">${completa ? ico('check') : s.i + 1}</span>
       <span class="ej-tit">
         <span class="ej-n">${e.n}</span>
-        <span class="ej-meta"><b>${s.series}×${s.reps}</b>${s.nota ? ` · ${s.nota}` : ''} · ${s.descanso} s</span>
+        <span class="ej-meta">${s.circ != null ? `<b>${s.reps}</b>${s.nota ? ` · ${s.nota}` : ''} · ${s.series === 1 ? '1 serie' : `${s.series} rondas`}` : `<b>${s.series}×${s.reps}</b>${s.nota ? ` · ${s.nota}` : ''} · ${s.descanso} s`}</span>
       </span>
       <span class="ej-chev">${ico('abajo')}</span>
     </button>
     <div class="ej-tags">${chip(e.g)}${chipsAgarre(e.agarre, 'data-a')}${s.cambio ? `<span class="tag marca">${ico('cambiar')} ${s.cambio === 'hoy' ? 'Solo hoy' : 'Siempre'}</span><button class="tag volver" data-a="revertir">${ico('deshacer')} Original</button>` : ''}</div>
-    <div class="series" role="group" aria-label="Series">${s.hechas.map((h, k) => `<button class="serie ${h ? 'hecha' : ''}" data-a="serie" data-i="${k}" aria-pressed="${h}" aria-label="Serie ${k + 1}"><span class="serie-n">${k + 1}</span>${ico('check', 'serie-ok')}</button>`).join('')}</div>
+    ${s.tip ? `<p class="tip-ej">${ico('check')}<span>${s.tip}</span></p>` : ''}
+    <div class="series" role="group" aria-label="${s.circ != null ? 'Rondas' : 'Series'}">${s.hechas.map((h, k) => `<button class="serie ${h ? 'hecha' : ''}" data-a="serie" data-i="${k}" aria-pressed="${h}" aria-label="${s.circ != null ? 'Ronda' : 'Serie'} ${k + 1}"><span class="serie-n">${k + 1}</span>${ico('check', 'serie-ok')}</button>`).join('')}</div>
     <div class="peso">
       <button class="peso-btn" data-a="peso" data-d="-${paso}" aria-label="Bajar ${num(paso)} ${u}">${ico('menos')}</button>
       <label class="peso-in"><input type="number" inputmode="decimal" step="any" min="0" data-peso="${e.id}" value="${peso ?? ''}" placeholder="${ult ?? ini ?? '0'}" aria-label="Peso en ${u === 'kg' ? 'kilos' : 'libras'}"><span>${u}</span></label>
@@ -184,6 +218,7 @@ function tarjeta(f, s) {
       ? `Última vez: <b>${num(ult)} ${u}</b>${peso == null ? ` <button class="link" data-a="repetir" data-w="${ult}">Repetir</button>` : ''}`
       : ini ? `Empieza con <b>${u === 'kg' ? '≈ ' : ''}${num(ini)} ${u}</b> ${TIPO_PESO[tipo]}${peso == null ? ` <button class="link" data-a="repetir" data-w="${ini}">Usar</button>` : ''}<br><span class="peq">Si te sobran más de 3 reps, súbele ${num(paso)} ${u}.</span>`
       : tipo ? `Empieza con ${TIPO_PESO[tipo]}.` : 'Primera vez: anota con cuánto arrancas'}</p>
+    ${sentirHTML(e, u)}
     <div class="mas"><div class="mas-in">
       ${tieneVideo(e.id) ? `<button class="btn-sec ver-video" data-a="video">${ico('play')} Ver cómo se hace</button>` : ''}
       <div class="mapa">${cuerpo(e.z || [], e.s || [])}</div>
@@ -192,6 +227,30 @@ function tarjeta(f, s) {
       <button class="btn-sec" data-a="cambiar">${ico('cambiar')} Cambiar ejercicio</button>
     </div></div>
   </article>`;
+}
+
+// ── Para sentir la espalda (remos, jalones y dominadas de las dos semanas) ──
+const esEspalda = e => e.g === 'espalda' && /^(remo|jalon|dominadas)/.test(e.id);
+const SENTIR = [
+  ['Jala con los codos, no con las manos.', 'Tus manos son ganchos: lleva los codos hacia los bolsillos de atrás.'],
+  ['Empieza con los omóplatos.', 'Antes de doblar los brazos, baja los hombros y júntalos atrás, como sacando pecho.'],
+  ['No aprietes de más el agarre.', 'Firme pero relajado; si aprietas mucho, trabajan los bíceps y los antebrazos.'],
+  ['Pausa 1 s', 'con la espalda apretada al final de cada repetición.'],
+  ['Estírate arriba o adelante', 'y deja que la espalda se alargue antes de la siguiente repetición.'],
+  ['Si te balanceas o no puedes pausar,', 'baja el peso.'],
+];
+function sentirHTML(e, u) {
+  if (!esEspalda(e)) return '';
+  const ns = S().noSentida?.[e.id];
+  const bajo = ns?.w != null ? Math.max(0, aVista(e.id, ns.w) - pasoDe(e.id)) : null;
+  return `<section class="sentir">
+    ${ns ? `<div class="no-sentida"><b>La última vez no la sentiste. Hoy prueba:</b>
+      <ol><li>${bajo != null ? `Bajar un escalón: <b>${num(bajo)} ${u}</b>.` : 'Bajar un escalón de peso.'}</li><li>Antes, 1 serie de 15 de jalón con brazos rectos, ligero, para encender la espalda.</li><li>La versión con pecho apoyado (remo con mancuernas pecho apoyado), si está en las alternativas.</li></ol>
+      <button class="link" data-a="si-senti">Ya la sentí: quitar aviso</button></div>` : ''}
+    <h4>${ico('fuego')} Para sentir la espalda</h4>
+    <ol class="sentir-l">${SENTIR.map(([a, b]) => `<li><b>${a}</b> ${b}</li>`).join('')}</ol>
+    <button class="btn-sec no-senti" data-a="no-senti">No la sentí</button>
+  </section>`;
 }
 
 // ── Domingo ─────────────────────────────────────────────────
@@ -245,7 +304,7 @@ function tipHTML(f) {
 // ── Bienvenida (primera vez) ────────────────────────────────
 function bienvenida(el) {
   document.body.classList.add('sin-tabs');
-  const def = proximoLunes(hoy());
+  const def = lunesDe(hoy()); // el lunes de esta semana: si arrancas un miércoles, igual estás en la semana 1
   el.innerHTML = `<section class="bienvenida">
     <div class="logo-grande">${LOGO}</div>
     <h1>¡Epa, Carlos!</h1>
@@ -281,6 +340,36 @@ function alTocar(e) {
       break;
     }
     case 'cambiar': hojaCambio(f, card.dataset.slot); break;
+    case 'circ': {
+      const ci = Number(b.dataset.ci);
+      if (b.getAttribute('aria-expanded') === 'true') { circAbiertos.delete(ci); circCerrados.add(ci); }
+      else { circCerrados.delete(ci); circAbiertos.add(ci); }
+      const y = scrollY; refrescar(); scrollTo(0, y);
+      break;
+    }
+    case 'otra-variante': {
+      const p = planDe(f), otra = p.variante === 'A' ? 'B' : 'A', auto = info(f, S().ajustes.inicio);
+      if (otra === auto.variante && p.diaPlan === auto.dia) delete dia(f).plan; else dia(f).plan = { variante: otra, dia: p.diaPlan };
+      guardar(); vibrar(); refrescar();
+      aviso(`Hoy haces la Semana ${otra}`, 'cambiar');
+      break;
+    }
+    case 'no-senti': {
+      const x = slotDe(f, card.dataset.slot).s.ej;
+      S().noSentida ||= {};
+      S().noSentida[x.id] = { f, w: leerDia(f).pesos?.[x.id] ?? ultimoPeso(x.id, f) ?? null };
+      guardar(); vibrar();
+      const y = scrollY; refrescar(); scrollTo(0, y);
+      aviso('Anotado: la próxima vez te sale qué probar', 'check');
+      break;
+    }
+    case 'si-senti': {
+      const x = slotDe(f, card.dataset.slot).s.ej;
+      delete S().noSentida?.[x.id];
+      guardar(); vibrar(8);
+      const y = scrollY; refrescar(); scrollTo(0, y);
+      break;
+    }
     case 'agarre': { const x = slotDe(f, card.dataset.slot).s.ej; hojaAgarre(x.n, x.agarre); break; }
     case 'video': hojaVideo(slotDe(f, card.dataset.slot).s.ej); break;
     case 'unidad': {
@@ -342,6 +431,8 @@ function marcarSerie(f, card, i, btn) {
   d.completo = h === tot;
   guardar();
 
+  if (s.circ != null) { circuitoMarcado(f, p, s, ss, i, arr[i], !antes && d.completo); return; }
+
   if (d.completo && !antes) {
     setTimeout(() => { confeti(); sonar.logro(); vibrar([80, 60, 80]); aviso(FRASES_FIN[semilla(f) % FRASES_FIN.length], 'trofeo'); }, 220);
     // Terminaste: abre la vuelta a la calma
@@ -357,6 +448,44 @@ function marcarSerie(f, card, i, btn) {
   if (completa && sig) {
     setTimeout(() => raiz.querySelector(`[data-slot="${sig.slot}"]`)?.scrollIntoView({ behavior: 'smooth', block: 'center' }), 450);
   }
+}
+
+// En circuito: cada ejercicio se marca al terminarlo; el descanso depende de dónde va la ronda
+function circuitoMarcado(f, p, s, ss, k, marcada, diaCompleto) {
+  const d = PLAN[p.variante][p.diaPlan], c = d.circuitos[s.circ];
+  const items = ss.filter(x => x.circ === s.circ);
+  const hechas = Math.min(...items.map(x => x.hechas.filter(Boolean).length));
+  const y = scrollY;
+  refrescar(); scrollTo(0, y);
+  if (diaCompleto) {
+    setTimeout(() => { confeti(); sonar.logro(); vibrar([80, 60, 80]); aviso(FRASES_FIN[semilla(f) % FRASES_FIN.length], 'trofeo'); }, 220);
+    const enf = $('#enfria');
+    if (enf) { enf.open = true; setTimeout(() => enf.scrollIntoView({ behavior: 'smooth', block: 'start' }), 900); }
+    return;
+  }
+  if (!marcada) return;
+  const largo = c.activacion ? 30 : 90;
+  if (hechas >= c.rondas) {
+    // Circuito completo: se abre el siguiente
+    const sig = d.circuitos.findIndex((x, ci) => ci > s.circ && ss.filter(z => z.circ === ci).some(z => !z.hechas.every(Boolean)));
+    const listo = c.activacion ? 'Activación lista' : `${c.n} completo`;
+    aviso(listo, 'check');
+    if (sig >= 0) {
+      iniciarDescanso(largo, listo, `Siguiente: ${d.circuitos[sig].n}`);
+      setTimeout(() => raiz.querySelector(`[data-circ="${sig}"]`)?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 450);
+    }
+    return;
+  }
+  if (items.every(x => x.hechas[k])) {
+    // Ronda lista: descanso largo y la ronda sube
+    iniciarDescanso(largo, `${c.n} · ronda ${k + 1} lista`, `Ronda ${Math.min(hechas + 1, c.rondas)} de ${c.rondas} · Siguiente: ${items[0].ej.n}`);
+    setTimeout(() => raiz.querySelector(`[data-circ="${s.circ}"]`)?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 450);
+    return;
+  }
+  // Falta gente en la ronda: 20 s para cambiar de máquina
+  const sig = items.find(x => x.i > s.i && !x.hechas[k]) || items.find(x => !x.hechas[k]);
+  iniciarDescanso(20, 'Cambia de máquina', `Siguiente: ${sig.ej.n}`);
+  setTimeout(() => raiz.querySelector(`[data-slot="${sig.slot}"]`)?.scrollIntoView({ behavior: 'smooth', block: 'center' }), 450);
 }
 
 function pasoPeso(f, card, delta) {
@@ -403,7 +532,7 @@ const alCambiar = e => { if (e.target.matches('input[data-peso]')) guardarPeso(h
 function hojaCambio(f, slotId) {
   const { s } = slotDe(f, slotId), base = s.base;
   let sel = null, modo = 'hoy';
-  const alts = (base.a || []).map(([id, se, re]) => {
+  const alts = (s.alts || []).map(([id, se, re]) => {
     const e = ejercicio(id, base.id), actual = s.ej.id === id;
     return `<button class="alt ${actual ? 'actual' : ''}" data-id="${id}">
       <span class="alt-cab"><span class="alt-n">${e.n}</span><b class="alt-sr">${se}×${re}</b></span>
@@ -452,15 +581,15 @@ function hojaCambio(f, slotId) {
 }
 
 function aplicarCambio(f, s, id, modo) {
-  const d = dia(f), siempre = S().siempre, baseId = s.base.id;
+  const d = dia(f), siempre = S().siempre, baseId = s.base.id, clave = s.clave || baseId;
   d.cambios ||= {};
   if (id === baseId) {
-    if (modo === 'siempre') { delete siempre[baseId]; delete d.cambios[s.slot]; }
-    else if (siempre[baseId]) d.cambios[s.slot] = baseId;
+    if (modo === 'siempre') { delete siempre[clave]; delete d.cambios[s.slot]; }
+    else if (siempre[clave]) d.cambios[s.slot] = baseId;
     else delete d.cambios[s.slot];
     aviso(`De vuelta a ${s.base.n}`, 'deshacer');
   } else {
-    if (modo === 'siempre') { siempre[baseId] = id; delete d.cambios[s.slot]; }
+    if (modo === 'siempre') { siempre[clave] = id; delete d.cambios[s.slot]; }
     else d.cambios[s.slot] = id;
     aviso(modo === 'siempre' ? 'Cambiado para siempre' : 'Cambiado solo por hoy', 'cambiar');
   }
@@ -471,7 +600,7 @@ function aplicarCambio(f, s, id, modo) {
 function revertir(f, slotId) {
   const { s } = slotDe(f, slotId), d = dia(f);
   if (s.cambio === 'hoy') delete d.cambios[slotId];
-  else if (s.cambio === 'siempre') delete S().siempre[s.base.id];
+  else if (s.cambio === 'siempre') delete S().siempre[s.clave || s.base.id];
   guardar();
   vibrar();
   aviso(`De vuelta a ${s.base.n}`, 'deshacer');

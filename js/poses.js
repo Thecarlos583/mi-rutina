@@ -572,4 +572,14 @@ export const ANIM = {
       { n: 'Pie cerca de la pared', torso: 6, cadera: 28, rodilla: 30, cadera2: -24, rodilla2: 18, punta2: 35, hombro: 70, codo: 30, pausa: 300, ms: 900 },
       { n: 'Lleva la rodilla hacia la pared', torso: 8, cadera: 48, rodilla: 78, cadera2: -24, rodilla2: 22, punta2: 40, hombro: 75, codo: 40, pausa: 400, ms: 900, punto: { zona: 'pies', txt: 'El talón no se despega' } },
     ] },
+  // Semana B: mismo movimiento que otro ejercicio que ya tiene video
+  'curl-21-recta': { como: 'curl-21' },
+  'curl-alterno': { como: 'curl-mancuernas' },
+  'press-hombro-maquina': { como: 'militar-hammer' },
+  'triceps-barra-v': { como: 'triceps-polea' },
+  'inclinado-smith': { como: 'inclinado-barra' },
+  'inclinado-cerrado': { como: 'inclinado-barra' },
+  'plano-smith': { como: 'press-plano-barra' },
+  'press-cerrado': { como: 'press-plano-barra' },
+  'remo-maquina-un-brazo': { como: 'remo-maquina' },
 };
