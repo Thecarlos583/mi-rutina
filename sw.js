@@ -1,6 +1,6 @@
 // Service worker: guarda la app completa para que funcione sin internet en el gym.
 // Al cambiar cualquier archivo, sube VERSION para que el teléfono descargue lo nuevo.
-const VERSION = 'mi-rutina-v13';
+const VERSION = 'mi-rutina-v15';
 const ARCHIVOS = [
   './', './index.html', './manifest.json', './css/styles.css',
   './js/app.js', './js/data.js', './js/store.js', './js/calendario.js', './js/util.js',
@@ -10,8 +10,12 @@ const ARCHIVOS = [
 ];
 
 self.addEventListener('install', e => {
-  e.waitUntil(caches.open(VERSION).then(c => c.addAll(ARCHIVOS)).then(() => self.skipWaiting()));
+  // cache: 'reload' baja cada archivo del servidor, no de la memoria del navegador (si no, la versión nueva podía quedar con archivos viejos)
+  e.waitUntil(caches.open(VERSION).then(c => c.addAll(ARCHIVOS.map(u => new Request(u, { cache: 'reload' })))).then(() => self.skipWaiting()));
 });
+
+// Ajustes pregunta qué versión está guardada
+self.addEventListener('message', e => { if (e.data === 'version') e.source?.postMessage({ version: VERSION }); });
 
 self.addEventListener('activate', e => {
   e.waitUntil(
@@ -27,7 +31,7 @@ self.addEventListener('fetch', e => {
   e.respondWith(
     caches.open(VERSION).then(async cache => {
       const guardado = await cache.match(e.request, { ignoreSearch: true });
-      const red = fetch(e.request).then(r => {
+      const red = fetch(e.request, { cache: 'no-cache' }).then(r => {
         if (r.ok) cache.put(e.request, r.clone());
         return r;
       }).catch(() => null);

@@ -24,7 +24,7 @@ export function slots(f, variante, diaPlan) {
   if (!d) return [];
   const log = leerDia(f);
   // La Semana B nueva usa sus propios puestos ("B2-…") para no chocar con lo anotado en la B vieja
-  const pre = d.propia ? `${variante}2` : variante;
+  const pre = d.pre ?? (d.propia ? `${variante}2` : variante);
   return d.e.map(([baseId, series, reps, nota, , altsPlan, tip], i) => {
     const slot = `${pre}-${diaPlan}-${i}`;
     const base = ejercicio(baseId);
@@ -52,6 +52,24 @@ export function slots(f, variante, diaPlan) {
 }
 
 export const totalSeries = ss => ss.reduce((a, s) => a + s.series, 0);
+
+// Días con series anotadas en una rutina que hoy ya no es la que toca (por ejemplo, la Semana B anterior):
+// se les fija esa rutina para que se vean con lo que se hizo y cuenten como entrenados.
+const PREFIJO = { A: 'A', B2: 'B', B: 'B0' }; // cómo empieza el puesto → semana
+export function reconciliarDias() {
+  let cambio = false;
+  for (const [f, d] of Object.entries(S().log)) {
+    const marcadas = Object.entries(d.series || {}).filter(([, v]) => (v || []).some(Boolean)).map(([k]) => k);
+    if (!marcadas.length) continue;
+    const p = planDe(f), actuales = new Set(slots(f, p.variante, p.diaPlan).map(s => s.slot));
+    if (marcadas.some(k => actuales.has(k))) continue;
+    const m = /^(A|B2|B)-(lun|mar|mie|jue|vie)-\d+$/.exec(marcadas[0]);
+    if (!m || !PLAN[PREFIJO[m[1]]]?.[m[2]]) continue;
+    d.plan = { variante: PREFIJO[m[1]], dia: m[2] };
+    cambio = true;
+  }
+  return cambio;
+}
 export const seriesHechas = ss => ss.reduce((a, s) => a + s.hechas.filter(Boolean).length, 0);
 
 // ── Sábado ──────────────────────────────────────────────────

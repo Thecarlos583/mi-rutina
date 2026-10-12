@@ -641,6 +641,24 @@ export const PLAN = {
   },
   // Semana B: rutina distinta a la A (ver SEMANA_B arriba)
   B: SEMANA_B,
+  // Semana B anterior (hasta el 12 oct 2026). No entra en la rotación: solo sirve para mostrar los días
+  // que ya se entrenaron con ella, con lo que se anotó (sus series se guardaron como "B-…").
+  B0: Object.fromEntries(Object.entries({
+    lun: { t: 'Espalda + bíceps', sub: 'Grosor', e: [
+      ['remo-supino', 4, '10'], ['jalon-ancho', 4, '10-12'], ['remo-una-mano', 3, '10/brazo'],
+      ['curl-z', 4, '10'], ['curl-21', 3, '7+7+7']] },
+    mar: { t: 'Piernas', sub: 'Cuádriceps', e: [
+      ['sentadilla', 4, '8-10'], ['desplantes', 3, '10/pierna'], ['extensiones', 4, '15'],
+      ['femoral-pie', 3, '12/pierna'], ['pantorrilla-pie', 4, '15-20']] },
+    mie: { t: 'Hombros + tríceps', sub: 'Pecho y abdomen', e: [
+      ['militar-hammer', 4, '10'], ['laterales', 4, '15'], ['face-pull', 3, '15'],
+      ['press-plano-barra', 3, '10'], ['triceps-predicador', 3, '12'], ['patada-triceps-polea', 3, '15'],
+      ['crunch-lateral', 3, '20/lado'], ['plancha', 3, '45 s']] },
+    jue: { t: 'Espalda + bíceps', sub: 'Amplitud', e: [
+      ['remo-barra', 4, '8-10'], ['jalon-v', 4, '12'], ['remo-gironda', 3, '12'],
+      ['curl-predicador', 3, '12'], ['martillo-sentado', 3, '10']] },
+    vie: { t: 'Piernas', sub: 'Femoral + glúteo', e: VIERNES_A.map(x => x[0] === 'abductor' ? ['elevacion-pelvis', 3, '20'] : x) },
+  }).map(([d, x]) => [d, { ...x, pre: 'B' }])),
 };
 
 // ── Sábado: trote y afloje ───────────────────────────────────

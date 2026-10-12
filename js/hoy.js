@@ -2,7 +2,7 @@
 import { GRUPOS, ZONAS, PLAN, SUGERENCIAS, REGLAS, FRASES_DESCANSO, FRASES_FIN, INICIO, TIPO_PESO, CALENTAMIENTO, ENFRIAMIENTO } from './data.js';
 import { S, dia, leerDia, guardar } from './store.js';
 import { hoy, info, fechaLarga, fechaCorta, sumar, diaDe, lunesDe, NOMBRE_DIA, proximoLunes } from './calendario.js';
-import { planDe, slots, totalSeries, seriesHechas, ultimoPeso, mejorPeso, ejercicio, tocaSubir, unidadDe, aVista, aLbs, sugeridoVista, pasoDe, comoCargar, equivalencia } from './rutina.js';
+import { planDe, slots, totalSeries, seriesHechas, ultimoPeso, mejorPeso, ejercicio, tocaSubir, unidadDe, aVista, aLbs, sugeridoVista, pasoDe, comoCargar, equivalencia, resumenDia } from './rutina.js';
 import { abrirCalculadora } from './calc.js';
 import { cuerpo } from './cuerpo.js';
 import { $, ico, anillo, moverAnillo, vibrar, sonar, aviso, abrirHoja, cerrarHoja, confeti, semilla, num, pantallaEncendida } from './util.js';
@@ -53,7 +53,7 @@ function cabecera(f, p) {
     <div class="fila-acc">
       <button class="btn-chip acento" data-a="semana">${ico('cal')} Organizar semana</button>
       <button class="btn-chip" data-a="elegir-dia">${ico('cambiar')} Ver otro día</button>
-      ${esDiaGym(p) && !p.antes ? `<button class="btn-chip" data-a="otra-variante">${ico('cambiar')} Cambiar a ${p.variante === 'A' ? 'B' : 'A'} solo hoy</button>` : ''}
+      ${esDiaGym(p) && !p.antes && p.variante !== 'B0' ? `<button class="btn-chip" data-a="otra-variante">${ico('cambiar')} Cambiar a ${p.variante === 'A' ? 'B' : 'A'} solo hoy</button>` : ''}
       ${p.override ? `<button class="btn-chip acento" data-a="volver-plan">${ico('deshacer')} Volver a lo de hoy</button>` : ''}
     </div>`;
 }
@@ -68,7 +68,7 @@ function entrenoHTML(f, p) {
   const min = Math.round(ss.reduce((a, s) => a + s.series * (45 + s.descanso), 0) / 300) * 5;
   return `<section class="hero" style="--hc:${GRUPOS[grupos[0]].c}">
       <div class="hero-txt">
-        <p class="eyebrow">${NOMBRE_DIA[p.diaPlan]} · Rutina ${p.variante}</p>
+        <p class="eyebrow">${NOMBRE_DIA[p.diaPlan]} · Rutina ${p.variante === 'B0' ? 'B anterior' : p.variante}</p>
         ${etiquetaCambio(f, p)}
         <h2>${d.t}</h2>
         <p class="hero-sub">${d.sub} · ${ss.length} ejercicios · ≈${min} min</p>
@@ -94,7 +94,7 @@ function faltas(f) {
     if (!ini || x < ini) break;
     const p = planDe(x), l = leerDia(x);
     if (!esGym(p) || l.movido || l.ignorar) continue;
-    if (seriesHechas(slots(x, p.variante, p.diaPlan)) > 0) continue;
+    if (resumenDia(x).algo) continue; // anotaste algo ese día: cuenta como entrenado
     out.push({ f: x, p });
   }
   return out;

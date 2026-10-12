@@ -44,7 +44,13 @@ export function renderAjustes(el) {
     <section class="card peligro">
       <button class="btn-peligro" data-a="reiniciar">${ico('basura')} Reiniciar todo</button>
     </section>
-    <p class="pie">Mi Rutina · hecha para Carlos · v1.0</p>`;
+    <p class="pie">Mi Rutina · hecha para Carlos · <span id="aj-version">versión guardada…</span></p>`;
+  // Qué versión tiene guardada el teléfono (la del service worker)
+  const sw = navigator.serviceWorker;
+  if (sw?.controller) {
+    sw.addEventListener('message', ev => { const v = ev.data?.version; const p = $('#aj-version'); if (v && p) p.textContent = v.replace('mi-rutina-', ''); }, { once: true });
+    sw.controller.postMessage('version');
+  } else { const p = $('#aj-version'); if (p) p.textContent = 'sin instalar'; }
 
   el.onclick = alTocar;
   el.oninput = null;

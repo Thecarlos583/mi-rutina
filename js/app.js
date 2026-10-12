@@ -1,5 +1,7 @@
 // Arranque y navegación entre pantallas
 import { $, desbloquearAudio, pantallaEncendida } from './util.js';
+import { reconciliarDias } from './rutina.js';
+import { guardar } from './store.js';
 import { hoy } from './calendario.js';
 import { renderHoy } from './hoy.js';
 import { renderProgreso } from './progreso.js';
@@ -46,11 +48,21 @@ document.addEventListener('visibilitychange', () => {
   if (document.visibilityState === 'visible' && fechaPintada !== hoy()) ir(actual, { arriba: false });
 });
 
+// Los días entrenados con una rutina que cambió siguen mostrando lo que se hizo
+if (reconciliarDias()) guardar();
+
 initTimer();
 initCarrera();
 ir(location.hash.slice(1) || 'hoy');
 
 if ('serviceWorker' in navigator && location.protocol !== 'file:') {
-  navigator.serviceWorker.register('./sw.js').catch(() => { });
+  // Busca versión nueva al abrir y al volver a la app; cuando llega, recarga una vez para usarla
+  const habia = !!navigator.serviceWorker.controller;
+  navigator.serviceWorker.register('./sw.js', { updateViaCache: 'none' }).then(reg => {
+    reg.update().catch(() => { });
+    document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') reg.update().catch(() => { }); });
+  }).catch(() => { });
+  let recargada = false;
+  navigator.serviceWorker.addEventListener('controllerchange', () => { if (habia && !recargada) { recargada = true; location.reload(); } });
 }
 navigator.storage?.persist?.().catch(() => { });
