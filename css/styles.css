@@ -875,3 +875,11 @@ button.ag-chip:active { transform: scale(.97); }
 .ej:not(.completa) .no-senti { display: none; }
 .no-sentida { margin-bottom: 12px; padding: 10px 12px; border-radius: 12px; background: color-mix(in srgb, var(--acento) 12%, transparent); font-size: 14px; }
 .no-sentida ol { margin: 6px 0 4px; padding-left: 18px; display: grid; gap: 3px; }
+
+/* "No fui" / "Sí fui" en el aviso de días sin anotar */
+.falta-btns { display: flex; gap: 6px; }
+.falta-btns .btn-chip { min-height: 44px; }
+.falta .btn-sec { margin-top: 12px; }
+.hecho-mano { margin-bottom: 12px; }
+.hecho-mano .ico { color: var(--bien); }
+.falta-fila { grid-template-columns: 1fr; }

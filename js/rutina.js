@@ -86,7 +86,7 @@ export function resumenDia(f) {
   const log = leerDia(f);
   const series = Object.values(log.series || {}).flat().filter(Boolean).length;
   const sab = log.sab || {};
-  const algo = series > 0 || !!(sab.movilidad || sab.trote || sab.estiramiento) || (sab.core || []).some(Boolean);
+  const algo = series > 0 || !!log.hecho || !!(sab.movilidad || sab.trote || sab.estiramiento) || (sab.core || []).some(Boolean);
   return { series, completo: !!log.completo, algo };
 }
 

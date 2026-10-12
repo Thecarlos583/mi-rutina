@@ -49,10 +49,12 @@ function cabecera(f, p) {
       <div class="ciclo-txt"><b class="sem-grande">Semana ${p.semana} · ${p.varianteAuto}</b>${p.ciclo > 1 ? `<small>ciclo ${p.ciclo}</small>` : ''}${esDiaGym(p) && p.variante !== p.varianteAuto ? `<small>Hoy haces la ${p.variante}</small>` : ''}</div>
       <div class="ciclo-ps" aria-hidden="true">${puntos}</div>
     </div>
+    ${leerDia(f).hecho ? `<div class="nota hecho-mano">${ico('check')}<span>Marcaste hoy como entrenado. <button class="link" data-a="deshacer-hecho">Deshacer</button></span></div>` : ''}
     ${p.antes ? `<div class="nota">${ico('cal')}<span>Tu plan arranca el ${fechaLarga(S().ajustes.inicio).toLowerCase()}. Mientras tanto, esto es lo que viene.</span></div>` : ''}
     <div class="fila-acc">
       <button class="btn-chip acento" data-a="semana">${ico('cal')} Organizar semana</button>
       <button class="btn-chip" data-a="elegir-dia">${ico('cambiar')} Ver otro día</button>
+      ${esDiaGym(p) && !p.antes && !resumenDia(f).algo ? `<button class="btn-chip acento" data-a="ya-entrene">${ico('check')} Ya entrené hoy</button>` : ''}
       ${esDiaGym(p) && !p.antes && p.variante !== 'B0' ? `<button class="btn-chip" data-a="otra-variante">${ico('cambiar')} Cambiar a ${p.variante === 'A' ? 'B' : 'A'} solo hoy</button>` : ''}
       ${p.override ? `<button class="btn-chip acento" data-a="volver-plan">${ico('deshacer')} Volver a lo de hoy</button>` : ''}
     </div>`;
@@ -103,11 +105,12 @@ function faltasHTML(f) {
   const fs = faltas(f);
   if (!fs.length) return '';
   return `<section class="card falta">
-    <div class="falta-cab">${ico('cal')}<div><b>${fs.length === 1 ? `¿Faltaste el ${diaFecha(fs[0].f)}?` : `Faltaste ${fs.length} días`}</b>
-      <small>Acomódala en la semana para no perder esa rutina.</small></div></div>
+    <div class="falta-cab">${ico('cal')}<div><b>${fs.length === 1 ? `¿Fuiste el ${diaFecha(fs[0].f)}?` : `${fs.length} días sin nada anotado`}</b>
+      <small>Dime si fuiste o no. Si quieres recuperar alguno, pásalo a otro día.</small></div></div>
     ${fs.map(x => `<div class="falta-fila"><span><b>${NOMBRE_DIA[diaDe(x.f)]} ${fechaCorta(x.f)}</b><small>${nombreRutina(x.p)}</small></span>
-      <button class="btn-chip acento" data-a="semana" data-f="${x.f}">Pasarla a otro día</button>
-      <button class="link" data-a="no-recuperar" data-f="${x.f}">No la voy a recuperar</button></div>`).join('')}
+      <div class="falta-btns"><button class="btn-chip" data-a="no-fui" data-f="${x.f}">No fui</button><button class="btn-chip" data-a="si-fui" data-f="${x.f}">${ico('check')} Sí fui</button></div>
+      <button class="link" data-a="semana" data-f="${x.f}">Pasarla a otro día</button></div>`).join('')}
+    ${fs.length > 1 ? `<button class="btn-sec" data-a="no-fui-todos">No fui a ninguno</button>` : ''}
   </section>`;
 }
 // Si este día trae una rutina movida: de qué día faltado viene, o que la cambiaste en la semana
@@ -358,7 +361,11 @@ function alTocar(e) {
     case 'elegir-dia': hojaDia(f); break;
     case 'volver-plan': quitarRecuperada(f); guardar(); refrescar(); break;
     case 'semana': hojaSemana(f, { seleccion: b.dataset.f || null, alCambiar: () => { const y = scrollY; refrescar(); scrollTo(0, y); } }); break;
-    case 'no-recuperar': dia(b.dataset.f).ignorar = true; guardar(); vibrar(8); refrescar(); aviso('Listo, ese día no se recupera', 'check'); break;
+    case 'no-fui': dia(b.dataset.f).ignorar = true; guardar(); vibrar(8); refrescar(); aviso('Listo, quitado', 'check'); break;
+    case 'no-fui-todos': for (const x of faltas(f)) dia(x.f).ignorar = true; guardar(); vibrar(8); refrescar(); aviso('Listo, quitados', 'check'); break;
+    case 'si-fui': dia(b.dataset.f).hecho = true; guardar(); vibrar(8); refrescar(); aviso('Anotado como entrenado', 'check'); break;
+    case 'ya-entrene': dia(f).hecho = true; guardar(); vibrar(); refrescar(); aviso('Hoy cuenta como entrenado', 'check'); break;
+    case 'deshacer-hecho': delete dia(f).hecho; guardar(); vibrar(8); refrescar(); break;
     case 'empezar':
       S().ajustes.inicio = $('#inicio').value || proximoLunes(f);
       guardar(); vibrar(); refrescar(); scrollTo(0, 0);
