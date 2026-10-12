@@ -23,14 +23,14 @@ export function slots(f, variante, diaPlan) {
   const d = PLAN[variante]?.[diaPlan];
   if (!d) return [];
   const log = leerDia(f);
-  // La Semana B en circuitos usa sus propios puestos ("B2-…") para no chocar con lo anotado en la B vieja
-  const pre = d.circuitos ? `${variante}2` : variante;
-  return d.e.map(([baseId, series, reps, nota, circ, altsPlan, tip], i) => {
+  // La Semana B nueva usa sus propios puestos ("B2-…") para no chocar con lo anotado en la B vieja
+  const pre = d.propia ? `${variante}2` : variante;
+  return d.e.map(([baseId, series, reps, nota, , altsPlan, tip], i) => {
     const slot = `${pre}-${diaPlan}-${i}`;
     const base = ejercicio(baseId);
     const alts = altsPlan || base.a || [];
     // "Usar siempre" de la Semana B se guarda aparte: no toca los cambios de la Semana A
-    const clave = d.circuitos ? `B|${baseId}` : baseId;
+    const clave = d.propia ? `B|${baseId}` : baseId;
     const h = log.cambios?.[slot], swGuardado = S().siempre[clave];
     const sw = swGuardado && alts.some(a => a[0] === swGuardado) ? swGuardado : null;
     let ejId = baseId, cambio = null;
@@ -45,7 +45,7 @@ export function slots(f, variante, diaPlan) {
     return {
       slot, i, base, ej: cambio ? ejercicio(ejId, baseId) : base,
       series: s, reps: r, nota: n, descanso: base.d, cambio, orig: { series, reps },
-      alts, clave, circ: circ ?? null, tip: tip ?? null,
+      alts, clave, tip: tip ?? null,
       hechas: Array.from({ length: s }, (_, k) => !!marcadas[k]),
     };
   });
