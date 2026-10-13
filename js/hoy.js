@@ -12,6 +12,7 @@ import { montar, tieneVideo, musculosDe } from './anim.js';
 import { tienePasos, montarPasos } from './pasos.js';
 import { chipsAgarre, hojaAgarre } from './agarres.js';
 import { hojaSemana } from './semana.js';
+import { hojaHice, hojaNoHice, regTarjetaHTML, claseRegistro, ultimoRegistro, textoRegistro, finHTML, terminarDia, hojaResumen } from './registro.js';
 
 export const LOGO = `<svg viewBox="0 0 512 512" aria-hidden="true"><defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#FF6B4A"/><stop offset="1" stop-color="#FF9F43"/></linearGradient></defs>
   <circle cx="256" cy="256" r="168" fill="none" stroke="#26303B" stroke-width="40"/>
@@ -20,23 +21,35 @@ export const LOGO = `<svg viewBox="0 0 512 512" aria-hidden="true"><defs><linear
 
 const abiertas = new Set();
 let raiz;
+// Día que se está viendo: hoy, o uno pasado abierto desde el calendario para editar lo anotado
+let fechaVista = null;
+const fechaHoy = () => fechaVista || hoy();
 
 const chip = g => `<span class="tag" style="--c:${GRUPOS[g].c}">${GRUPOS[g].n}</span>`;
 const saludo = () => { const h = new Date().getHours(); return h < 12 ? 'Buenos días' : h < 19 ? 'Buenas tardes' : 'Buenas noches'; };
 
-export function renderHoy(el) {
+export function renderHoy(el, fecha) {
   raiz = el;
+  if (fecha !== undefined) fechaVista = /^\d{4}-\d{2}-\d{2}$/.test(fecha || '') && fecha < hoy() ? fecha : null;
   el.onclick = alTocar;
   el.oninput = alEscribir;
   el.onchange = alCambiar;
   if (!S().ajustes.inicio) { bienvenida(el); return; }
   document.body.classList.remove('sin-tabs');
-  const f = hoy(), p = planDe(f);
+  const f = fechaHoy(), p = planDe(f);
   const contenido = p.diaPlan === 'dom' ? descansoHTML(f) : p.diaPlan === 'sab' ? sabadoHTML(f, p) : entrenoHTML(f, p);
-  el.innerHTML = cabecera(f, p) + faltasHTML(f) + contenido + sugerenciasHTML() + tipHTML(f);
-  pantallaEncendida(p.diaPlan !== 'dom');
+  el.innerHTML = fechaVista
+    ? editandoHTML(f) + contenido
+    : cabecera(f, p) + faltasHTML(f) + contenido + sugerenciasHTML() + tipHTML(f);
+  pantallaEncendida(!fechaVista && p.diaPlan !== 'dom');
 }
 const refrescar = () => renderHoy(raiz);
+
+// Día pasado abierto para editar
+function editandoHTML(f) {
+  return `<header class="top"><p class="saludo">Editando un día pasado</p><h1>${fechaLarga(f)}</h1></header>
+    <div class="nota editando">${ico('cal')}<span>Anota o corrige lo que hiciste ese día. <button class="link" data-a="volver-hoy">Volver a hoy</button></span></div>`;
+}
 
 // ── Cabecera con la semana del ciclo ────────────────────────
 function cabecera(f, p) {
@@ -81,7 +94,8 @@ function entrenoHTML(f, p) {
     ${calentamientoHTML(f, d, ss, h)}
     <div class="unid-global" role="radiogroup" aria-label="Ver los pesos en"><span>${ico('balanza')} Pesos en</span>${['lbs', 'kg'].map(x => `<button data-a="unidad" data-u="${x}" role="radio" aria-checked="${x === unidadDe()}">${x}</button>`).join('')}</div>
     <div class="lista-ej">${ss.map(s => tarjeta(f, s)).join('')}</div>
-    ${enfriamientoHTML(ss, h === tot)}`;
+    ${finHTML(f, ss, !fechaVista)}
+    ${enfriamientoHTML(ss, h === tot || !!leerDia(f).fin)}`;
 }
 
 // ── Días que faltaste: pasar esa rutina a otro día para no perderla ──
@@ -167,7 +181,8 @@ function tarjeta(f, s) {
   const [iniLbs, tipo] = INICIO[e.id] || [];
   const ini = iniLbs ? sugeridoVista(e.id, iniLbs) : iniLbs;
   const sube = tocaSubir(e.id, f);
-  return `<article class="ej ${abiertas.has(s.slot) ? 'abierta' : ''} ${completa ? 'completa' : ''}" data-slot="${s.slot}" style="--c:${c}">
+  const regAnt = ultimoRegistro(e.id, f);
+  return `<article class="ej ${abiertas.has(s.slot) ? 'abierta' : ''} ${completa ? 'completa' : ''} ${claseRegistro(f, s)}" data-slot="${s.slot}" style="--c:${c}">
     <button class="ej-cab" data-a="abrir" aria-expanded="${abiertas.has(s.slot)}">
       <span class="ej-num">${completa ? ico('check') : s.i + 1}</span>
       <span class="ej-tit">
@@ -176,7 +191,7 @@ function tarjeta(f, s) {
       </span>
       <span class="ej-chev">${ico('abajo')}</span>
     </button>
-    <div class="ej-tags">${chip(e.g)}${chipsAgarre(e.agarre, 'data-a')}${s.cambio ? `<span class="tag marca">${ico('cambiar')} ${s.cambio === 'hoy' ? 'Solo hoy' : 'Siempre'}</span><button class="tag volver" data-a="revertir">${ico('deshacer')} Original</button>` : ''}</div>
+    <div class="ej-tags">${chip(e.g)}${chipsAgarre(e.agarre, 'data-a')}${s.cambio === 'equipo' ? `<span class="tag marca">${ico('cambiar')} No tienes ${s.base.n.toLowerCase()}</span>` : s.cambio ? `<span class="tag marca">${ico('cambiar')} ${s.cambio === 'hoy' ? 'Solo hoy' : 'Siempre'}</span><button class="tag volver" data-a="revertir">${ico('deshacer')} Original</button>` : ''}</div>
     ${s.tip ? `<p class="tip-ej">${ico('check')}<span>${s.tip}</span></p>` : ''}
     <div class="series" role="group" aria-label="Series">${s.hechas.map((h, k) => `<button class="serie ${h ? 'hecha' : ''}" data-a="serie" data-i="${k}" aria-pressed="${h}" aria-label="Serie ${k + 1}"><span class="serie-n">${k + 1}</span>${ico('check', 'serie-ok')}</button>`).join('')}</div>
     <div class="peso">
@@ -188,10 +203,11 @@ function tarjeta(f, s) {
     <p class="carga" data-carga="${e.id}"${comoCargar(e.id, peso ?? ult ?? ini) ? '' : ' hidden'}>${ico('hoy')}<span>${comoCargar(e.id, peso ?? ult ?? ini)}</span></p>
     ${sube && (peso == null || peso < sube) ? `<p class="subir">${ico('subir')}<span><b>Toca subir:</b> completaste todo con ${num(ult)} ${u} dos sesiones seguidas. Hoy prueba <b>${num(sube)} ${u}</b>. <button class="link" data-a="repetir" data-w="${sube}">Usar</button></span></p>` : ''}
     <p class="ultima">${ult != null
-      ? `Última vez: <b>${num(ult)} ${u}</b>${peso == null ? ` <button class="link" data-a="repetir" data-w="${ult}">Repetir</button>` : ''}`
+      ? `Última vez: <b>${regAnt ? textoRegistro(regAnt, e.id) : `${num(ult)} ${u}`}</b>${peso == null ? ` <button class="link" data-a="repetir" data-w="${ult}">Repetir</button>` : ''}`
       : ini ? `Empieza con <b>${u === 'kg' ? '≈ ' : ''}${num(ini)} ${u}</b> ${TIPO_PESO[tipo]}${peso == null ? ` <button class="link" data-a="repetir" data-w="${ini}">Usar</button>` : ''}<br><span class="peq">Si te sobran más de 3 reps, súbele ${num(paso)} ${u}.</span>`
       : tipo ? `Empieza con ${TIPO_PESO[tipo]}.` : 'Primera vez: anota con cuánto arrancas'}</p>
     ${sentirHTML(e, u)}
+    ${regTarjetaHTML(f, s)}
     <div class="mas"><div class="mas-in">
       ${tieneVideo(e.id) ? `<button class="btn-sec ver-video" data-a="video">${ico('play')} Ver cómo se hace</button>` : ''}
       <div class="mapa">${cuerpo(e.z || [], e.s || [])}</div>
@@ -292,7 +308,7 @@ function bienvenida(el) {
 function alTocar(e) {
   const b = e.target.closest('[data-a]');
   if (!b) return;
-  const a = b.dataset.a, card = b.closest('.ej'), f = hoy();
+  const a = b.dataset.a, card = b.closest('.ej'), f = fechaHoy();
   switch (a) {
     case 'abrir': {
       const abierta = card.classList.toggle('abierta');
@@ -313,6 +329,25 @@ function alTocar(e) {
       break;
     }
     case 'cambiar': hojaCambio(f, card.dataset.slot); break;
+    case 'hice': { const { s } = slotDe(f, card.dataset.slot); hojaHice(f, s, () => { const y = scrollY; refrescar(); scrollTo(0, y); }); break; }
+    case 'no-hice': {
+      const { s } = slotDe(f, card.dataset.slot);
+      hojaNoHice(f, s, { alGuardar: () => { const y = scrollY; refrescar(); scrollTo(0, y); }, abrirAlternativas: () => hojaCambio(f, s.slot) });
+      break;
+    }
+    case 'reg-quitar': { delete dia(f).reg?.[card.dataset.slot]; guardar(); vibrar(8); const y = scrollY; refrescar(); scrollTo(0, y); break; }
+    case 'ajuste-si': case 'ajuste-no': {
+      const { s } = slotDe(f, card.dataset.slot);
+      if (a === 'ajuste-si') { S().ajusteReps ||= {}; S().ajusteReps[s.clave] = b.dataset.r; aviso(`${s.ej.n}: ahora ${s.series}×${b.dataset.r}`, 'check'); }
+      else { S().ajusteVisto ||= {}; S().ajusteVisto[s.clave] = f; }
+      guardar(); vibrar(8);
+      const y = scrollY; refrescar(); scrollTo(0, y);
+      break;
+    }
+    case 'terminar': { const p = planDe(f); terminarDia(f, p, slots(f, p.variante, p.diaPlan), { alTerminar: () => { const y = scrollY; refrescar(); scrollTo(0, y); } }); break; }
+    case 'reabrir': delete dia(f).fin; guardar(); vibrar(8); refrescar(); aviso('Día abierto otra vez', 'deshacer'); break;
+    case 'resumen': { const p = planDe(f); hojaResumen(f, slots(f, p.variante, p.diaPlan)); break; }
+    case 'volver-hoy': location.hash = 'hoy'; break;
     case 'otra-variante': {
       const p = planDe(f), otra = p.variante === 'A' ? 'B' : 'A', auto = info(f, S().ajustes.inicio);
       if (otra === auto.variante && p.diaPlan === auto.dia) delete dia(f).plan; else dia(f).plan = { variante: otra, dia: p.diaPlan };
@@ -383,6 +418,7 @@ function marcarSerie(f, card, i, btn) {
   const { p, s } = slotDe(f, card.dataset.slot);
   const d = dia(f);
   d.series ||= {};
+  d.t0 ||= Date.now();
   const arr = (d.series[s.slot] = s.hechas.slice());
   arr[i] = !arr[i];
   btn.classList.toggle('hecha', arr[i]);
@@ -409,7 +445,7 @@ function marcarSerie(f, card, i, btn) {
     if (enf) { enf.open = true; setTimeout(() => enf.scrollIntoView({ behavior: 'smooth', block: 'start' }), 900); }
     return;
   }
-  if (!arr[i]) return;
+  if (!arr[i] || fechaVista) return;
   const quedan = arr.filter(x => !x).length;
   const sig = ss.find(x => x.i > s.i && !x.hechas.every(Boolean)) || ss.find(x => !x.hechas.every(Boolean));
   const sub = quedan ? `Serie ${arr.filter(Boolean).length} de ${s.series} lista · faltan ${quedan}` : `Siguiente: ${sig?.ej.n ?? '¡ya casi!'}`;
@@ -456,8 +492,8 @@ function guardarPeso(f, inp, revisarRecord) {
     guardarPeso.t = setTimeout(() => { aviso(`¡Nuevo récord! ${num(v)} ${unidadDe(id)} en ${ejercicio(id).n}`, 'trofeo'); sonar.logro(); }, 500);
   }
 }
-const alEscribir = e => { if (e.target.matches('input[data-peso]')) guardarPeso(hoy(), e.target, false); };
-const alCambiar = e => { if (e.target.matches('input[data-peso]')) guardarPeso(hoy(), e.target, true); };
+const alEscribir = e => { if (e.target.matches('input[data-peso]')) guardarPeso(fechaHoy(), e.target, false); };
+const alCambiar = e => { if (e.target.matches('input[data-peso]')) guardarPeso(fechaHoy(), e.target, true); };
 
 // ── Cambiar ejercicio ───────────────────────────────────────
 function hojaCambio(f, slotId) {
@@ -472,7 +508,7 @@ function hojaCambio(f, slotId) {
   const h = abrirHoja(`<h3 class="hoja-t">Cambiar ejercicio</h3>
     <p class="hoja-sub">En lugar de <b>${base.n}</b> · ${s.orig.series}×${s.orig.reps}</p>
     <div class="alts">
-      ${s.cambio ? `<button class="alt original" data-id="${base.id}"><span class="alt-cab"><span class="alt-n">${ico('deshacer')} Volver al original</span><b class="alt-sr">${s.orig.series}×${s.orig.reps}</b></span><span class="alt-p">${base.n}</span></button>` : ''}
+      ${s.cambio && s.cambio !== 'equipo' ? `<button class="alt original" data-id="${base.id}"><span class="alt-cab"><span class="alt-n">${ico('deshacer')} Volver al original</span><b class="alt-sr">${s.orig.series}×${s.orig.reps}</b></span><span class="alt-p">${base.n}</span></button>` : ''}
       ${alts}
     </div>
     <div class="alt-video" hidden></div>

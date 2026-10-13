@@ -1,6 +1,6 @@
 // Arranque y navegación entre pantallas
 import { $, desbloquearAudio, pantallaEncendida } from './util.js';
-import { reconciliarDias } from './rutina.js';
+import { reconciliarDias, migrarPuestosV17 } from './rutina.js';
 import { guardar } from './store.js';
 import { hoy } from './calendario.js';
 import { renderHoy } from './hoy.js';
@@ -15,7 +15,8 @@ const VISTAS = { hoy: renderHoy, progreso: renderProgreso, calc: renderCalc, gui
 let actual = 'hoy', fechaPintada = null;
 const vista = $('#vista');
 
-function ir(v, { arriba = true } = {}) {
+function ir(ruta, { arriba = true } = {}) {
+  let [v, arg] = String(ruta).split('/');
   if (!VISTAS[v]) v = 'hoy';
   if (v !== 'hoy') pantallaEncendida(false);
   actual = v;
@@ -26,7 +27,7 @@ function ir(v, { arriba = true } = {}) {
     b.setAttribute('aria-current', on ? 'page' : 'false');
   });
   vista.classList.remove('entra'); void vista.offsetWidth; vista.classList.add('entra');
-  VISTAS[v](vista);
+  VISTAS[v](vista, v === 'hoy' ? (arg || null) : undefined);
   if (arriba) scrollTo(0, 0);
 }
 
@@ -49,7 +50,7 @@ document.addEventListener('visibilitychange', () => {
 });
 
 // Los días entrenados con una rutina que cambió siguen mostrando lo que se hizo
-if (reconciliarDias()) guardar();
+if (migrarPuestosV17() | reconciliarDias()) guardar();
 
 initTimer();
 initCarrera();

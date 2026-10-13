@@ -883,3 +883,62 @@ button.ag-chip:active { transform: scale(.97); }
 .hecho-mano { margin-bottom: 12px; }
 .hecho-mano .ico { color: var(--bien); }
 .falta-fila { grid-template-columns: 1fr; }
+
+.aj-sub { font-size: 15px; margin: 14px 0 4px; }
+
+/* Hice / No hice */
+.hice-fila { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 12px 2px 0; }
+.btn-hice, .btn-nohice { min-height: 52px; border-radius: 16px; font-weight: 800; font-size: 16px; }
+.btn-hice { background: color-mix(in srgb, var(--bien) 18%, var(--card2)); color: var(--txt); box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--bien) 55%, transparent); }
+.btn-nohice { background: var(--card2); color: var(--txt2); }
+.btn-hice:active, .btn-nohice:active { transform: scale(.97); }
+.reg-res { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; margin: 12px 2px 0; padding: 10px 12px; border-radius: 14px; font-size: 14px; }
+.reg-res > span { flex: 1 1 60%; min-width: 0; }
+.reg-res .ico { width: 18px; height: 18px; flex: none; }
+.reg-res.hecho { background: color-mix(in srgb, var(--bien) 14%, transparent); }
+.reg-res.hecho .ico { color: var(--bien); }
+.reg-res.no { background: var(--bg); color: var(--txt2); }
+.reg-res .link { min-height: 44px; }
+.ej.reg-hecho { box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--bien) 60%, transparent); }
+.ej.reg-hecho .ej-num { background: var(--bien); color: var(--bg); }
+.ej.reg-no { opacity: .6; filter: grayscale(.8); }
+.ej.reg-no .ej-n { text-decoration: line-through; }
+.reg-ajuste { margin: 12px 2px 0; padding: 12px; border-radius: 14px; background: color-mix(in srgb, var(--acento) 12%, transparent); font-size: 14px; display: grid; gap: 8px; }
+.reg-ajuste > p { display: flex; gap: 8px; align-items: flex-start; margin: 0; }
+.reg-ajuste .ico { width: 18px; height: 18px; flex: none; color: var(--acento2); }
+.reg-ajuste .btn-sec { margin: 0; }
+/* Registro rápido */
+.reg-filas { display: grid; gap: 8px; margin: 12px 0; }
+.reg-fila { display: flex; align-items: center; gap: 8px; padding: 8px; border-radius: 14px; background: var(--bg); flex-wrap: wrap; }
+.reg-n { width: 28px; text-align: center; color: var(--acento2); font-weight: 850; }
+.reg-ctl { flex: 1 1 140px; display: flex; align-items: center; justify-content: space-between; gap: 4px; }
+.reg-ctl button { width: 44px; height: 44px; flex: none; border-radius: 12px; background: var(--card2); display: grid; place-items: center; }
+.reg-ctl button .ico { width: 20px; height: 20px; }
+.reg-ctl span { display: grid; justify-items: center; line-height: 1.1; }
+.reg-ctl span b { font-size: 22px; font-weight: 850; font-variant-numeric: tabular-nums; }
+.reg-ctl span small { font-size: 12px; color: var(--txt2); }
+.motivos { display: grid; gap: 8px; margin-top: 10px; }
+.motivos .btn-sec, .sin-maquina .btn-sec { margin: 0; }
+.sin-maquina { display: grid; gap: 10px; margin-top: 10px; }
+/* Terminé el día */
+.fin-barra { position: sticky; bottom: calc(var(--tabs-h) + var(--sa-b) + 10px); z-index: 5; margin: 6px 0 14px; }
+body.con-mini .fin-barra { bottom: calc(var(--tabs-h) + var(--sa-b) + 74px); }
+.btn-fin { box-shadow: 0 10px 24px rgba(0, 0, 0, .35); }
+.fin-dia { display: grid; grid-template-columns: auto 1fr; align-items: center; gap: 10px 12px; }
+.fin-dia > .ico { width: 28px; height: 28px; color: #FFD43B; }
+.fin-dia > div:not(.fila-2) { display: grid; gap: 2px; }
+.fin-dia b { font-size: 18px; font-weight: 850; }
+.fin-dia small { color: var(--txt2); font-size: 14px; }
+.fin-dia .fila-2 { grid-column: 1 / -1; }
+.res-tiles { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 14px 0; }
+.res-tiles div { display: grid; justify-items: center; gap: 2px; padding: 12px 6px; border-radius: 14px; background: var(--bg); }
+.res-tiles b { font-size: 26px; font-weight: 850; }
+.res-tiles b small { font-size: 14px; color: var(--txt2); }
+.res-tiles span { font-size: 13px; color: var(--txt2); }
+.res-pesos { list-style: none; margin: 6px 0 12px; padding: 0; display: grid; gap: 6px; }
+.res-pesos li { display: flex; justify-content: space-between; gap: 10px; padding: 8px 10px; border-radius: 12px; background: var(--bg); font-size: 14px; }
+.res-pesos .sube { color: var(--bien); }
+.res-pesos .baja { color: var(--acento); }
+.res-frase { margin: 6px 2px 14px; font-weight: 700; }
+.editando { margin-bottom: 14px; }
+.cal-ayuda { margin: 8px 2px 0; }

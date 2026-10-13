@@ -1,5 +1,5 @@
 // Lógica del plan: qué toca hoy, qué ejercicio está activo en cada puesto, historial de pesos
-import { EJERCICIOS, PLAN, INICIO, BARRA } from './data.js';
+import { EJERCICIOS, PLAN, INICIO, BARRA, EQUIPO } from './data.js';
 import { S, leerDia } from './store.js';
 import { info, sumar, diaDe } from './calendario.js';
 
@@ -10,6 +10,12 @@ export function ejercicio(id, padreId) {
   if (e.g || !padreId) return { id, ...e };
   const p = EJERCICIOS[padreId];
   return { id, g: p.g, z: p.z, s: p.s, t: p.t, d: p.d, ...e };
+}
+
+// Ejercicios que no se pueden hacer: equipo que no hay en el gimnasio u ocultados a mano
+export function estaOculto(id) {
+  const a = S().ajustes, sin = a.sinEquipo || [];
+  return (a.ocultos || []).includes(id) || sin.some(k => EQUIPO[k]?.ej.includes(id));
 }
 
 // Qué se entrena en una fecha (según el calendario o lo que se eligió a mano)
@@ -28,7 +34,7 @@ export function slots(f, variante, diaPlan) {
   return d.e.map(([baseId, series, reps, nota, , altsPlan, tip], i) => {
     const slot = `${pre}-${diaPlan}-${i}`;
     const base = ejercicio(baseId);
-    const alts = altsPlan || base.a || [];
+    const alts = (altsPlan || base.a || []).filter(a => !estaOculto(a[0]));
     // "Usar siempre" de la Semana B se guarda aparte: no toca los cambios de la Semana A
     const clave = d.propia ? `B|${baseId}` : baseId;
     const h = log.cambios?.[slot], swGuardado = S().siempre[clave];
@@ -36,11 +42,15 @@ export function slots(f, variante, diaPlan) {
     let ejId = baseId, cambio = null;
     if (h && h !== baseId) { ejId = h; cambio = 'hoy'; }
     else if (!h && sw) { ejId = sw; cambio = 'siempre'; }
+    // Sin esa máquina: la primera alternativa que sí se puede hacer
+    if (estaOculto(ejId) && alts.length) { ejId = alts[0][0]; cambio = 'equipo'; }
     let s = series, r = reps, n = nota;
     if (cambio) {
       const alt = alts.find(a => a[0] === ejId);
       if (alt) { [, s, r] = alt; n = null; }
     }
+    // "¿Ajustar a 3×15?" → Sí: esas repeticiones quedan para este ejercicio
+    if (!cambio && S().ajusteReps?.[clave]) r = S().ajusteReps[clave];
     const marcadas = log.series?.[slot] || [];
     return {
       slot, i, base, ej: cambio ? ejercicio(ejId, baseId) : base,
@@ -56,6 +66,37 @@ export const totalSeries = ss => ss.reduce((a, s) => a + s.series, 0);
 // Días con series anotadas en una rutina que hoy ya no es la que toca (por ejemplo, la Semana B anterior):
 // se les fija esa rutina para que se vean con lo que se hizo y cuenten como entrenados.
 const PREFIJO = { A: 'A', B2: 'B', B: 'B0' }; // cómo empieza el puesto → semana
+// v17: el martes A, el viernes A y el martes B cambiaron de orden (entraron las prensas y salió el femoral sentado).
+// Lo anotado se mueve al puesto nuevo de su mismo ejercicio; lo de un ejercicio que ya no está se guarda aparte.
+const ORDEN_VIEJO = {
+  'A-mar': ['sentadilla', 'zancadas-caminando', 'extensiones', 'femoral-acostado', 'pantorrilla-pie'],
+  'A-vie': ['rumano-mancuernas', 'bulgara', 'curl-femoral-maquina', 'hip-thrust', 'abductor', 'pantorrilla-sentado'],
+  'B2-mar': ['sentadilla-smith-adelantados', 'femoral-acostado', 'abductor', 'rumano-barra', 'zancadas-caminando', 'femoral-sentado', 'hip-thrust', 'extensiones', 'femoral-pie'],
+};
+export function migrarPuestosV17() {
+  const st = S();
+  if (st.migrado?.v17) return false;
+  for (const [clave, viejos] of Object.entries(ORDEN_VIEJO)) {
+    const [pre, dia] = clave.split('-');
+    const nuevos = PLAN[pre === 'B2' ? 'B' : pre][dia].e.map(x => x[0]);
+    const re = new RegExp(`^${pre}-${dia}-([0-9]+)$`);
+    for (const d of Object.values(st.log)) for (const campo of ['series', 'cambios']) {
+      const o = d[campo];
+      if (!o) continue;
+      const n = {};
+      for (const [k, v] of Object.entries(o)) {
+        const m = re.exec(k);
+        if (!m) { n[k] = v; continue; }
+        const j = nuevos.indexOf(viejos[Number(m[1])]);
+        n[j >= 0 ? `${pre}-${dia}-${j}` : `${pre}-${dia}-viejo-${m[1]}`] = v;
+      }
+      d[campo] = n;
+    }
+  }
+  st.migrado = { ...(st.migrado || {}), v17: true };
+  return true;
+}
+
 export function reconciliarDias() {
   let cambio = false;
   for (const [f, d] of Object.entries(S().log)) {
@@ -86,8 +127,8 @@ export function resumenDia(f) {
   const log = leerDia(f);
   const series = Object.values(log.series || {}).flat().filter(Boolean).length;
   const sab = log.sab || {};
-  const algo = series > 0 || !!log.hecho || !!(sab.movilidad || sab.trote || sab.estiramiento) || (sab.core || []).some(Boolean);
-  return { series, completo: !!log.completo, algo };
+  const algo = series > 0 || !!log.hecho || !!log.fin || !!(sab.movilidad || sab.trote || sab.estiramiento) || (sab.core || []).some(Boolean);
+  return { series, completo: !!log.completo || !!log.fin, algo };
 }
 
 // Días seguidos entrenando (los domingos no rompen la racha; hoy sin entrenar todavía tampoco)

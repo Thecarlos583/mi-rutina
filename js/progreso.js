@@ -56,6 +56,7 @@ function calendario(f) {
       <button class="cal-nav sig" data-a="mes" data-d="1" aria-label="Mes siguiente" ${mes >= 0 ? 'disabled' : ''}>${ico('abajo')}</button>
     </div>
     <div class="cal">${['L', 'M', 'M', 'J', 'V', 'S', 'D'].map(x => `<span class="cal-h">${x}</span>`).join('')}${celdas}</div>
+    <p class="txt2 peq cal-ayuda">Toca un día para ver o editar lo que hiciste.</p>
     <div class="cal-ley"><span><i class="completo"></i>Completo</span><span><i class="parcial"></i>A medias</span><span><i class="dom"></i>Descanso</span></div>
   </section>`;
 }
@@ -176,6 +177,7 @@ function alTocar(e) {
   else if (a === 'pe') { abierto = abierto === b.dataset.id ? null : b.dataset.id; vibrar(8); renderProgreso(raiz); }
   else if (a === 'cal-dia') {
     const r = resumenDia(b.dataset.f);
+    if (b.dataset.f <= hoy()) { location.hash = b.dataset.f === hoy() ? 'hoy' : `hoy/${b.dataset.f}`; return; }
     aviso(r.completo ? `${fechaCorta(b.dataset.f)}: día completo${r.series ? `, ${r.series} series` : ''}` : r.algo ? `${fechaCorta(b.dataset.f)}: ${r.series ? `${r.series} series` : 'a medias'}` : `${fechaCorta(b.dataset.f)}: sin registro`, 'cal');
   } else if (a === 'cintura') {
     const v = parseFloat(String($('#cintura').value).replace(',', '.'));

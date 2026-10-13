@@ -133,7 +133,16 @@ export const EJERCICIOS = {
     t: 'La reina de las piernas: cuádriceps y glúteo, con el core sosteniendo todo.',
     p: ['Pies al ancho de los hombros.', 'Pecho arriba.', 'Baja hasta paralelo.', 'Rodillas en línea con los pies, sin irse hacia adentro.'],
     a: [['sentadilla-goblet', 4, '10-12'], ['sentadilla-hack', 4, '10'], ['sentadilla-smith-adelantados', 4, '10'], ['prensa', 4, '10-12']] },
-  'prensa': { n: 'Prensa de piernas', p: ['Espalda y cadera pegadas al respaldo, baja hasta 90° y empuja con todo el pie sin bloquear las rodillas.'] },
+  'prensa': { n: 'Prensa de piernas 45°', g: 'cuadriceps', z: ['cuadriceps', 'gluteo'], s: ['femoral'], d: 90,
+    t: 'Cuádriceps y glúteo con mucho peso y la espalda apoyada.',
+    p: ['Espalda y cadera pegadas al respaldo, pies al ancho de los hombros.', 'Quita los seguros y baja hasta que las rodillas queden a 90°.', 'Empuja con todo el pie, sin despegar los talones.', 'Arriba no bloquees las rodillas.'],
+    a: [['prensa-horizontal', 3, '12'], ['sentadilla-hack', 3, '10'], ['sentadilla-smith-adelantados', 3, '12']] },
+  'prensa-horizontal': { n: 'Prensa horizontal (de empuje)', g: 'cuadriceps', z: ['cuadriceps', 'gluteo'], s: ['femoral'], d: 90,
+    t: 'Cuádriceps y glúteo sentado, empujando al frente. Con los pies altos en la plataforma trabaja más el glúteo y el femoral.',
+    p: ['Sentado, espalda pegada al respaldo, pies al ancho de los hombros en la plataforma.', 'Empuja al frente con todo el pie.', 'Vuelve lento hasta que las rodillas queden a 90°.', 'No bloquees las rodillas al estirar.'],
+    a: [['prensa', 3, '12'], ['sentadilla-hack', 3, '10'], ['sentadilla-goblet', 3, '12']] },
+  'rumano-una-pierna': { n: 'Peso muerto rumano a una pierna con mancuerna ligera', p: ['Mancuerna ligera en la mano contraria a la pierna de apoyo; baja la cadera atrás con la espalda recta y sube apretando el glúteo.'] },
+  'femoral-mancuerna': { n: 'Curl femoral con mancuerna, boca abajo', p: ['Acostado boca abajo en un banco, una mancuerna entre los pies; sube los talones hacia el glúteo y baja lento.'] },
   'sentadilla-goblet': { n: 'Sentadilla goblet', p: ['Mancuerna pegada al pecho, baja con el torso recto entre las rodillas.'] },
   'sentadilla-hack': { n: 'Sentadilla hack en máquina', p: ['Espalda pegada al respaldo, baja a 90° y sube empujando con todo el pie.'] },
   'sentadilla-smith-adelantados': { n: 'Sentadilla en Smith pies adelantados', p: ['Pies un paso delante de la barra; carga más el cuádriceps.'] },
@@ -443,7 +452,7 @@ export const INICIO = {
   'curl-concentrado': [15, 'una'], 'curl-polea-una-mano': [15, 'maq'], 'curl-21': [25, 'barra'], 'drag-curl': [30, 'barra'],
   'curl-polea-barra': [30, 'maq'], 'martillo-sentado': [15, 'c/u'],
   // Cuádriceps
-  'sentadilla': [75, 'barra'], 'prensa': [90, 'discos'], 'sentadilla-goblet': [30, 'una'], 'sentadilla-hack': [70, 'discos'], 'sentadilla-smith-adelantados': [65, 'barra'],
+  'sentadilla': [75, 'barra'], 'prensa': [90, 'discos'], 'prensa-horizontal': [100, 'maq'], 'rumano-una-pierna': [10, 'una'], 'femoral-mancuerna': [10, 'una'], 'sentadilla-goblet': [30, 'una'], 'sentadilla-hack': [70, 'discos'], 'sentadilla-smith-adelantados': [65, 'barra'],
   'zancadas-caminando': [20, 'c/u'], 'step-up': [15, 'c/u'], 'zancada-reversa': [15, 'c/u'], 'extensiones': [60, 'maq'],
   'goblet-talones': [25, 'una'], 'sissy': [0, 'corp'], 'desplantes': [15, 'c/u'],
   // Femoral y glúteo
@@ -566,18 +575,16 @@ const SEMANA_B = {
       ['patada-triceps-polea', '15/brazo', 'Inclinado, codo pegado, extiende hacia atrás.', ['patada-mancuerna', 'triceps-un-brazo-polea', 'fondos-banco']])),
   mar: diaB('Piernas', 'Cuádriceps, femoral y glúteo',
     series(3,
-      ['sentadilla-smith-adelantados', '12', 'Pies un poco adelante, baja a paralelo, rodillas alineadas con los pies.', ['sentadilla-goblet', 'sentadilla', 'sentadilla-hack']],
-      ['femoral-acostado', '15', 'Cadera pegada al banco, talones al glúteo.', ['femoral-sentado', 'femoral-fitball', 'femoral-pie']],
-      ['abductor', '20', 'Abre controlado y aprieta 1 s.', ['abduccion-polea', 'caminata-banda', 'abduccion-lado']]),
+      ['sentadilla-smith-adelantados', '12', 'Pies un poco adelante, baja a paralelo, rodillas alineadas con los pies.', ['sentadilla-goblet', 'sentadilla', 'sentadilla-hack', 'prensa']],
+      ['prensa-horizontal', '12', 'Espalda pegada al respaldo; baja hasta 90° sin despegar los talones.', ['prensa', 'sentadilla-hack', 'sentadilla-goblet']],
+      ['femoral-acostado', '12-15', 'Cadera pegada al banco, talones al glúteo.', ['femoral-fitball', 'nordico', 'rumano-una-pierna', 'femoral-mancuerna']],
+      ['abductor', '15', 'Abre controlado y aprieta 1 s.', ['abduccion-polea', 'caminata-banda', 'abduccion-lado']]),
     series(3,
       ['rumano-barra', '12', 'Rodillas un poco flexionadas, cadera atrás, barra pegada a las piernas y espalda recta.', ['rumano-mancuernas', 'hiperextensiones', 'buenos-dias']],
       ['zancadas-caminando', '10/pierna', 'Pasos largos, rodilla de atrás casi al piso.', ['zancada-reversa', 'bulgara', 'step-up']]),
-    series(3,
-      ['femoral-sentado', '12', 'Espalda pegada al respaldo, baja controlado.', ['femoral-acostado', 'nordico', 'femoral-fitball']],
-      ['hip-thrust', '20', 'Espalda alta en el banco, sube a línea recta y aprieta 1 s.', ['hip-thrust-smith', 'elevacion-pelvis', 'patada-gluteo-polea']]),
-    series(3,
-      ['extensiones', '15', 'Aprieta 1 s arriba y baja lento.', ['sissy', 'goblet-talones', 'step-up']],
-      ['femoral-pie', '12/pierna', 'Una pierna; en máquina o en polea con tobillera.', ['femoral-acostado', 'femoral-fitball', 'femoral-sentado']])),
+    series(4,
+      ['hip-thrust', '10', 'Espalda alta en el banco, sube a línea recta y aprieta 1 s.', ['hip-thrust-smith', 'elevacion-pelvis', 'patada-gluteo-polea']],
+      ['extensiones', '15', 'Aprieta 1 s arriba y baja lento.', ['sissy', 'goblet-talones', 'step-up']])),
   mie: diaB('Pecho + abdomen', 'Pecho y abdomen',
     series(4,
       ['inclinado-mancuernas', '10', 'Banco a 30°, baja a los lados del pecho.', ['inclinado-barra', 'inclinado-maquina', 'inclinado-smith']],
@@ -628,7 +635,7 @@ export const PLAN = {
       ['remo-barra', 4, '8-10'], ['jalon-ancho', 4, '10-12'], ['remo-polea-cerrado', 3, '12'],
       ['curl-z', 4, '10'], ['curl-martillo', 3, '12']] },
     mar: { t: 'Piernas', sub: 'Cuádriceps', e: [
-      ['sentadilla', 4, '8-10'], ['zancadas-caminando', 3, '12/pierna'], ['extensiones', 4, '15'],
+      ['sentadilla', 4, '8-10'], ['prensa', 3, '12'], ['zancadas-caminando', 3, '12/pierna'], ['extensiones', 4, '15'],
       ['femoral-acostado', 3, '12'], ['pantorrilla-pie', 4, '10+10+10', '3 posiciones']] },
     mie: { t: 'Hombros + tríceps', sub: 'Pecho y abdomen', e: [
       ['militar-mancuernas', 4, '10'], ['laterales', 4, '15'], ['posterior-maquina', 3, '15'],
@@ -637,7 +644,7 @@ export const PLAN = {
     jue: { t: 'Espalda + bíceps', sub: 'Amplitud', e: [
       ['remo-una-mano', 4, '10/brazo'], ['jalon-v', 4, '10-12'], ['jalon-brazos-rectos', 3, '12-15'],
       ['curl-predicador', 4, '10-12'], ['curl-concentrado', 3, '12']] },
-    vie: { t: 'Piernas', sub: 'Femoral + glúteo', e: VIERNES_A },
+    vie: { t: 'Piernas', sub: 'Femoral + glúteo', e: [VIERNES_A[0], ['prensa-horizontal', 3, '12', 'pies altos'], ...VIERNES_A.slice(1)] },
   },
   // Semana B: rutina distinta a la A (ver SEMANA_B arriba)
   B: SEMANA_B,
@@ -967,3 +974,27 @@ for (const [id, c] of Object.entries(CONTEXTO_B)) {
   if (c.startsWith('P:')) a.carga = c.slice(2); else [a.pos, a.imp] = c.split('/');
 }
 for (const id of Object.keys(AGARRES_B)) if (EJERCICIOS[id]) EJERCICIOS[id].agarre = AGARRES[id];
+
+// ── v17: prensa horizontal y alternativas de femoral sin máquina ──
+Object.assign(AGARRES, {
+  'prensa-horizontal': ag('ninguno', 'n/a', 'ninguno', 'Las manijas laterales solo sirven para sujetarte'),
+  'rumano-una-pierna': ag('neutro', 'n/a', 'ninguno', 'Mancuerna en la mano contraria a la pierna de apoyo', D),
+  'femoral-mancuerna': ag('ninguno', 'n/a', 'ninguno', 'Manos sujetando el banco; la mancuerna va entre los pies', D),
+});
+AGARRES['rumano-una-pierna'].carga = 'unaMano';
+for (const id of ['prensa-horizontal', 'rumano-una-pierna', 'femoral-mancuerna']) EJERCICIOS[id].agarre = AGARRES[id];
+
+// ── Equipo que puede no haber en el gimnasio ──
+// Si está marcado como "no lo tengo" (ajustes.sinEquipo), esos ejercicios no aparecen:
+// en la rutina se cambian solos por la primera alternativa que sí se pueda hacer.
+export const EQUIPO = {
+  'femoral-sentado': { n: 'Máquina de femoral sentado', ej: ['femoral-sentado'] },
+  'hexagonal': { n: 'Barra hexagonal', ej: [] },
+  'prensa': { n: 'Prensa de piernas 45°', ej: ['prensa'] },
+  'prensa-horizontal': { n: 'Prensa horizontal (de empuje)', ej: ['prensa-horizontal'] },
+  'hack': { n: 'Máquina de sentadilla hack', ej: ['sentadilla-hack'] },
+  'paralelas': { n: 'Paralelas', ej: ['fondos-paralelas', 'elevacion-paralelas', 'rodillas-paralelas'] },
+  'rueda': { n: 'Rueda abdominal', ej: ['rueda'] },
+  'fitball': { n: 'Pelota grande (fitball)', ej: ['femoral-fitball', 'stir-pot', 'rollout-fitball', 'crunch-fitball'] },
+};
+export const SIN_EQUIPO_INICIAL = ['femoral-sentado', 'hexagonal'];

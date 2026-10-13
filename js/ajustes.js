@@ -1,4 +1,5 @@
 // Pantalla "Ajustes": fecha de inicio, sonido, vibración, respaldo y reinicio
+import { EQUIPO, EJERCICIOS } from './data.js';
 import { S, guardar, exportar, importar, reiniciar } from './store.js';
 import { hoy, info, fechaLarga, lunesDe } from './calendario.js';
 import { $, ico, vibrar, sonar, desbloquearAudio, estadoAudio, usoRespaldo, aviso } from './util.js';
@@ -29,6 +30,14 @@ export function renderAjustes(el) {
       <button class="btn-sec" data-a="probar">${ico('reloj')} Probar sonido</button>
       <p class="estado-audio" id="aj-audio">${textoAudio()}</p>
       <p class="txt2 peq">Si no suena, sube el volumen del teléfono con los botones de un lado.</p>
+    </section>
+
+    <section class="card" id="aj-equipo">
+      <div class="card-cab"><h3>Equipo que no tengo en mi gimnasio</h3></div>
+      <p class="txt2 peq">Lo que actives no aparece en la app: en tu rutina se cambia solo por una alternativa que sí puedas hacer.</p>
+      ${Object.entries(EQUIPO).map(([k, x]) => `<label class="sw"><span><b>${x.n}</b></span><input type="checkbox" data-eq="${k}" ${(a.sinEquipo || []).includes(k) ? 'checked' : ''}><i aria-hidden="true"></i></label>`).join('')}
+      ${(a.ocultos || []).length ? `<h4 class="aj-sub">Ejercicios que ocultaste</h4>
+        ${a.ocultos.map(id => `<label class="sw"><span><b>${EJERCICIOS[id]?.n || id}</b><small>Apágalo para que vuelva a aparecer</small></span><input type="checkbox" data-oculto="${id}" checked><i aria-hidden="true"></i></label>`).join('')}` : ''}
     </section>
 
     <section class="card">
@@ -63,6 +72,15 @@ function alCambiar(e) {
     S().ajustes[t.dataset.aj] = t.checked;
     guardar();
     vibrar(10);
+  } else if (t.dataset.eq) {
+    const lista = new Set(S().ajustes.sinEquipo || []);
+    t.checked ? lista.add(t.dataset.eq) : lista.delete(t.dataset.eq);
+    S().ajustes.sinEquipo = [...lista];
+    guardar(); vibrar(10);
+  } else if (t.dataset.oculto) {
+    if (!t.checked) S().ajustes.ocultos = (S().ajustes.ocultos || []).filter(x => x !== t.dataset.oculto);
+    guardar(); vibrar(10);
+    aviso('Vuelve a aparecer en la app', 'check');
   } else if (t.id === 'aj-inicio' && t.value) {
     S().ajustes.inicio = t.value;
     guardar();
