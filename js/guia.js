@@ -27,7 +27,7 @@ export function renderGuia(el) {
       <div class="plan">${['lun', 'mar', 'mie', 'jue', 'vie'].map(d => {
         const p = PLAN[variante][d];
         return `<details class="plan-dia"><summary><span class="dia-n">${NOMBRE_DIA[d]}</span><span class="dia-t">${p.t} · ${p.sub}</span>${ico('abajo')}</summary>
-          <ul>${p.e.map(x => fila(x)).join('')}</ul></details>`;
+          ${p.comp ? `<p class="txt2 peq comp-g">Complementa a la Semana A: ${p.comp}</p>` : ''}<ul>${p.e.map(x => fila(x)).join('')}</ul></details>`;
       }).join('')}
         <details class="plan-dia"><summary><span class="dia-n">Sábado</span><span class="dia-t">Trote y afloje</span>${ico('abajo')}</summary>
           <ul>${[1, 2, 3, 4].map(k => `<li style="--c:#38BDF8"><i class="punto"></i><span>Semana ${k}</span><b class="trote-b">${TROTE[k].resumen}</b></li>`).join('')}</ul>

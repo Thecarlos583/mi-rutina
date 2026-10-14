@@ -563,18 +563,19 @@ Object.assign(EJERCICIOS['fondos-maquina'], { g: 'triceps', z: ['triceps'], s: [
 Object.assign(EJERCICIOS['remo-mancuernas-pecho'], { g: 'espalda', z: ['dorsal', 'trapecio'], s: ['biceps', 'deltoidesPost'], d: 90, t: 'Espalda media sin trampa: el pecho apoyado no deja ayudar con el cuerpo.' });
 Object.assign(EJERCICIOS['pajaro'], { g: 'hombros', z: ['deltoidesPost'], s: ['trapecio'], d: 60, t: 'El hombro de atrás y la espalda alta.' });
 
-// ── Semana B: rutina normal con ejercicios distintos a la A ──
+// ── Semana B anterior (del 12 al 13 oct 2026) ──
+// Ya no entra en la rotación: solo muestra los días que se anotaron con ella (sus puestos son "B2-…").
 // series(n, …): n series de cada ejercicio. Cada ejercicio: [id, reps, clave del día, [alternativas], nota].
 // En PLAN.B queda como [id, series, reps, nota, null, alternativas, clave], así lo demás de la app lo lee igual.
 const series = (n, ...ej) => ({ n, ej });
-function diaB(t, sub, ...grupos) {
+function diaB1(t, sub, ...grupos) {
   return {
-    t, sub, propia: true,
+    t, sub, propia: true, pre: 'B2',
     e: grupos.flatMap(g => g.ej.map(([id, reps, clave, alts = [], nota = null]) => [id, g.n, reps, nota, null, alts.map(a => [a, g.n, reps]), clave])),
   };
 }
-const SEMANA_B = {
-  lun: diaB('Hombros + brazos', 'Bíceps y tríceps',
+const SEMANA_B1 = {
+  lun: diaB1('Hombros + brazos', 'Bíceps y tríceps',
     series(3,
       ['militar-mancuernas', '12', 'Desde las orejas hacia arriba, sin arquear la espalda baja.', ['militar-hammer', 'press-arnold', 'press-hombro-maquina']],
       ['curl-predicador', '10', 'Brazos pegados al banco; no estires de golpe abajo.', ['predicador-maquina', 'predicador-mancuerna', 'curl-arana']],
@@ -591,7 +592,7 @@ const SEMANA_B = {
       ['laterales', '15', 'Hasta la altura del hombro, codos un poco flexionados.', ['laterales-polea', 'laterales-maquina', 'laterales-pie']],
       ['curl-alterno', '12/brazo', 'Gira la muñeca al subir.', ['curl-z', 'curl-polea-baja', 'curl-inclinado']],
       ['patada-triceps-polea', '15/brazo', 'Inclinado, codo pegado, extiende hacia atrás.', ['patada-mancuerna', 'triceps-un-brazo-polea', 'fondos-banco']])),
-  mar: diaB('Piernas', 'Cuádriceps, femoral y glúteo',
+  mar: diaB1('Piernas', 'Cuádriceps, femoral y glúteo',
     series(3,
       ['sentadilla-smith-adelantados', '12', 'Pies un poco adelante, baja a paralelo, rodillas alineadas con los pies.', ['sentadilla-goblet', 'sentadilla', 'sentadilla-hack', 'prensa']],
       ['prensa-horizontal', '12', 'Espalda pegada al respaldo; baja hasta 90° sin despegar los talones.', ['prensa', 'sentadilla-hack', 'sentadilla-goblet']],
@@ -603,7 +604,7 @@ const SEMANA_B = {
     series(4,
       ['hip-thrust', '10', 'Espalda alta en el banco, sube a línea recta y aprieta 1 s.', ['hip-thrust-smith', 'elevacion-pelvis', 'patada-gluteo-polea']],
       ['extensiones', '15', 'Aprieta 1 s arriba y baja lento.', ['sissy', 'goblet-talones', 'step-up']])),
-  mie: diaB('Pecho + abdomen', 'Pecho y abdomen',
+  mie: diaB1('Pecho + abdomen', 'Pecho y abdomen',
     series(4,
       ['inclinado-mancuernas', '10', 'Banco a 30°, baja a los lados del pecho.', ['inclinado-barra', 'inclinado-maquina', 'inclinado-smith']],
       ['aperturas-maquina', '12', 'Codos un poco flexionados, aprieta al centro.', ['aperturas-mancuernas', 'cruces-medio', 'cruces-abajo']],
@@ -616,7 +617,7 @@ const SEMANA_B = {
       ['cruces-abajo', '12', 'Poleas bajas; sube las manos hacia arriba y al centro.', ['inclinado-cerrado', 'aperturas-inclinadas', 'inclinado-maquina']],
       ['fondos-maquina', '12', 'Codos atrás, hombros lejos de las orejas.', ['fondos-banco', 'triceps-cuerda', 'press-cerrado']],
       ['crunch-inverso', '15', 'Rodillas al pecho sin impulso; baja lento.', ['elevacion-piernas', 'tijeras', 'toques-talon']])),
-  jue: diaB('Espalda + trapecio', 'Y pantorrilla',
+  jue: diaB1('Espalda + trapecio', 'Y pantorrilla',
     series(1,
       ['jalon-brazos-rectos', '15', 'Ligero: baja la barra en arco hasta los muslos y aprieta los dorsales. Enciende la espalda antes de los remos.', ['pullover-cuerda']]),
     series(3,
@@ -631,7 +632,7 @@ const SEMANA_B = {
       ['encogimientos-barra', '20', 'Agarre cerrado, barra pegada al cuerpo, pausa arriba.', ['encogimientos-mancuernas', 'encogimientos-smith', 'encogimientos-maquina']]),
     series(3,
       ['pantorrilla-pie', '10+10+10', 'Pies cerrados, rectos y abiertos en la misma serie; recorrido completo.', ['pantorrilla-smith', 'pantorrilla-sentado', 'pantorrilla-una-pierna'], '3 posiciones'])),
-  vie: diaB('Espalda + hombros', 'Y abdomen',
+  vie: diaB1('Espalda + hombros', 'Y abdomen',
     series(3,
       ['remo-barra', '8-10', 'Torso a 45°, barra al ombligo apretando los omóplatos.', ['remo-maquina', 'remo-mancuernas-pecho', 'remo-polea-abierto']],
       ['laterales', '10-12', 'Hasta la altura del hombro, codos un poco flexionados.', ['laterales-polea', 'laterales-maquina', 'laterales-pie']]),
@@ -645,6 +646,58 @@ const SEMANA_B = {
       ['crunch-piso', '20', 'Lento, sin jalar el cuello.', ['crunch-inverso', 'toques-talon', 'bicicleta']],
       ['plancha', '45 s', 'Cuerpo recto, aprieta abdomen y glúteo.', ['plancha-rodillas', 'plancha-toque', 'dead-bug']],
       ['plancha-lateral', '30 s/lado', 'Codo bajo el hombro; la cadera no cae.', ['toques-talon', 'crunch-lateral', 'bicicleta']])),
+};
+
+// ── Semana B: complementa a la A ─────────────────────────────
+// Mismos días y grupos que la A (así cada músculo se trabaja 2 veces por semana), con otros ejercicios.
+// Casi todo con peso libre: el gimnasio es más de CrossFit y la sala de máquinas es pequeña.
+// Un solo ejercicio de cada tipo de movimiento por día, nada de polea salvo el jalón del jueves, y sin circuitos.
+// Cada ejercicio: [id, series, reps, descanso en s, consejo, [alternativas], nota]. Las alternativas usan las mismas series y reps.
+function diaB(t, sub, comp, ...ej) {
+  return {
+    t, sub, comp, propia: true, pre: 'B3',
+    e: ej.map(([id, n, reps, desc, tip, alts = [], nota = null]) => [id, n, reps, nota, desc, alts.map(a => [a, n, reps]), tip]),
+  };
+}
+const SEMANA_B = {
+  lun: diaB('Espalda + bíceps', 'Grosor y trapecio', 'remo con las palmas arriba, dominadas con banda en vez de jalón, pullover sin polea, trapecio y bíceps en banco inclinado.',
+    ['remo-supino', 4, '8-10', 120, 'Palmas arriba, torso a 45°, barra al ombligo y codos pegados al cuerpo.', ['remo-barra', 'remo-mancuernas-supino', 'remo-una-mano']],
+    ['dominadas-banda', 4, '6-8', 90, 'Desde los brazos estirados, pecho hacia la barra y baja en 3 s. Si llegas fácil a 8, usa una banda más delgada.', ['dominada-negativa', 'remo-invertido', 'jalon-ancho']],
+    ['pullover-mancuerna', 3, '12', 60, 'Brazos casi rectos; baja detrás de la cabeza hasta sentir el dorsal y sube hasta el pecho.', ['pullover-disco', 'jalon-brazos-rectos']],
+    ['encogimientos-mancuernas', 3, '12-15', 60, 'Hombros hacia las orejas, pausa 1 s arriba, sin girar.', ['encogimientos-barra', 'encogimientos-smith']],
+    ['curl-z', 4, '8-10', 90, 'Codos pegados, sube sin impulso y baja en 2 s. Aquí un poco más de peso que en la A.', ['curl-barra-recta', 'curl-mancuernas', 'curl-alterno']],
+    ['curl-inclinado', 3, '10-12', 60, 'Banco a 45°, brazos colgando hacia atrás; sube sin adelantar los codos.', ['curl-alterno', 'drag-curl', 'curl-mancuernas']]),
+  mar: diaB('Piernas', 'Cuádriceps', 'prensa horizontal en vez de sentadilla con barra, step-up a una pierna, goblet con talones elevados y pantorrilla con mancuerna.',
+    ['prensa-horizontal', 4, '10-12', 120, 'Espalda pegada al respaldo; baja hasta 90° sin despegar los talones.', ['prensa', 'sentadilla-goblet', 'sentadilla-smith-adelantados']],
+    ['step-up', 3, '10/pierna', 90, 'Sube empujando con el talón de la pierna de arriba, sin impulsarte con la de abajo.', ['zancada-reversa', 'bulgara', 'desplantes']],
+    ['goblet-talones', 3, '12-15', 60, 'Talones sobre un disco; baja profundo con el torso recto.', ['extensiones', 'sentadilla-goblet', 'sissy']],
+    ['femoral-acostado', 3, '12', 60, 'Cadera pegada al banco, talones al glúteo.', ['femoral-fitball', 'femoral-mancuerna', 'nordico']],
+    ['abductor', 3, '15', 60, 'Abre controlado y aprieta 1 s.', ['caminata-banda', 'abduccion-lado']],
+    ['pantorrilla-una-pierna', 4, '12/pierna', 60, 'Pausa 2 s abajo estirando y 1 s arriba.', ['pantorrilla-pie', 'pantorrilla-smith']]),
+  mie: diaB('Pecho + hombros', 'Tríceps y abdomen', 'aquí el pecho va primero y con barra; press de pie, laterales de pie, tríceps sin polea y otro abdomen.',
+    ['press-plano-barra', 4, '8-10', 120, 'Omóplatos juntos, baja al pecho medio y pies firmes en el piso.', ['press-plano-mancuernas', 'flexiones', 'press-pecho-maquina']],
+    ['militar-barra', 3, '8-10', 90, 'De pie, glúteo y abdomen apretados; empuja sin arquear la espalda baja.', ['militar-mancuernas', 'press-arnold', 'militar-hammer']],
+    ['laterales-pie', 3, '12-15', 60, 'Sube hasta la altura del hombro y pausa 1 s arriba.', ['laterales', 'laterales-maquina', 'laterales-polea']],
+    ['pajaro', 3, '12-15', 60, 'Inclinado, codos casi rectos; abre los brazos y aprieta atrás.', ['pull-apart', 'posterior-maquina', 'face-pull']],
+    ['fondos-banco', 3, '10-15', 60, 'Manos en el borde del banco; baja hasta los codos a 90° y sube.', ['fondos-paralelas', 'press-cerrado', 'flexiones']],
+    ['extension-mancuerna-cabeza', 3, '12', 60, 'Sentado, mancuerna con las dos manos detrás de la cabeza y codos apuntando arriba.', ['frances-mancuernas', 'patada-mancuerna', 'triceps-sobre-cabeza']],
+    ['crunch-inverso', 3, '15', 60, 'Rodillas al pecho sin impulso; baja lento.', ['elevacion-piernas', 'tijeras', 'toques-talon']],
+    ['plancha', 3, '45 s', 60, 'Cuerpo recto, aprieta abdomen y glúteo.', ['plancha-rodillas', 'plancha-toque', 'dead-bug']]),
+  jue: diaB('Espalda + bíceps', 'Amplitud y zona lumbar', 'jalón con las palmas hacia ti, remo con pecho apoyado (el que más se siente en la espalda), zona lumbar y antebrazo.',
+    ['jalon-supino', 4, '10-12', 120, 'Palmas hacia ti, al ancho de los hombros; barra al pecho alto con los codos hacia abajo.', ['dominadas-banda', 'dominadas-supinas', 'jalon-ancho']],
+    ['remo-mancuernas-pecho', 4, '10-12', 90, 'Pecho apoyado en el banco inclinado; lleva los codos atrás y aprieta.', ['remo-una-mano', 'remo-barra', 'remo-maquina']],
+    ['hiperextensiones', 3, '12-15', 60, 'Baja con la espalda recta y sube hasta quedar en línea con las piernas, sin pasarte hacia atrás.', ['buenos-dias', 'elevacion-pelvis', 'rumano-mancuernas']],
+    ['curl-arana', 3, '10-12', 60, 'Pecho en el banco inclinado, brazos colgando; sube sin mover los codos.', ['curl-concentrado', 'curl-predicador', 'curl-inclinado']],
+    ['curl-inverso-z', 3, '12', 60, 'Palmas hacia abajo y codos pegados: trabaja antebrazo y braquial.', ['curl-martillo', 'martillo-cruzado', 'martillo-sentado']]),
+  vie: diaB('Piernas', 'Femoral, glúteo y abdomen', 'rumano con barra para más peso, zancada hacia atrás, sentadilla sumo para la parte de adentro del muslo y femoral sin máquina.',
+    ['rumano-barra', 4, '8-10', 120, 'Rodillas un poco flexionadas, cadera atrás, barra pegada a las piernas y espalda recta.', ['rumano-mancuernas', 'rumano-una-pierna', 'buenos-dias']],
+    ['zancada-reversa', 3, '10/pierna', 90, 'Paso largo hacia atrás, rodilla casi al piso; empuja con el talón de adelante.', ['bulgara', 'zancadas-caminando', 'step-up']],
+    ['hip-thrust', 4, '10', 90, 'Espalda alta en el banco, barra sobre la cadera con almohadilla; sube a línea recta y aprieta 1 s.', ['puente-mancuerna', 'hip-thrust-smith', 'elevacion-pelvis']],
+    ['sumo-mancuerna', 3, '12', 60, 'Pies abiertos y puntas afuera; las rodillas siguen a los pies.', ['sentadilla-goblet']],
+    ['femoral-fitball', 3, '12', 60, 'Boca arriba, talones sobre la pelota; sube la cadera y trae la pelota hacia ti.', ['femoral-acostado', 'femoral-mancuerna', 'nordico']],
+    ['pantorrilla-sentado-mancuerna', 3, '15', 60, 'Mancuerna sobre las rodillas y puntas en un disco; recorrido completo con pausa abajo.', ['pantorrilla-sentado', 'pantorrilla-una-pierna']],
+    ['bicicleta', 3, '20', 60, 'Lento: codo hacia la rodilla contraria, sin jalar el cuello.', ['toques-talon', 'crunch-piso', 'dead-bug']],
+    ['plancha-lateral', 3, '30 s/lado', 60, 'Codo bajo el hombro; la cadera no cae.', ['toques-talon', 'crunch-lateral', 'plancha']]),
 };
 
 export const PLAN = {
@@ -664,8 +717,10 @@ export const PLAN = {
       ['curl-predicador', 4, '10-12'], ['curl-concentrado', 3, '12']] },
     vie: { t: 'Piernas', sub: 'Femoral + glúteo', e: [VIERNES_A[0], ['prensa-horizontal', 3, '12', 'pies altos'], ...VIERNES_A.slice(1)] },
   },
-  // Semana B: rutina distinta a la A (ver SEMANA_B arriba)
+  // Semana B: complementa a la A (ver SEMANA_B arriba)
   B: SEMANA_B,
+  // Semana B del 12-13 oct 2026: solo para mostrar lo que se anotó con ella
+  B1: SEMANA_B1,
   // Semana B anterior (hasta el 12 oct 2026). No entra en la rotación: solo sirve para mostrar los días
   // que ya se entrenaron con ella, con lo que se anotó (sus series se guardaron como "B-…").
   B0: Object.fromEntries(Object.entries({
@@ -1025,3 +1080,63 @@ Object.assign(AGARRES, {
 });
 for (const id of ['toques-talon', 'bicicleta', 'tijeras']) EJERCICIOS[id].agarre = AGARRES[id];
 for (const id of ['toques-talon', 'bicicleta', 'tijeras', 'crunch-piso', 'crunch-inverso', 'dead-bug', 'plancha-lateral']) INICIO[id] ||= [0, 'corp'];
+
+// ── Semana B complementaria: ejercicios que pasan a ser principales y los nuevos ──
+Object.assign(EJERCICIOS, {
+  'dominadas-banda': { n: 'Dominadas con banda', g: 'espalda', z: ['dorsal'], s: ['biceps', 'trapecio', 'deltoidesPost'], d: 90,
+    t: 'Amplitud de espalda con tu propio peso: la banda te ayuda en la parte difícil.',
+    p: ['Engancha la banda en la barra y mete una rodilla o un pie.', 'Agarre un poco más ancho que los hombros, brazos estirados.', 'Sube llevando el pecho hacia la barra.', 'Baja lento en 3 s hasta estirar los brazos.'] },
+  'dominada-negativa': { n: 'Dominada negativa', p: ['Sube con un salto o desde un cajón hasta tener la barbilla sobre la barra, y baja lo más lento que puedas (4 s).'] },
+  'pullover-disco': { n: 'Pullover con disco', p: ['Acostado en el banco, un disco con las dos manos; bájalo detrás de la cabeza con los brazos casi rectos y súbelo al pecho.'] },
+  'pull-apart': { n: 'Pull-apart con banda', p: ['Banda con los brazos rectos al frente; ábrela hasta tocar el pecho apretando los omóplatos.'] },
+  'sumo-mancuerna': { n: 'Sentadilla sumo con mancuerna', g: 'femoral', z: ['gluteo', 'cuadriceps'], s: ['femoral'], d: 60,
+    t: 'Glúteo y la parte de adentro del muslo (aductores).',
+    p: ['Pies más abiertos que los hombros, puntas hacia afuera.', 'Mancuerna colgando entre las piernas, sujeta por el disco de arriba.', 'Baja con el torso recto; las rodillas siguen a los pies.', 'Sube apretando el glúteo.'] },
+});
+const completar = (id, x) => Object.assign(EJERCICIOS[id], x);
+completar('pullover-mancuerna', { g: 'espalda', z: ['dorsal'], s: ['pecho', 'triceps'], d: 60, t: 'El dorsal sin polea, con los brazos casi rectos.',
+  p: ['Acostado en el banco, una mancuerna con las dos manos sobre el pecho.', 'Brazos casi rectos.', 'Bájala detrás de la cabeza hasta sentir el dorsal.', 'Súbela hasta el pecho sin doblar los codos.'] });
+completar('jalon-supino', { g: 'espalda', z: ['dorsal'], s: ['biceps', 'trapecio'], d: 90, t: 'El dorsal de abajo, con más ayuda del bíceps por las palmas hacia ti.',
+  p: ['Palmas hacia ti, manos al ancho de los hombros.', 'Saca el pecho.', 'Baja la barra al pecho alto con los codos hacia abajo.', 'Sube lento hasta estirar.'] });
+completar('curl-inclinado', { g: 'biceps', z: ['biceps'], s: ['antebrazo'], d: 60, t: 'La cabeza larga del bíceps (la de afuera), bien estirada por el banco inclinado.',
+  p: ['Banco a 45°, espalda apoyada.', 'Brazos colgando hacia atrás, palmas al frente.', 'Sube sin adelantar los codos.', 'Baja lento hasta estirar.'] });
+completar('step-up', { g: 'cuadriceps', z: ['cuadriceps', 'gluteo'], s: ['femoral'], d: 90, t: 'Cuádriceps y glúteo de cada pierna por separado.',
+  p: ['Una mancuerna en cada mano, frente a un banco o cajón.', 'Pon un pie completo arriba.', 'Sube empujando con el talón de esa pierna, sin impulsarte con la de abajo.', 'Baja lento y termina las de un lado antes de cambiar.'] });
+completar('goblet-talones', { g: 'cuadriceps', z: ['cuadriceps'], s: ['gluteo'], d: 60, t: 'El cuádriceps, sobre todo cerca de la rodilla, sin máquina.',
+  p: ['Talones sobre un disco, pies al ancho de la cadera.', 'Mancuerna pegada al pecho.', 'Baja profundo con el torso recto.', 'Sube sin despegar los talones del disco.'] });
+completar('pantorrilla-una-pierna', { g: 'pantorrilla', z: ['pantorrilla'], s: [], d: 60, t: 'El gemelo de cada pierna por separado.',
+  p: ['Punta del pie en un escalón o disco, mancuerna en la mano del mismo lado.', 'La otra mano en la pared.', 'Baja el talón y pausa 2 s estirando.', 'Sube lo más alto que puedas y pausa 1 s.'] });
+completar('militar-barra', { g: 'hombros', z: ['deltoides'], s: ['triceps', 'trapecio', 'abdomen'], d: 90, t: 'Hombro completo de pie: el abdomen y el glúteo te sostienen.',
+  p: ['De pie, barra a la altura de la clavícula.', 'Glúteo y abdomen apretados.', 'Empuja hacia arriba pasando la barra cerca de la cara.', 'Baja controlado sin arquear la espalda baja.'] });
+completar('laterales-pie', { g: 'hombros', z: ['deltoides'], s: ['trapecio'], d: 60, t: 'Deltoides lateral: los hombros más anchos.',
+  p: ['De pie, mancuernas a los lados.', 'Codos un poco flexionados.', 'Sube hasta la altura del hombro y pausa 1 s.', 'Baja lento.'] });
+completar('fondos-banco', { g: 'triceps', z: ['triceps'], s: ['pecho', 'deltoides'], d: 60, t: 'El tríceps con tu propio peso, solo con un banco.',
+  p: ['Manos en el borde de un banco, dedos al frente.', 'Piernas al frente; dobladas es más fácil.', 'Baja doblando los codos hacia atrás hasta 90°.', 'Sube hasta estirar los brazos.'] });
+completar('extension-mancuerna-cabeza', { g: 'triceps', z: ['triceps'], s: [], d: 60, t: 'La cabeza larga del tríceps, la que le da volumen al brazo.',
+  p: ['Sentado con la espalda recta.', 'Una mancuerna con las dos manos detrás de la cabeza.', 'Codos apuntando arriba, sin abrirse.', 'Extiende hacia arriba y baja lento.'] });
+completar('hiperextensiones', { g: 'espalda', z: ['lumbar'], s: ['gluteo', 'femoral'], d: 60, t: 'La zona lumbar (espalda baja), con ayuda del glúteo.',
+  p: ['En el banco romano, cadera apoyada en el cojín.', 'Brazos cruzados sobre el pecho.', 'Baja con la espalda recta.', 'Sube hasta quedar en línea con las piernas, sin pasarte hacia atrás.'] });
+completar('curl-arana', { g: 'biceps', z: ['biceps'], s: [], d: 60, t: 'El pico del bíceps: con el pecho apoyado no hay trampa.',
+  p: ['Pecho apoyado en un banco inclinado.', 'Brazos colgando hacia el piso.', 'Sube sin mover los codos.', 'Aprieta arriba y baja lento.'] });
+completar('curl-inverso-z', { g: 'biceps', z: ['antebrazo', 'biceps'], s: [], d: 60, t: 'Antebrazo y braquial: le dan grosor al brazo.',
+  p: ['De pie, palmas hacia abajo.', 'Codos pegados al cuerpo.', 'Sube sin impulso.', 'Baja en 2 s.'] });
+completar('zancada-reversa', { g: 'cuadriceps', z: ['cuadriceps', 'gluteo'], s: ['femoral'], d: 90, t: 'Glúteo y cuádriceps, más suave para la rodilla que la zancada al frente.',
+  p: ['Una mancuerna en cada mano.', 'Da un paso largo hacia atrás.', 'Baja hasta que la rodilla de atrás casi toque el piso.', 'Vuelve empujando con el talón de adelante.'] });
+completar('femoral-fitball', { g: 'femoral', z: ['femoral'], s: ['gluteo'], d: 60, t: 'Femoral y glúteo sin máquina.',
+  p: ['Boca arriba, talones sobre la pelota.', 'Sube la cadera.', 'Trae la pelota hacia ti doblando las rodillas.', 'Estira lento sin bajar la cadera.'] });
+completar('pantorrilla-sentado-mancuerna', { g: 'pantorrilla', z: ['pantorrilla'], s: [], d: 60, t: 'El sóleo, la parte baja de la pantorrilla, sin máquina.',
+  p: ['Sentado en un banco, puntas sobre un disco.', 'Mancuerna sobre las rodillas.', 'Sube lo más alto que puedas.', 'Baja hasta estirar y pausa.'] });
+Object.assign(INICIO, { 'dominadas-banda': [0, 'corp'], 'dominada-negativa': [0, 'corp'], 'pullover-disco': [10, 'una'], 'pull-apart': [0, 'banda'], 'sumo-mancuerna': [35, 'una'] });
+Object.assign(AGARRES, {
+  'dominadas-banda': ag('pronado', 'ancho', 'banda', 'Rodilla o pie en la banda; pecho hacia la barra', D),
+  'dominada-negativa': ag('pronado', 'ancho', 'ninguno', 'Sube con un salto y baja en 4 s', D),
+  'pullover-disco': ag('neutro', 'n/a', 'ninguno', 'Disco agarrado por los lados con las dos manos', D),
+  'pull-apart': ag('pronado', 'hombros', 'banda', 'Brazos rectos al frente, abre hasta el pecho', D),
+  'sumo-mancuerna': ag('neutro', 'n/a', 'ninguno', 'Mancuerna colgando entre las piernas, sujeta por el disco de arriba', D),
+});
+Object.assign(AGARRES['dominadas-banda'], { pos: 'arriba', imp: 'barraFija' });
+Object.assign(AGARRES['dominada-negativa'], { pos: 'arriba', imp: 'barraFija' });
+Object.assign(AGARRES['pullover-disco'], { pos: 'arriba', imp: 'mancuerna1' });
+Object.assign(AGARRES['pull-apart'], { pos: 'jalarFrente', imp: 'banda' });
+AGARRES['sumo-mancuerna'].carga = 'goblet';
+for (const id of ['dominadas-banda', 'dominada-negativa', 'pullover-disco', 'pull-apart', 'sumo-mancuerna']) EJERCICIOS[id].agarre = AGARRES[id];

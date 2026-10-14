@@ -68,7 +68,7 @@ function cabecera(f, p) {
       <button class="btn-chip acento" data-a="semana">${ico('cal')} Organizar semana</button>
       <button class="btn-chip" data-a="elegir-dia">${ico('cambiar')} Ver otro día</button>
       ${esDiaGym(p) && !p.antes && !resumenDia(f).algo ? `<button class="btn-chip acento" data-a="ya-entrene">${ico('check')} Ya entrené hoy</button>` : ''}
-      ${esDiaGym(p) && !p.antes && p.variante !== 'B0' ? `<button class="btn-chip" data-a="otra-variante">${ico('cambiar')} Cambiar a ${p.variante === 'A' ? 'B' : 'A'} solo hoy</button>` : ''}
+      ${esDiaGym(p) && !p.antes && !/^B[01]$/.test(p.variante) ? `<button class="btn-chip" data-a="otra-variante">${ico('cambiar')} Cambiar a ${p.variante === 'A' ? 'B' : 'A'} solo hoy</button>` : ''}
       ${p.override ? `<button class="btn-chip acento" data-a="volver-plan">${ico('deshacer')} Volver a lo de hoy</button>` : ''}
     </div>`;
 }
@@ -83,7 +83,7 @@ function entrenoHTML(f, p) {
   const min = Math.round(ss.reduce((a, s) => a + s.series * (45 + s.descanso), 0) / 300) * 5;
   return `<section class="hero" style="--hc:${GRUPOS[grupos[0]].c}">
       <div class="hero-txt">
-        <p class="eyebrow">${NOMBRE_DIA[p.diaPlan]} · Rutina ${p.variante === 'B0' ? 'B anterior' : p.variante}</p>
+        <p class="eyebrow">${NOMBRE_DIA[p.diaPlan]} · Rutina ${/^B[01]$/.test(p.variante) ? 'B anterior' : p.variante}</p>
         ${etiquetaCambio(f, p)}
         <h2>${d.t}</h2>
         <p class="hero-sub">${d.sub} · ${ss.length} ejercicios · ≈${min} min</p>
@@ -91,6 +91,7 @@ function entrenoHTML(f, p) {
       </div>
       <div id="hero-anillo">${anillo(h / tot, { tam: 94, grosor: 9, id: 'ah', centro: `<b class="an-num">${h}</b><span>de ${tot}</span>` })}</div>
     </section>
+    ${d.comp ? `<div class="nota comp">${ico('cambiar')}<span><b>Complementa a la Semana A:</b> ${d.comp}</span></div>` : ''}
     ${calentamientoHTML(f, d, ss, h)}
     <div class="unid-global" role="radiogroup" aria-label="Ver los pesos en"><span>${ico('balanza')} Pesos en</span>${['lbs', 'kg'].map(x => `<button data-a="unidad" data-u="${x}" role="radio" aria-checked="${x === unidadDe()}">${x}</button>`).join('')}</div>
     <div class="lista-ej">${ss.map(s => tarjeta(f, s)).join('')}</div>

@@ -232,7 +232,7 @@ export function hojaResumen(f, ss) {
     return { n: ejercicio(r.e).n, txt: `${dif > 0 ? '+' : ''}${num(dif)} ${unidadDe(r.e)}`, cls: dif > 0 ? 'sube' : 'baja' };
   }).filter(Boolean);
   abrirHoja(`<div class="resumen">
-    <p class="eyebrow">${ico('trofeo')} ${NOMBRE_DIA[fin.dia] || ''} ${fechaCorta(f)} · Semana ${fin.semana} · ${fin.variante === 'B0' ? 'B' : fin.variante}</p>
+    <p class="eyebrow">${ico('trofeo')} ${NOMBRE_DIA[fin.dia] || ''} ${fechaCorta(f)} · Semana ${fin.semana} · ${/^B[01]$/.test(fin.variante) ? 'B' : fin.variante}</p>
     <h3 class="hoja-t">¡Día terminado!</h3>
     <div class="res-tiles">
       <div><b>${fin.hechos}<small> de ${fin.total}</small></b><span>ejercicios</span></div>

@@ -13,6 +13,8 @@ export function ejercicio(id, padreId) {
 }
 
 // Ejercicios que no se pueden hacer: equipo que no hay en el gimnasio u ocultados a mano
+export const esPolea = id => /polea|jalon|cuerda|face-pull|triceps-sobre-cabeza|triceps-barra-v|cruces|gironda/.test(id);
+
 export function estaOculto(id) {
   const a = S().ajustes, sin = a.sinEquipo || [];
   return (a.ocultos || []).includes(id) || sin.some(k => EQUIPO[k]?.ej.includes(id));
@@ -29,12 +31,13 @@ export function slots(f, variante, diaPlan) {
   const d = PLAN[variante]?.[diaPlan];
   if (!d) return [];
   const log = leerDia(f);
-  // La Semana B nueva usa sus propios puestos ("B2-…") para no chocar con lo anotado en la B vieja
-  const pre = d.pre ?? (d.propia ? `${variante}2` : variante);
-  return d.e.map(([baseId, series, reps, nota, , altsPlan, tip], i) => {
+  // Cada Semana B usa sus propios puestos ("B3-…" la actual) para no chocar con lo anotado en las anteriores
+  const pre = d.pre ?? variante;
+  return d.e.map(([baseId, series, reps, nota, desc, altsPlan, tip], i) => {
     const slot = `${pre}-${diaPlan}-${i}`;
     const base = ejercicio(baseId);
-    const alts = (altsPlan || base.a || []).filter(a => !estaOculto(a[0]));
+    // La polea casi siempre está ocupada: las alternativas sin polea van primero
+    const alts = (altsPlan || base.a || []).filter(a => !estaOculto(a[0])).sort((x, y) => esPolea(x[0]) - esPolea(y[0]));
     // "Usar siempre" de la Semana B se guarda aparte: no toca los cambios de la Semana A
     const clave = d.propia ? `B|${baseId}` : baseId;
     const h = log.cambios?.[slot], swGuardado = S().siempre[clave];
@@ -54,7 +57,7 @@ export function slots(f, variante, diaPlan) {
     const marcadas = log.series?.[slot] || [];
     return {
       slot, i, base, ej: cambio ? ejercicio(ejId, baseId) : base,
-      series: s, reps: r, nota: n, descanso: base.d, cambio, orig: { series, reps },
+      series: s, reps: r, nota: n, descanso: desc ?? base.d, cambio, orig: { series, reps },
       alts, clave, tip: tip ?? null,
       hechas: Array.from({ length: s }, (_, k) => !!marcadas[k]),
     };
@@ -65,7 +68,7 @@ export const totalSeries = ss => ss.reduce((a, s) => a + s.series, 0);
 
 // Días con series anotadas en una rutina que hoy ya no es la que toca (por ejemplo, la Semana B anterior):
 // se les fija esa rutina para que se vean con lo que se hizo y cuenten como entrenados.
-const PREFIJO = { A: 'A', B2: 'B', B: 'B0' }; // cómo empieza el puesto → semana
+const PREFIJO = { A: 'A', B3: 'B', B2: 'B1', B: 'B0' }; // cómo empieza el puesto → semana
 // v17: el martes A, el viernes A y el martes B cambiaron de orden (entraron las prensas y salió el femoral sentado).
 // Lo anotado se mueve al puesto nuevo de su mismo ejercicio; lo de un ejercicio que ya no está se guarda aparte.
 const ORDEN_VIEJO = {
@@ -78,7 +81,7 @@ export function migrarPuestosV17() {
   if (st.migrado?.v17) return false;
   for (const [clave, viejos] of Object.entries(ORDEN_VIEJO)) {
     const [pre, dia] = clave.split('-');
-    const nuevos = PLAN[pre === 'B2' ? 'B' : pre][dia].e.map(x => x[0]);
+    const nuevos = PLAN[pre === 'B2' ? 'B1' : pre][dia].e.map(x => x[0]);
     const re = new RegExp(`^${pre}-${dia}-([0-9]+)$`);
     for (const d of Object.values(st.log)) for (const campo of ['series', 'cambios']) {
       const o = d[campo];
@@ -104,7 +107,7 @@ export function reconciliarDias() {
     if (!marcadas.length) continue;
     const p = planDe(f), actuales = new Set(slots(f, p.variante, p.diaPlan).map(s => s.slot));
     if (marcadas.some(k => actuales.has(k))) continue;
-    const m = /^(A|B2|B)-(lun|mar|mie|jue|vie)-\d+$/.exec(marcadas[0]);
+    const m = /^(A|B3|B2|B)-(lun|mar|mie|jue|vie)-\d+$/.exec(marcadas[0]);
     if (!m || !PLAN[PREFIJO[m[1]]]?.[m[2]]) continue;
     d.plan = { variante: PREFIJO[m[1]], dia: m[2] };
     cambio = true;

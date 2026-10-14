@@ -605,6 +605,12 @@ export const ANIM = {
   'plancha-desplazamiento': { como: 'plancha' },
   'plancha-rodillas': { como: 'plancha' },
   'stir-pot': { como: 'plancha' },
+  // Semana B complementaria
+  'dominadas-banda': { como: 'dominadas-asistidas' },
+  'dominada-negativa': { como: 'dominadas-asistidas' },
+  'pullover-disco': { como: 'pullover-mancuerna' },
+  'pull-apart': { como: 'cal-pullapart' },
+  'sumo-mancuerna': { como: 'sentadilla-goblet' },
   // Hombros
   'frontal-z': { vistas: ['lado'], x0: 128, mano: 'z', sigue: 'manos',
     poses: [
