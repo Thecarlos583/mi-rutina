@@ -313,14 +313,26 @@ export const EJERCICIOS = {
   'crunch-maquina': { n: 'Crunch en máquina', g: 'core', z: ['abdomen'], s: [], d: 60,
     t: 'Recto abdominal: los "cuadritos".',
     p: ['Ajusta la máquina a tu altura.', 'Enróllate llevando el pecho a la cadera.', 'Lento, sin impulso.', 'Regresa controlado.'],
-    a: [['crunch-polea', 3, '15'], ['crunch-piso', 3, '20']] },
+    a: [['crunch-piso', 3, '20'], ['crunch-inverso', 3, '15'], ['bicicleta', 3, '20']] },
   'crunch-polea': { n: 'Crunch en polea arrodillado', p: ['Arrodillado, cuerda junto a la cabeza, enróllate llevando los codos a los muslos.'] },
-  'crunch-piso': { n: 'Crunch en el piso', p: ['Rodillas flexionadas, sube los hombros del piso apretando el abdomen.'] },
+  'crunch-piso': { n: 'Crunch en el piso', g: 'core', z: ['abdomen'], s: [], d: 45,
+    a: [['crunch-inverso', 3, '15'], ['toques-talon', 3, '20'], ['bicicleta', 3, '20']],
+    t: 'El abdomen de arriba, sin máquinas: solo una colchoneta.',
+    p: ['Boca arriba, rodillas dobladas y pies en el piso.', 'Manos en el pecho o junto a las orejas, sin jalar el cuello.', 'Sube los hombros del piso apretando el abdomen.', 'Baja lento.'] },
+  'toques-talon': { n: 'Toques de talón', g: 'core', z: ['oblicuos'], s: ['abdomen'], d: 45,
+    t: 'Los costados del abdomen (oblicuos), en el piso.',
+    p: ['Boca arriba, rodillas dobladas y pies en el piso.', 'Despega un poco los hombros.', 'Lleva la mano a tocar el talón de un lado y luego del otro.', 'Sin bajar los hombros entre toque y toque.'] },
+  'bicicleta': { n: 'Crunch bicicleta', g: 'core', z: ['abdomen', 'oblicuos'], s: [], d: 45,
+    t: 'Abdomen y costados a la vez, en el piso.',
+    p: ['Boca arriba, manos junto a las orejas y piernas en el aire.', 'Lleva un codo hacia la rodilla contraria mientras estiras la otra pierna.', 'Cambia de lado como pedaleando.', 'Lento: no es una carrera.'] },
+  'tijeras': { n: 'Tijeras', g: 'core', z: ['abdomen'], s: [], d: 45,
+    t: 'El abdomen de abajo, con las piernas casi rectas.',
+    p: ['Boca arriba, manos bajo la cadera.', 'Sube las piernas un poco del piso.', 'Sube una y baja la otra, alternando.', 'La espalda baja no se despega del piso.'] },
 
   'elevacion-piernas': { n: 'Elevación de piernas', g: 'core', z: ['abdomen'], s: ['oblicuos'], d: 60,
     t: 'Abdomen bajo.',
     p: ['Piernas juntas.', 'Súbelas sin balancearte.', 'Baja lento sin tocar el piso.', 'Espalda baja pegada.'],
-    a: [['elevacion-colgado', 3, '12'], ['rodillas-paralelas', 3, '15']] },
+    a: [['crunch-inverso', 3, '15'], ['tijeras', 3, '20'], ['dead-bug', 3, '10/lado']] },
   'elevacion-colgado': { n: 'Elevación colgado', p: ['Colgado de la barra, sube las piernas sin balancearte.'] },
   'rodillas-paralelas': { n: 'Rodillas al pecho en paralelas', p: ['Apoyado en las paralelas, sube las rodillas al pecho y baja lento.'] },
 
@@ -329,14 +341,18 @@ export const EJERCICIOS = {
     p: ['De lado o en el banco.', 'Sube el torso hacia un lado.', 'Lento, sin impulso.', 'Termina un lado y cambia.'],
     a: [['russian-twist', 3, '20'], ['plancha-lateral', 3, '30 s/lado']] },
   'russian-twist': { n: 'Russian twist', p: ['Sentado con el torso inclinado, gira de lado a lado con un peso.'] },
-  'plancha-lateral': { n: 'Plancha lateral', p: ['Apoyado en un antebrazo, cuerpo en línea recta, cadera arriba.'] },
+  'plancha-lateral': { n: 'Plancha lateral', g: 'core', z: ['oblicuos'], s: ['abdomen', 'gluteoMedio'], d: 45,
+    t: 'Los costados del abdomen, aguantando de lado.',
+    p: ['De lado, apoyado en el antebrazo, codo bajo el hombro.', 'Sube la cadera hasta que el cuerpo quede recto.', 'Aguanta sin dejar caer la cadera.', 'Cambia de lado.'] },
 
   'plancha': { n: 'Plancha', g: 'core', z: ['abdomen', 'oblicuos'], s: ['gluteo', 'deltoides'], d: 60,
     t: 'Core completo: la estabilidad que sostiene todo lo demás.',
     p: ['Antebrazos en el piso.', 'Cuerpo recto de la cabeza a los talones.', 'Abdomen y glúteo apretados.', 'Respira normal.'],
     a: [['plancha-toque', 3, '20'], ['dead-bug', 3, '12/lado']] },
   'plancha-toque': { n: 'Plancha con toque de hombros', p: ['En plancha alta, toca un hombro con la mano contraria sin mover la cadera.'] },
-  'dead-bug': { n: 'Dead bug', p: ['Boca arriba, estira brazo y pierna contrarios sin despegar la espalda baja.'] },
+  'dead-bug': { n: 'Dead bug', g: 'core', z: ['abdomen'], s: ['oblicuos'], d: 45,
+    t: 'El abdomen profundo, cuidando la espalda baja.',
+    p: ['Boca arriba, brazos al techo y rodillas dobladas en el aire.', 'Estira un brazo y la pierna contraria hasta casi tocar el piso.', 'Vuelve y cambia de lado.', 'La espalda baja pegada al piso todo el tiempo.'] },
 
   // ── Semana B: ejercicios nuevos ────────────────────────────
   'frontal-z': { n: 'Elevación frontal con barra Z', g: 'hombros', z: ['deltoides'], s: ['trapecio'], d: 60,
@@ -399,7 +415,9 @@ export const EJERCICIOS = {
   'inclinado-cerrado': { n: 'Press inclinado con agarre cerrado', p: ['Banco a 30°, manos al ancho de los hombros; baja al pecho alto con los codos pegados.'] },
   'aperturas-inclinadas': { n: 'Aperturas inclinadas con mancuernas', p: ['Banco a 30°; abre los brazos con los codos un poco flexionados y júntalos arriba.'] },
   'press-cerrado': { n: 'Press con agarre cerrado', p: ['Banco plano, manos al ancho de los hombros, codos pegados al bajar.'] },
-  'crunch-inverso': { n: 'Crunch inverso', p: ['Acostado, rodillas dobladas; despega la cadera del piso llevando las rodillas al pecho.'] },
+  'crunch-inverso': { n: 'Crunch inverso', g: 'core', z: ['abdomen'], s: [], d: 45,
+    t: 'El abdomen de abajo, sin máquinas.',
+    p: ['Boca arriba, rodillas dobladas en el aire y manos a los lados.', 'Lleva las rodillas al pecho despegando un poco la cadera.', 'Baja lento sin tocar el piso con los pies.', 'Sin impulso.'] },
   'remo-maquina-un-brazo': { n: 'Remo en máquina a un brazo', p: ['Pecho en el apoyo; jala con un brazo llevando el codo atrás.'] },
   'encogimientos-smith': { n: 'Encogimientos en Smith', p: ['Barra de la Smith frente a los muslos; sube los hombros y pausa arriba.'] },
   'encogimientos-maquina': { n: 'Encogimientos en máquina', p: ['Manijas a los lados o cojines en los hombros; sube los hombros y pausa.'] },
@@ -589,15 +607,15 @@ const SEMANA_B = {
     series(4,
       ['inclinado-mancuernas', '10', 'Banco a 30°, baja a los lados del pecho.', ['inclinado-barra', 'inclinado-maquina', 'inclinado-smith']],
       ['aperturas-maquina', '12', 'Codos un poco flexionados, aprieta al centro.', ['aperturas-mancuernas', 'cruces-medio', 'cruces-abajo']],
-      ['crunch-lateral-maquina', '15/lado', 'Lento, sin impulso.', ['crunch-lateral', 'lenador-polea', 'plancha-lateral']]),
+      ['crunch-lateral', '15/lado', 'Lento, sin impulso.', ['toques-talon', 'bicicleta', 'plancha-lateral']]),
     series(4,
       ['press-plano-barra', '10', 'Baja al pecho medio con los omóplatos juntos.', ['press-plano-mancuernas', 'press-pecho-maquina', 'plano-smith']],
       ['fondos-paralelas', 'máx. 15', 'Inclínate un poco al frente; baja hasta que los hombros queden a la altura de los codos.', ['fondos-asistidos', 'flexiones', 'fondos-banco'], 'al fallo técnico'],
-      ['rueda', '12-15', 'De rodillas; sal solo hasta donde la espalda baja no se arquee.', ['plancha-desplazamiento', 'rollout-fitball', 'crunch-polea']]),
+      ['dead-bug', '10/lado', 'La espalda baja pegada al piso todo el tiempo.', ['plancha', 'crunch-inverso', 'plancha-rodillas']]),
     series(4,
       ['cruces-abajo', '12', 'Poleas bajas; sube las manos hacia arriba y al centro.', ['inclinado-cerrado', 'aperturas-inclinadas', 'inclinado-maquina']],
       ['fondos-maquina', '12', 'Codos atrás, hombros lejos de las orejas.', ['fondos-banco', 'triceps-cuerda', 'press-cerrado']],
-      ['elevacion-paralelas', '15-20', 'Sube sin balancearte; si es fácil, mancuerna de 10 lbs entre los pies.', ['elevacion-colgado', 'elevacion-piernas', 'crunch-inverso']])),
+      ['crunch-inverso', '15', 'Rodillas al pecho sin impulso; baja lento.', ['elevacion-piernas', 'tijeras', 'toques-talon']])),
   jue: diaB('Espalda + trapecio', 'Y pantorrilla',
     series(1,
       ['jalon-brazos-rectos', '15', 'Ligero: baja la barra en arco hasta los muslos y aprieta los dorsales. Enciende la espalda antes de los remos.', ['pullover-cuerda']]),
@@ -624,9 +642,9 @@ const SEMANA_B = {
       ['jalon-v', '12', 'Al pecho con los codos pegados.', ['jalon-supino', 'dominadas-asistidas', 'jalon-un-brazo']],
       ['militar-hammer', '10', 'Empuja sin arquear la espalda baja.', ['militar-mancuernas', 'press-arnold', 'press-hombro-maquina']]),
     series(4,
-      ['crunch-maquina', '20-30', 'Lento, sin impulso.', ['crunch-polea', 'crunch-piso', 'crunch-fitball']],
-      ['plancha', '1 min', 'Cuerpo recto, aprieta abdomen y glúteo.', ['plancha-rodillas', 'plancha-toque', 'dead-bug']],
-      ['stir-pot', '10/lado', 'Antebrazos en la pelota en plancha; círculos pequeños sin mover la cadera.', ['plancha-desplazamiento', 'rollout-fitball', 'plancha-lateral']])),
+      ['crunch-piso', '20', 'Lento, sin jalar el cuello.', ['crunch-inverso', 'toques-talon', 'bicicleta']],
+      ['plancha', '45 s', 'Cuerpo recto, aprieta abdomen y glúteo.', ['plancha-rodillas', 'plancha-toque', 'dead-bug']],
+      ['plancha-lateral', '30 s/lado', 'Codo bajo el hombro; la cadera no cae.', ['toques-talon', 'crunch-lateral', 'bicicleta']])),
 };
 
 export const PLAN = {
@@ -640,7 +658,7 @@ export const PLAN = {
     mie: { t: 'Hombros + tríceps', sub: 'Pecho y abdomen', e: [
       ['militar-mancuernas', 4, '10'], ['laterales', 4, '15'], ['posterior-maquina', 3, '15'],
       ['inclinado-mancuernas', 3, '10'], ['frances-z', 3, '10-12'], ['triceps-polea', 3, '12'],
-      ['crunch-maquina', 3, '20'], ['elevacion-piernas', 3, '15']] },
+      ['crunch-piso', 3, '20'], ['elevacion-piernas', 3, '15']] },
     jue: { t: 'Espalda + bíceps', sub: 'Amplitud', e: [
       ['remo-una-mano', 4, '10/brazo'], ['jalon-v', 4, '10-12'], ['jalon-brazos-rectos', 3, '12-15'],
       ['curl-predicador', 4, '10-12'], ['curl-concentrado', 3, '12']] },
@@ -998,3 +1016,12 @@ export const EQUIPO = {
   'fitball': { n: 'Pelota grande (fitball)', ej: ['femoral-fitball', 'stir-pot', 'rollout-fitball', 'crunch-fitball'] },
 };
 export const SIN_EQUIPO_INICIAL = ['femoral-sentado', 'hexagonal'];
+
+// ── v18: abdomen de piso ──
+Object.assign(AGARRES, {
+  'toques-talon': ag('ninguno', 'n/a', 'ninguno', 'Manos estiradas hacia los talones', D),
+  'bicicleta': ag('ninguno', 'n/a', 'ninguno', 'Manos junto a las orejas, sin jalar el cuello', D),
+  'tijeras': ag('ninguno', 'n/a', 'ninguno', 'Manos bajo la cadera', D),
+});
+for (const id of ['toques-talon', 'bicicleta', 'tijeras']) EJERCICIOS[id].agarre = AGARRES[id];
+for (const id of ['toques-talon', 'bicicleta', 'tijeras', 'crunch-piso', 'crunch-inverso', 'dead-bug', 'plancha-lateral']) INICIO[id] ||= [0, 'corp'];

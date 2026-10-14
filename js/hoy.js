@@ -503,10 +503,10 @@ function hojaCambio(f, slotId) {
     const e = ejercicio(id, base.id), actual = s.ej.id === id;
     return `<button class="alt ${actual ? 'actual' : ''}" data-id="${id}">
       <span class="alt-cab"><span class="alt-n">${e.n}</span><b class="alt-sr">${se}×${re}</b></span>
-      <span class="alt-p">${e.p[0]}</span>${e.agarre ? `<span class="alt-ag">${chipsAgarre(e.agarre)}</span>` : ''}${actual ? '<span class="alt-tag">Ahora</span>' : ''}</button>`;
+      <span class="alt-p">${e.p[0]}</span>${e.agarre ? `<span class="alt-ag">${chipsAgarre(e.agarre)}</span>` : ''}${tieneVideo(id) ? `<span class="alt-vid">${ico('play')} Toca para ver el video</span>` : ''}${actual ? '<span class="alt-tag">Ahora</span>' : ''}</button>`;
   }).join('');
   const h = abrirHoja(`<h3 class="hoja-t">Cambiar ejercicio</h3>
-    <p class="hoja-sub">En lugar de <b>${base.n}</b> · ${s.orig.series}×${s.orig.reps}</p>
+    <p class="hoja-sub">En lugar de <b>${base.n}</b> · ${s.orig.series}×${s.orig.reps}. Toca una opción para ver su video.</p>
     <div class="alts">
       ${s.cambio && s.cambio !== 'equipo' ? `<button class="alt original" data-id="${base.id}"><span class="alt-cab"><span class="alt-n">${ico('deshacer')} Volver al original</span><b class="alt-sr">${s.orig.series}×${s.orig.reps}</b></span><span class="alt-p">${base.n}</span></button>` : ''}
       ${alts}
@@ -529,6 +529,8 @@ function hojaCambio(f, slotId) {
       caja.hidden = !tieneVideo(sel);
       if (tienePasos(sel)) montarPasos(caja, sel);
       else if (tieneVideo(sel)) montar(caja, sel, musculos(ej));
+      // El video justo debajo de la opción tocada, para verlo sin buscarlo
+      if (tieneVideo(sel)) { alt.after(caja); setTimeout(() => caja.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 120); }
       vibrar(8);
       return;
     }

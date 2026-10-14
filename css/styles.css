@@ -942,3 +942,7 @@ body.con-mini .fin-barra { bottom: calc(var(--tabs-h) + var(--sa-b) + 74px); }
 .res-frase { margin: 6px 2px 14px; font-weight: 700; }
 .editando { margin-bottom: 14px; }
 .cal-ayuda { margin: 8px 2px 0; }
+
+.alt-vid { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 700; color: var(--acento2); }
+.alt-vid .ico { width: 14px; height: 14px; }
+.alts .alt-video { margin: 4px 0 8px; }

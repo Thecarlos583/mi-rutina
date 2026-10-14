@@ -582,4 +582,96 @@ export const ANIM = {
   'plano-smith': { como: 'press-plano-barra' },
   'press-cerrado': { como: 'press-plano-barra' },
   'remo-maquina-un-brazo': { como: 'remo-maquina' },
+  // ── v18: videos de las alternativas y de los ejercicios nuevos ──
+  // Mismo movimiento que otro que ya tiene video (cambia lo que tiene en las manos)
+  'prensa-horizontal': { como: 'prensa' },
+  'predicador-mancuerna': { como: 'curl-predicador', mano: 'mancuerna' },
+  'extension-mancuerna-cabeza': { como: 'frances-una-mancuerna' },
+  'martillo-cruzado': { como: 'curl-martillo' },
+  'rumano-una-pierna': { como: 'rumano-mancuernas', mano: 'mancuerna' },
+  'femoral-mancuerna': { como: 'femoral-acostado' },
+  'abduccion-lado': { como: 'abduccion-polea' },
+  'cruces-medio': { como: 'cruces-abajo' },
+  'crunch-lateral-maquina': { como: 'crunch-lateral' },
+  'elevacion-paralelas': { como: 'rodillas-paralelas' },
+  'fondos-paralelas': { como: 'fondos-maquina' },
+  'fondos-asistidos': { como: 'fondos-maquina' },
+  'fondos-banco': { como: 'fondos-maquina' },
+  'lenador-polea': { como: 'cal-torso', mano: 'agarre' },
+  'remo-banda': { como: 'remo-polea-cerrado' },
+  'crunch-fitball': { como: 'crunch-piso' },
+  'rueda': { como: 'plancha' },
+  'rollout-fitball': { como: 'plancha' },
+  'plancha-desplazamiento': { como: 'plancha' },
+  'plancha-rodillas': { como: 'plancha' },
+  'stir-pot': { como: 'plancha' },
+  // Hombros
+  'frontal-z': { vistas: ['lado'], x0: 128, mano: 'z', sigue: 'manos',
+    poses: [
+      { n: 'De pie, barra frente a los muslos', rodilla: 4, hombro: 4, codo: 6, pausa: 400, ms: 1000 },
+      { n: 'Sube al frente hasta la altura de los hombros', rodilla: 4, hombro: 88, codo: 8, pausa: 400, ms: 1400, punto: { zona: 'hombro', txt: 'Sin balancear el cuerpo' } },
+    ] },
+  'frontal-mancuernas': { como: 'frontal-z', mano: 'mancuernas' },
+  'frontal-disco': { como: 'frontal-z', mano: 'balon' },
+  'frontal-polea': { como: 'frontal-z', mano: 'agarre' },
+  'laterales-pie': { vistas: ['frente'], x0: 120, brazosF: true, mano: 'mancuernas', sigue: 'manos',
+    poses: [
+      { n: 'De pie, mancuernas a los lados', rodilla: 4, hF: 10, cF: 15, hF2: 10, cF2: 15, pausa: 300, ms: 1000 },
+      { n: 'Sube hasta la altura del hombro', rodilla: 4, hF: 86, cF: 15, hF2: 86, cF2: 15, pausa: 300, ms: 1600, punto: { zona: 'hombro', txt: 'Baja lento' } },
+    ] },
+  'remo-menton-z': { vistas: ['frente', 'lado'], x0: 120, brazosF: true, mano: 'z', sigue: 'manos',
+    poses: [
+      { n: 'Barra frente a los muslos, manos al ancho de los hombros', rodilla: 4, hombro: 4, codo: 6, hF: 8, cF: 8, hF2: 8, cF2: 8, pausa: 400, ms: 1000 },
+      { n: 'Sube la barra pegada al cuerpo hasta el pecho', rodilla: 4, hombro: 30, codo: 125, hF: 38, cF: 145, hF2: 38, cF2: 145, pausa: 400, ms: 1400, punto: { zona: 'codo', txt: 'Codos como máximo a la altura del hombro' } },
+    ] },
+  'remo-menton-polea': { como: 'remo-menton-z', mano: 'agarre' },
+  'encogimientos-mancuernas': { vistas: ['frente'], x0: 120, brazosF: true, mano: 'mancuernas', sigue: 'hombro',
+    poses: [
+      { n: 'De pie, una mancuerna en cada mano', rodilla: 4, hF: 6, cF: 2, hF2: 6, cF2: 2, pausa: 500, ms: 700 },
+      { n: 'Sube los hombros hacia las orejas y pausa 1 s', rodilla: 4, hF: 6, cF: 2, hF2: 6, cF2: 2, cabeza: 4, pausa: 900, ms: 700, punto: { zona: 'hombro', txt: 'Arriba y abajo, sin girar' } },
+    ] },
+  'encogimientos-barra': { como: 'encogimientos-mancuernas', mano: 'barra' },
+  'encogimientos-smith': { como: 'encogimientos-mancuernas', mano: 'barra' },
+  'encogimientos-maquina': { como: 'encogimientos-mancuernas', mano: 'agarre' },
+  // Bíceps
+  'curl-inclinado': curlSentado('mancuernas', { torso: -30, h: -20, n2: 'Sube sin adelantar los codos' }),
+  // Pecho
+  'aperturas-mancuernas': acostado({ mano: 'mancuernas', poses: [
+    { n: 'Acostado, brazos arriba con los codos un poco flexionados', ...ACOST, hombro: 92, codo: 15, pausa: 300, ms: 1100 },
+    { n: 'Abre los brazos a los lados hasta sentir el pecho', ...ACOST, hombro: 62, codo: 25, pausa: 300, ms: 1400, punto: { zona: 'hombro', txt: 'Junta arriba apretando el pecho' } },
+  ] }),
+  'aperturas-inclinadas': inclinado('mancuernas', { n1: 'Banco a 30°, abre los brazos a los lados', n2: 'Junta las mancuernas arriba en arco' }),
+  'aperturas-maquina': { vistas: ['frente'], ancla: 'cadera', x0: 120, y0: 138, brazosF: true, mano: 'agarre', sigue: 'manos', equipo: [{ tipo: 'pad', x1: 94, y1: 145, x2: 146, y2: 145, w: 7 }, { tipo: 'pata', x1: 120, y1: 149 }],
+    poses: [
+      { n: 'Sentado, brazos abiertos a la altura del pecho', ...SENT, hF: 86, cF: 15, hF2: 86, cF2: 15, pausa: 300, ms: 1100 },
+      { n: 'Junta las manos al frente y aprieta 1 s', ...SENT, hF: 45, cF: -105, hF2: 45, cF2: -105, pausa: 500, ms: 1300, punto: { zona: 'hombro', txt: 'Abre lento' } },
+    ] },
+  // Espalda
+  // Talones en el piso y el cuerpo gira alrededor de ellos: las manos quedan siempre en la barra (y = 93)
+  'remo-invertido': { vistas: ['lado'], x0: 205, sigue: 'manos', equipo: [{ tipo: 'barraFija', x1: 90, x2: 182, y: 93 }],
+    poses: [
+      { n: 'Bajo la barra, cuerpo recto y brazos estirados', giro: -62, cadera: 0, rodilla: 0, hombro: 90, codo: 0, pausa: 400, ms: 1000 },
+      { n: 'Jala el pecho hacia la barra', giro: -48, cadera: 0, rodilla: 0, hombro: 35, codo: 105, pausa: 500, ms: 1400, punto: { zona: 'espalda', txt: 'Cuerpo recto, sin bajar la cadera' } },
+    ] },
+  // Abdomen de piso
+  'crunch-inverso': { vistas: ['lado'], x0: 120, apoyo: 'cuerpo', sigue: 'rodilla', equipo: [{ tipo: 'colchoneta', x: 40, ancho: 170 }],
+    poses: [
+      { n: 'Boca arriba, rodillas dobladas en el aire', giro: -90, cadera: 70, rodilla: 95, hombro: 8, codo: 0, pausa: 300, ms: 1000 },
+      { n: 'Lleva las rodillas al pecho despegando la cadera', giro: -90, cadera: 125, rodilla: 105, hombro: 8, codo: 0, pausa: 400, ms: 1300, punto: { zona: 'cadera', txt: 'Sin impulso, baja lento' } },
+    ] },
+  'toques-talon': { vistas: ['lado'], x0: 120, apoyo: 'cuerpo', sigue: 'manos', equipo: [{ tipo: 'colchoneta', x: 40, ancho: 170 }],
+    poses: [
+      { n: 'Boca arriba, rodillas dobladas, hombros un poco arriba', giro: -90, torso: 14, cadera: 55, rodilla: 110, hombro: 4, codo: 0, pausa: 300, ms: 800 },
+      { n: 'Estira la mano hacia un talón y luego al otro', giro: -90, torso: 18, cadera: 55, rodilla: 110, hombro: 10, codo: 0, curva: 2, pausa: 300, ms: 800, punto: { zona: 'espalda', txt: 'Los hombros no bajan' } },
+    ] },
+  'bicicleta': { vistas: ['lado'], x0: 120, apoyo: 'cuerpo', sigue: 'rodilla', equipo: [{ tipo: 'colchoneta', x: 40, ancho: 170 }],
+    poses: [
+      { n: 'Codo hacia la rodilla contraria', giro: -90, torso: 22, cadera: 100, rodilla: 100, cadera2: 30, rodilla2: 10, hombro: 150, codo: 140, pausa: 300, ms: 900 },
+      { n: 'Cambia de lado como pedaleando', giro: -90, torso: 22, cadera: 30, rodilla: 10, cadera2: 100, rodilla2: 100, hombro: 150, codo: 140, pausa: 300, ms: 900, punto: { zona: 'espalda', txt: 'Lento, sin jalar el cuello' } },
+    ] },
+  'tijeras': { vistas: ['lado'], x0: 120, apoyo: 'cuerpo', sigue: 'pies', equipo: [{ tipo: 'colchoneta', x: 40, ancho: 170 }],
+    poses: [
+      { n: 'Boca arriba, piernas un poco arriba', giro: -90, cadera: 40, rodilla: 4, cadera2: 15, rodilla2: 4, hombro: 8, codo: 0, pausa: 200, ms: 700 },
+      { n: 'Sube una y baja la otra, alternando', giro: -90, cadera: 15, rodilla: 4, cadera2: 40, rodilla2: 4, hombro: 8, codo: 0, pausa: 200, ms: 700, punto: { zona: 'espalda', txt: 'Espalda baja pegada al piso' } },
+    ] },
 };
