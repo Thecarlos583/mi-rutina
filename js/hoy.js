@@ -1,8 +1,8 @@
 // Pantalla "Hoy": lo que toca entrenar, series, pesos, cambios de ejercicio, videos y sugerencias
-import { GRUPOS, ZONAS, PLAN, SUGERENCIAS, REGLAS, FRASES_DESCANSO, FRASES_FIN, INICIO, TIPO_PESO, CALENTAMIENTO, ENFRIAMIENTO } from './data.js';
+import { GRUPOS, ZONAS, PLAN, SUGERENCIAS, REGLAS, FRASES_DESCANSO, FRASES_FIN, INICIO, TIPO_PESO, CALENTAMIENTO, ENFRIAMIENTO, MOVILIDAD_DIA, ZONA_ESPALDA } from './data.js';
 import { S, dia, leerDia, guardar } from './store.js';
 import { hoy, info, fechaLarga, fechaCorta, sumar, diaDe, lunesDe, NOMBRE_DIA, proximoLunes } from './calendario.js';
-import { planDe, slots, totalSeries, seriesHechas, ultimoPeso, mejorPeso, ejercicio, tocaSubir, unidadDe, aVista, aLbs, sugeridoVista, pasoDe, comoCargar, equivalencia, resumenDia } from './rutina.js';
+import { planDe, slots, totalSeries, seriesHechas, ultimoPeso, ejercicio, unidadDe, aVista, sugeridoVista, pasoDe, comoCargar, equivalencia, resumenDia, nombreVariante, duracionEstimada, siguientePeso, pesoCercano, pesosPosibles } from './rutina.js';
 import { abrirCalculadora } from './calc.js';
 import { cuerpo } from './cuerpo.js';
 import { $, ico, anillo, moverAnillo, vibrar, sonar, aviso, abrirHoja, cerrarHoja, confeti, semilla, num, pantallaEncendida } from './util.js';
@@ -12,7 +12,7 @@ import { montar, tieneVideo, musculosDe } from './anim.js';
 import { tienePasos, montarPasos } from './pasos.js';
 import { chipsAgarre, hojaAgarre } from './agarres.js';
 import { hojaSemana } from './semana.js';
-import { hojaHice, hojaNoHice, regTarjetaHTML, claseRegistro, ultimoRegistro, textoRegistro, finHTML, terminarDia, hojaResumen } from './registro.js';
+import { hojaNoHice, regTarjetaHTML, claseRegistro, ultimoRegistro, textoRegistro, finHTML, terminarDia, hojaResumen, filasDe, guardarFilas, registro, sugerencia, usaPeso, hechasDe, objetivo, notaHTML, SENSACION } from './registro.js';
 
 export const LOGO = `<svg viewBox="0 0 512 512" aria-hidden="true"><defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#FF6B4A"/><stop offset="1" stop-color="#FF9F43"/></linearGradient></defs>
   <circle cx="256" cy="256" r="168" fill="none" stroke="#26303B" stroke-width="40"/>
@@ -68,7 +68,7 @@ function cabecera(f, p) {
       <button class="btn-chip acento" data-a="semana">${ico('cal')} Organizar semana</button>
       <button class="btn-chip" data-a="elegir-dia">${ico('cambiar')} Ver otro día</button>
       ${esDiaGym(p) && !p.antes && !resumenDia(f).algo ? `<button class="btn-chip acento" data-a="ya-entrene">${ico('check')} Ya entrené hoy</button>` : ''}
-      ${esDiaGym(p) && !p.antes && !/^B[01]$/.test(p.variante) ? `<button class="btn-chip" data-a="otra-variante">${ico('cambiar')} Cambiar a ${p.variante === 'A' ? 'B' : 'A'} solo hoy</button>` : ''}
+      ${esDiaGym(p) && !p.antes && !/^[AB]\d$/.test(p.variante) ? `<button class="btn-chip" data-a="otra-variante">${ico('cambiar')} Cambiar a ${p.variante === 'A' ? 'B' : 'A'} solo hoy</button>` : ''}
       ${p.override ? `<button class="btn-chip acento" data-a="volver-plan">${ico('deshacer')} Volver a lo de hoy</button>` : ''}
     </div>`;
 }
@@ -78,25 +78,40 @@ const esDiaGym = p => !!PLAN[p.variante]?.[p.diaPlan];
 // ── Día de entrenamiento ────────────────────────────────────
 function entrenoHTML(f, p) {
   const d = PLAN[p.variante][p.diaPlan], ss = slots(f, p.variante, p.diaPlan);
-  const tot = totalSeries(ss), h = seriesHechas(ss);
+  const tot = totalSeries(ss), h = seriesHechas(ss), est = duracionEstimada(ss);
   const grupos = [...new Set(ss.map(s => s.base.g))];
-  const min = Math.round(ss.reduce((a, s) => a + s.series * (45 + s.descanso), 0) / 300) * 5;
-  return `<section class="hero" style="--hc:${GRUPOS[grupos[0]].c}">
+  const zonas = [...new Set(ss.map(s => s.zona).filter(Boolean))].map(z => ZONA_ESPALDA[z].toLowerCase());
+  const otra = p.variante[0] === 'A' ? 'B' : 'A';
+  return `${cronoHTML(f, est)}<section class="hero" style="--hc:${GRUPOS[grupos[0]].c}">
       <div class="hero-txt">
-        <p class="eyebrow">${NOMBRE_DIA[p.diaPlan]} · Rutina ${/^B[01]$/.test(p.variante) ? 'B anterior' : p.variante}</p>
+        <p class="eyebrow">${NOMBRE_DIA[p.diaPlan]} · Rutina ${nombreVariante(p.variante)}</p>
         ${etiquetaCambio(f, p)}
         <h2>${d.t}</h2>
-        <p class="hero-sub">${d.sub} · ${ss.length} ejercicios · ≈${min} min</p>
+        <p class="hero-sub">${d.sub} · ${ss.length} ejercicios</p>
+        <p class="hero-dur">${ico('reloj')} Duración estimada: <b>${est} min</b></p>
         <div class="chips">${grupos.map(chip).join('')}</div>
       </div>
       <div id="hero-anillo">${anillo(h / tot, { tam: 94, grosor: 9, id: 'ah', centro: `<b class="an-num">${h}</b><span>de ${tot}</span>` })}</div>
     </section>
-    ${d.comp ? `<div class="nota comp">${ico('cambiar')}<span><b>Complementa a la Semana A:</b> ${d.comp}</span></div>` : ''}
-    ${calentamientoHTML(f, d, ss, h)}
+    ${d.comp || zonas.length ? `<div class="nota comp">${ico('cambiar')}<span>${d.comp ? `<b>Complementa a la Semana ${otra}:</b> ${d.comp}` : ''}${zonas.length ? `<span class="hoy-trab"><b>Hoy trabajas:</b> ${zonas.join(' · ')}</span>` : ''}</span></div>` : ''}
+    ${calentamientoHTML(f, p)}
     <div class="unid-global" role="radiogroup" aria-label="Ver los pesos en"><span>${ico('balanza')} Pesos en</span>${['lbs', 'kg'].map(x => `<button data-a="unidad" data-u="${x}" role="radio" aria-checked="${x === unidadDe()}">${x}</button>`).join('')}</div>
     <div class="lista-ej">${ss.map(s => tarjeta(f, s)).join('')}</div>
     ${finHTML(f, ss, !fechaVista)}
-    ${enfriamientoHTML(ss, h === tot || !!leerDia(f).fin)}`;
+    ${enfriamientoHTML(f, ss, h === tot || !!leerDia(f).fin)}`;
+}
+
+// Cronómetro de la sesión: arranca con la primera serie (o el calentamiento) y se queda arriba
+const fmtLargo = x => { x = Math.max(0, Math.floor(x)); const hh = Math.floor(x / 3600), mm = Math.floor((x % 3600) / 60), ss = x % 60; return hh ? `${hh}:${String(mm).padStart(2, '0')}:${String(ss).padStart(2, '0')}` : `${mm}:${String(ss).padStart(2, '0')}`; };
+function cronoHTML(f, est) {
+  const d = leerDia(f);
+  if (fechaVista || !d.t0 || d.fin) return '';
+  return `<div class="crono" data-t0="${d.t0}" role="timer" aria-label="Tiempo de la sesión">${ico('reloj')}<b>${fmtLargo((Date.now() - d.t0) / 1000)}</b><small>de ≈${est} min</small></div>`;
+}
+setInterval(() => { const c = document.querySelector('.crono[data-t0]'); if (c) c.querySelector('b').textContent = fmtLargo((Date.now() - Number(c.dataset.t0)) / 1000); }, 1000);
+function mostrarCrono(f, p) {
+  if (raiz.querySelector('.crono') || !leerDia(f).t0) return;
+  raiz.querySelector('.hero')?.insertAdjacentHTML('beforebegin', cronoHTML(f, duracionEstimada(slots(f, p.variante, p.diaPlan))));
 }
 
 // ── Días que faltaste: pasar esa rutina a otro día para no perderla ──
@@ -130,7 +145,7 @@ function faltasHTML(f) {
 }
 // Si este día trae una rutina movida: de qué día faltado viene, o que la cambiaste en la semana
 function etiquetaCambio(f, p) {
-  if (!p.override) return '';
+  if (!p.override || /^[AB]\d$/.test(p.variante)) return ''; // las rutinas anteriores no son un cambio tuyo
   for (let k = 1; k <= 7; k++) { const x = sumar(f, -k); if (leerDia(x).movido === f) return `<p class="recupera">${ico('deshacer')} Recuperando el ${diaFecha(x)}</p>`; }
   return `<p class="recupera">${ico('cal')} Cambiada en tu semana</p>`;
 }
@@ -141,48 +156,68 @@ function quitarRecuperada(t) {
   for (let k = 1; k <= 7; k++) { const x = sumar(t, -k); if (leerDia(x).movido === t) delete dia(x).movido; }
 }
 
-// ── Vuelta a la calma: caminata y estiramientos de lo que se entrenó hoy ──
-const PIERNA = ['cuadriceps', 'femoral', 'pantorrilla'];
+// ── Estiramiento final (5 min): 2 o 3 estiramientos de lo que se trabajó hoy, 30 s cada uno ──
 function pasosEnfriamiento(ss) {
-  const grupos = [...new Set(ss.map(s => s.ej.g))];
-  const piernas = grupos.some(g => PIERNA.includes(g));
-  const c = ENFRIAMIENTO.caminata[piernas ? 'piernas' : 'superior'];
-  const est = grupos.flatMap(g => ENFRIAMIENTO.estiramientos[g] || []);
-  return [{ ...c, t: c.min * 60, caminata: true }, ...est, ENFRIAMIENTO.final];
+  const grupos = [...new Set(ss.map(s => s.ej.g))], E = ENFRIAMIENTO.estiramientos;
+  const out = grupos.map(g => E[g]?.[0]).filter(Boolean).slice(0, 3);
+  if (out.length < 2) out.push(...(E[grupos[0]] || []).slice(1, 3 - out.length));
+  return out;
 }
-function enfriamientoHTML(ss, terminado) {
-  const pasos = pasosEnfriamiento(ss);
-  const min = Math.round(pasos.reduce((a, x) => a + x.t, 0) / 60);
-  const dur = x => (x.caminata ? `${x.min} min` : x.lados ? `${x.t / 2} s por lado` : `${x.t} s`);
-  return `<details class="card calent enfria" id="enfria" ${terminado ? 'open' : ''}>
-    <summary><span><b>Para cerrar: afloja y suelta</b><small>≈${min} min · al terminar, ahí mismo</small></span>${ico('abajo')}</summary>
-    <ol class="cal-lista">${pasos.map((x, i) => `<li><span><b>${x.n} · ${dur(x)}</b><small>${x.d}</small></span><button class="ver-mini" data-a="enfria" data-i="${i}" aria-label="Empezar ${x.n}: ${dur(x)}">${ico('reloj')}</button></li>`).join('')}</ol>
+function enfriamientoHTML(f, ss, terminado) {
+  const pasos = pasosEnfriamiento(ss), est = leerDia(f).estira || [], X = ENFRIAMIENTO.extra;
+  const listo = pasos.every((_, i) => est[i]);
+  const dur = x => (x.lados ? `${x.t / 2} s por lado` : `${x.t} s`);
+  return `<details class="card calent enfria" id="enfria" ${terminado && !listo ? 'open' : ''}>
+    <summary><span><b>Estiramiento final${listo ? ' ✓' : ''}</b><small>5 min · al terminar, ahí mismo</small></span>${ico('abajo')}</summary>
+    <ol class="cal-lista">${pasos.map((x, i) => `<li class="${est[i] ? 'hecho' : ''}"><span><b>${x.n} · ${dur(x)}</b><small>${x.d}</small></span><button class="ver-mini" data-a="enfria" data-i="${i}" aria-label="Empezar ${x.n}: ${dur(x)}">${ico('reloj')}</button><button class="paso-check ${est[i] ? 'on' : ''}" data-a="estira-check" data-i="${i}" aria-pressed="${!!est[i]}" aria-label="Marcar ${x.n} como hecho">${ico('check')}</button></li>`).join('')}</ol>
+  </details>
+  <section class="card extra-op"><div class="extra-cab"><span><b>Extra opcional · ${X.min} min</b><small>${X.d}</small></span><button class="ver-mini" data-a="extra" aria-label="Empezar ${X.min} minutos de caminata o bicicleta">${ico('reloj')}</button></div></section>`;
+}
+
+// ── Calentamiento (10 min): cardio suave + movilidad del día, cada uno con su reloj ──
+const NOMBRE_MOV = { espalda: 'Para espalda y hombros', pierna: 'Para piernas y cadera', pecho: 'Para pecho y hombros' };
+function calentamientoHTML(f, p) {
+  const c = leerDia(f).cal || {}, tipo = MOVILIDAD_DIA[p.diaPlan] || 'espalda', listo = c.cardio && c.mov;
+  const fila = x => `<li><span><b>${x.n}</b><small>${x.d}</small></span>${x.id && tieneVideo(x.id) ? `<button class="ver-mini" data-a="video-cal" data-id="${x.id}" aria-label="Ver cómo se hace ${x.n}">${ico('play')}</button>` : ''}</li>`;
+  const paso = (k, n, sub, extra = '') => `<div class="cal-paso ${c[k] ? 'hecho' : ''}"><div class="cal-paso-cab"><span><b>${n}</b><small>${sub}</small></span>
+      <button class="ver-mini" data-a="cal-reloj" data-k="${k}" aria-label="Empezar 5 minutos: ${n}">${ico('reloj')}</button>
+      <button class="paso-check ${c[k] ? 'on' : ''}" data-a="cal-check" data-k="${k}" aria-pressed="${!!c[k]}" aria-label="Marcar ${n} como hecho">${ico('check')}</button></div>${extra}</div>`;
+  return `<details class="card calent" ${listo ? '' : 'open'}>
+    <summary><span><b>Calentamiento${listo ? ' ✓' : ''}</b><small>10 min · antes de empezar</small></span>${ico('abajo')}</summary>
+    ${paso('cardio', 'Cardio suave · 5 min', CALENTAMIENTO.cardio.d)}
+    ${paso('mov', 'Movilidad y activación · 5 min', NOMBRE_MOV[tipo], `<ol class="cal-lista">${CALENTAMIENTO[tipo].map(fila).join('')}</ol>`)}
   </details>`;
 }
 
-// ── Calentamiento antes de la rutina ────────────────────────
-const r5 = x => Math.max(5, Math.round(x / 5) * 5);
-function calentamientoHTML(f, d, ss, hechas) {
-  const piernas = /pierna/i.test(d.t), lista = piernas ? CALENTAMIENTO.piernas : CALENTAMIENTO.superior;
-  const pri = ss[0], w = pri && (leerDia(f).pesos?.[pri.ej.id] ?? ultimoPeso(pri.ej.id, f) ?? INICIO[pri.ej.id]?.[0]);
-  const u = pri && unidadDe(pri.ej.id), parte = x => (u === 'kg' ? sugeridoVista(pri.ej.id, x) : r5(x));
-  const aprox = w ? `10 reps con <b>${num(parte(w / 2))} ${u}</b> y 5 reps con <b>${num(parte(w * 0.75))} ${u}</b>` : '10 reps con la mitad del peso y 5 reps con tres cuartos';
-  const fila = x => `<li><span><b>${x.n}</b><small>${x.d}</small></span>${x.id ? `<button class="ver-mini" data-a="video-cal" data-id="${x.id}" aria-label="Ver cómo se hace ${x.n}">${ico('play')}</button>` : ''}</li>`;
-  return `<details class="card calent" ${hechas ? '' : 'open'}>
-    <summary><span><b>Calentamiento</b><small>≈10 min · antes de empezar</small></span>${ico('abajo')}</summary>
-    <ol class="cal-lista">${fila(CALENTAMIENTO.general)}${lista.map(fila).join('')}
-      <li><span><b>Series de aproximación</b><small>Antes de ${pri?.ej.n.toLowerCase() || 'el primer ejercicio'}: ${aprox}</small></span></li></ol>
-  </details>`;
+// ── Series de aproximación (solo el primer ejercicio): ~50 % × 12 y ~70 % × 6-8 del peso de trabajo ──
+function aproxHTML(f, s, w0) {
+  const id = s.ej.id;
+  if (!usaPeso(id) || !w0) return '';
+  const u = unidadDe(id), a = leerDia(f).aprox || [], paso = pasoDe(id);
+  const peso = x => (pesosPosibles(id) ? pesoCercano(id, w0 * x) : Math.max(paso, Math.round((w0 * x) / paso) * paso));
+  return `<div class="aprox" role="group" aria-label="Series de aproximación">${[[0.5, '12'], [0.7, '6-8']].map(([x, r], k) => `<button class="aprox-f ${a[k] ? 'hecha' : ''}" data-a="aprox" data-i="${k}" aria-pressed="${!!a[k]}">
+      <span class="aprox-tag">Aproximación</span><b>${num(peso(x))} ${u} × ${r}</b><small>~${x * 100} %</small>${ico('check')}</button>`).join('')}</div>`;
+}
+
+// Una serie: marcar como hecha · peso × repeticiones con + y − · cómo se sintió
+function filaHTML(x, k, id, u, conPeso, seg) {
+  return `<div class="sfila ${x.ok ? 'ok' : ''}" data-k="${k}">
+    <button class="serie ${x.ok ? 'hecha' : ''}" data-a="serie" data-i="${k}" aria-pressed="${x.ok}" aria-label="Serie ${k + 1}: marcar como hecha"><span class="serie-n">${k + 1}</span>${ico('check', 'serie-ok')}</button>
+    <div class="sctl">
+      ${conPeso ? `<div class="nctl"><button data-a="fw" data-d="-1" aria-label="Menos peso en la serie ${k + 1}">${ico('menos')}</button><label><input type="text" inputmode="decimal" data-fw="${k}" value="${x.w != null ? num(x.w) : ''}" placeholder="0" aria-label="Peso de la serie ${k + 1} en ${u}"><small>${u}</small></label><button data-a="fw" data-d="1" aria-label="Más peso en la serie ${k + 1}">${ico('mas')}</button></div><span class="sx" aria-hidden="true">×</span>` : ''}
+      <div class="nctl"><button data-a="fr" data-d="-1" aria-label="Menos repeticiones en la serie ${k + 1}">${ico('menos')}</button><label><input type="text" inputmode="numeric" data-fr="${k}" value="${x.r}" aria-label="Repeticiones de la serie ${k + 1}"><small>${seg ? 's' : 'reps'}</small></label><button data-a="fr" data-d="1" aria-label="Más repeticiones en la serie ${k + 1}">${ico('mas')}</button></div>
+    </div>
+    ${x.ok ? `<div class="sens" role="group" aria-label="¿Cómo se sintió la serie ${k + 1}?">${SENSACION.map(([v, n]) => `<button class="${x.s === v ? 'on' : ''}" data-a="sens" data-v="${v}" aria-pressed="${x.s === v}">${n}</button>`).join('')}</div>` : ''}
+  </div>`;
 }
 
 function tarjeta(f, s) {
   const e = s.ej, c = GRUPOS[e.g].c, completa = s.hechas.every(Boolean);
-  const u = unidadDe(e.id), paso = pasoDe(e.id);
-  const peso = aVista(e.id, leerDia(f).pesos?.[e.id]), ult = aVista(e.id, ultimoPeso(e.id, f));
+  const u = unidadDe(e.id), conPeso = usaPeso(e.id), fs = filasDe(f, s), seg = objetivo(s.reps).seg;
+  const reg = registro(f, s.slot), noHecho = reg?.estado === 'no', terminada = reg?.e === e.id && hechasDe(reg).length >= s.series;
+  const regAnt = ultimoRegistro(e.id, f), sug = regAnt ? sugerencia(regAnt, s.reps, e.id) : null;
   const [iniLbs, tipo] = INICIO[e.id] || [];
-  const ini = iniLbs ? sugeridoVista(e.id, iniLbs) : iniLbs;
-  const sube = tocaSubir(e.id, f);
-  const regAnt = ultimoRegistro(e.id, f);
+  const ini = iniLbs ? sugeridoVista(e.id, iniLbs) : null, w0 = fs[0]?.w ?? null;
   return `<article class="ej ${abiertas.has(s.slot) ? 'abierta' : ''} ${completa ? 'completa' : ''} ${claseRegistro(f, s)}" data-slot="${s.slot}" style="--c:${c}">
     <button class="ej-cab" data-a="abrir" aria-expanded="${abiertas.has(s.slot)}">
       <span class="ej-num">${completa ? ico('check') : s.i + 1}</span>
@@ -192,21 +227,19 @@ function tarjeta(f, s) {
       </span>
       <span class="ej-chev">${ico('abajo')}</span>
     </button>
-    <div class="ej-tags">${chip(e.g)}${chipsAgarre(e.agarre, 'data-a')}${s.cambio === 'equipo' ? `<span class="tag marca">${ico('cambiar')} No tienes ${s.base.n.toLowerCase()}</span>` : s.cambio ? `<span class="tag marca">${ico('cambiar')} ${s.cambio === 'hoy' ? 'Solo hoy' : 'Siempre'}</span><button class="tag volver" data-a="revertir">${ico('deshacer')} Original</button>` : ''}</div>
+    <div class="ej-tags">${chip(e.g)}${s.zona ? `<span class="tag zona">${ZONA_ESPALDA[s.zona]}</span>` : ''}${chipsAgarre(e.agarre, 'data-a')}${s.cambio === 'equipo' ? `<span class="tag marca">${ico('cambiar')} No tienes ${s.base.n.toLowerCase()}</span>` : s.cambio ? `<span class="tag marca">${ico('cambiar')} ${s.cambio === 'hoy' ? 'Solo hoy' : 'Siempre'}</span><button class="tag volver" data-a="revertir">${ico('deshacer')} Original</button>` : ''}</div>
     ${s.tip ? `<p class="tip-ej">${ico('check')}<span>${s.tip}</span></p>` : ''}
-    <div class="series" role="group" aria-label="Series">${s.hechas.map((h, k) => `<button class="serie ${h ? 'hecha' : ''}" data-a="serie" data-i="${k}" aria-pressed="${h}" aria-label="Serie ${k + 1}"><span class="serie-n">${k + 1}</span>${ico('check', 'serie-ok')}</button>`).join('')}</div>
-    <div class="peso">
-      <button class="peso-btn" data-a="peso" data-d="-${paso}" aria-label="Bajar ${num(paso)} ${u}">${ico('menos')}</button>
-      <label class="peso-in"><input type="number" inputmode="decimal" step="any" min="0" data-peso="${e.id}" value="${peso ?? ''}" placeholder="${ult ?? ini ?? '0'}" aria-label="Peso en ${u === 'kg' ? 'kilos' : 'libras'}"><span>${u}</span></label>
-      <button class="peso-btn" data-a="peso" data-d="${paso}" aria-label="Subir ${num(paso)} ${u}">${ico('mas')}</button>
-    </div>
-    <div class="equiv-fila"><p class="equiv" data-equiv="${e.id}">${equivalencia(e.id, peso ?? ult ?? ini)}</p><button class="balanza" data-a="calc" aria-label="Abrir la calculadora con este peso">${ico('balanza')}</button></div>
-    <p class="carga" data-carga="${e.id}"${comoCargar(e.id, peso ?? ult ?? ini) ? '' : ' hidden'}>${ico('hoy')}<span>${comoCargar(e.id, peso ?? ult ?? ini)}</span></p>
-    ${sube && (peso == null || peso < sube) ? `<p class="subir">${ico('subir')}<span><b>Toca subir:</b> completaste todo con ${num(ult)} ${u} dos sesiones seguidas. Hoy prueba <b>${num(sube)} ${u}</b>. <button class="link" data-a="repetir" data-w="${sube}">Usar</button></span></p>` : ''}
-    <p class="ultima">${ult != null
-      ? `Última vez: <b>${regAnt ? textoRegistro(regAnt, e.id) : `${num(ult)} ${u}`}</b>${peso == null ? ` <button class="link" data-a="repetir" data-w="${ult}">Repetir</button>` : ''}`
-      : ini ? `Empieza con <b>${u === 'kg' ? '≈ ' : ''}${num(ini)} ${u}</b> ${TIPO_PESO[tipo]}${peso == null ? ` <button class="link" data-a="repetir" data-w="${ini}">Usar</button>` : ''}<br><span class="peq">Si te sobran más de 3 reps, súbele ${num(paso)} ${u}.</span>`
-      : tipo ? `Empieza con ${TIPO_PESO[tipo]}.` : 'Primera vez: anota con cuánto arrancas'}</p>
+    <p class="ultima">${regAnt ? `Última vez: <b>${textoRegistro(regAnt, e.id)}</b>`
+      : ultimoPeso(e.id, f) != null && conPeso ? `Última vez: <b>${num(aVista(e.id, ultimoPeso(e.id, f)))} ${u}</b>`
+      : ini ? `Empieza con <b>${u === 'kg' ? '≈ ' : ''}${num(ini)} ${u}</b> ${TIPO_PESO[tipo]}. <span class="peq">Si te sobran más de 3 reps, súbele.</span>`
+      : tipo ? `Empieza con ${TIPO_PESO[tipo]}.` : 'Primera vez: anota con cuánto arrancas.'}</p>
+    ${sug && !terminada && !noHecho ? `<p class="sug">${ico('subir')}<span><b>Para hoy:</b> ${sug.txt}</span></p>` : ''}
+    ${noHecho ? '' : `${s.i === 0 ? aproxHTML(f, s, w0) : ''}
+    <div class="sfilas" role="group" aria-label="Series">${fs.map((x, k) => filaHTML(x, k, e.id, u, conPeso, seg)).join('')}</div>
+    <div class="sfilas-acc"><button class="link" data-a="fila-menos" ${fs.length <= 1 ? 'disabled' : ''}>${ico('menos')} Quitar serie</button><button class="link" data-a="fila-mas">${ico('mas')} Agregar serie</button></div>
+    ${conPeso && w0 ? `<div class="equiv-fila"><p class="equiv">${equivalencia(e.id, w0)}</p><button class="balanza" data-a="calc" aria-label="Abrir la calculadora con este peso">${ico('balanza')}</button></div>
+    ${comoCargar(e.id, w0) ? `<p class="carga">${ico('hoy')}<span>${comoCargar(e.id, w0)}</span></p>` : ''}` : ''}
+    ${notaHTML(f, s)}`}
     ${sentirHTML(e, u)}
     ${regTarjetaHTML(f, s)}
     <div class="mas"><div class="mas-in">
@@ -318,25 +351,43 @@ function alTocar(e) {
       vibrar(8);
       break;
     }
-    case 'serie': marcarSerie(f, card, Number(b.dataset.i), b); break;
-    case 'peso': pasoPeso(f, card, Number(b.dataset.d)); break;
-    case 'repetir': {
-      const inp = card.querySelector('input[data-peso]');
-      inp.value = b.dataset.w;
-      guardarPeso(f, inp, false);
-      card.querySelector('.subir')?.remove();
-      card.querySelectorAll('[data-a="repetir"]').forEach(x => x.remove());
-      vibrar(8);
-      break;
+    case 'serie': marcarSerie(f, card, Number(b.dataset.i)); break;
+    case 'fw': case 'fr': editarFila(f, card, Number(b.closest('.sfila').dataset.k), a === 'fw' ? 'w' : 'r', Number(b.dataset.d), true); vibrar(6); break;
+    case 'fila-mas': case 'fila-menos': {
+      conFilas(f, card, fs => { if (a === 'fila-mas') fs.push({ ...fs.at(-1), ok: false, s: null, t: false }); else if (fs.length > 1 && !fs.at(-1).ok) fs.pop(); });
+      repintarCard(f, card.dataset.slot); vibrar(6); break;
     }
+    case 'sens': { const k = Number(b.closest('.sfila').dataset.k); conFilas(f, card, fs => { fs[k].s = fs[k].s === b.dataset.v ? null : b.dataset.v; }); repintarCard(f, card.dataset.slot); vibrar(6); break; }
+    case 'nota': {
+      const { s } = slotDe(f, card.dataset.slot), r = registro(f, s.slot);
+      const notas = new Set(r?.e === s.ej.id ? r.notas || [] : []);
+      notas.has(b.dataset.n) ? notas.delete(b.dataset.n) : notas.add(b.dataset.n);
+      conFilas(f, card, () => ({ notas: [...notas] }));
+      repintarCard(f, card.dataset.slot); vibrar(6); break;
+    }
+    case 'aprox': { const d = dia(f), i = Number(b.dataset.i); d.aprox = [0, 1].map(k => !!d.aprox?.[k]); d.aprox[i] = !d.aprox[i]; d.t0 ||= Date.now(); guardar(); vibrar(8); repintarCard(f, card.dataset.slot); mostrarCrono(f, planDe(f)); break; }
+    case 'hice-todo': {
+      conFilas(f, card, fs => fs.forEach(x => { x.ok = true; }));
+      actualizarCompleto(f); vibrar(); sonar.serie();
+      const y = scrollY; refrescar(); scrollTo(0, y); break;
+    }
+    case 'cal-check': { const d = dia(f); d.cal ||= {}; d.cal[b.dataset.k] = !d.cal[b.dataset.k]; if (d.cal[b.dataset.k]) { d.t0 ||= Date.now(); sonar.serie(); } guardar(); vibrar(8); const y = scrollY; refrescar(); scrollTo(0, y); break; }
+    case 'cal-reloj': { const d = dia(f); d.t0 ||= Date.now(); guardar(); mostrarCrono(f, planDe(f)); iniciarDescanso(300, b.dataset.k === 'cardio' ? 'Cardio suave' : 'Movilidad y activación', b.dataset.k === 'cardio' ? 'A un ritmo en el que puedas hablar' : 'Haz la lista con calma', 'calma'); break; }
+    case 'estira-check': { const d = dia(f), i = Number(b.dataset.i); d.estira ||= []; d.estira[i] = !d.estira[i]; guardar(); vibrar(8); if (d.estira[i]) sonar.serie(); const y = scrollY; refrescar(); scrollTo(0, y); break; }
+    case 'extra': { const x = ENFRIAMIENTO.extra; iniciarDescanso(x.min * 60, x.n, 'Extra opcional: no cuenta para la hora', 'calma'); break; }
+    case 'video-ej': { const x = ejercicio(b.dataset.id); if (x) hojaVideo(x); break; }
     case 'cambiar': hojaCambio(f, card.dataset.slot); break;
-    case 'hice': { const { s } = slotDe(f, card.dataset.slot); hojaHice(f, s, () => { const y = scrollY; refrescar(); scrollTo(0, y); }); break; }
     case 'no-hice': {
       const { s } = slotDe(f, card.dataset.slot);
       hojaNoHice(f, s, { alGuardar: () => { const y = scrollY; refrescar(); scrollTo(0, y); }, abrirAlternativas: () => hojaCambio(f, s.slot) });
       break;
     }
-    case 'reg-quitar': { delete dia(f).reg?.[card.dataset.slot]; guardar(); vibrar(8); const y = scrollY; refrescar(); scrollTo(0, y); break; }
+    case 'reg-quitar': {
+      const d = dia(f), r = d.reg?.[card.dataset.slot];
+      delete d.reg?.[card.dataset.slot]; delete d.series?.[card.dataset.slot];
+      if (r?.e) delete d.pesos?.[r.e];
+      guardar(); vibrar(8); const y = scrollY; refrescar(); scrollTo(0, y); break;
+    }
     case 'ajuste-si': case 'ajuste-no': {
       const { s } = slotDe(f, card.dataset.slot);
       if (a === 'ajuste-si') { S().ajusteReps ||= {}; S().ajusteReps[s.clave] = b.dataset.r; aviso(`${s.ej.n}: ahora ${s.series}×${b.dataset.r}`, 'check'); }
@@ -383,7 +434,7 @@ function alTocar(e) {
       break;
     }
     case 'calc': {
-      const inp = card.querySelector('input[data-peso]'), v = parseFloat(String(inp.value || inp.placeholder).replace(',', '.'));
+      const inp = card.querySelector('input[data-fw="0"]'), v = parseFloat(String(inp?.value || '').replace(',', '.'));
       abrirCalculadora(Number.isFinite(v) && v > 0 ? v : '', unidadDe());
       break;
     }
@@ -392,7 +443,7 @@ function alTocar(e) {
       iniciarDescanso(x.t, x.n, x.lados ? `Cambia de lado a la mitad (${x.t / 2} s)` : x.caminata ? 'A paso cómodo, que puedas conversar' : '', 'calma');
       break;
     }
-    case 'video-cal': { const x = [...CALENTAMIENTO.superior, ...CALENTAMIENTO.piernas].find(c => c.id === b.dataset.id); hojaVideo({ ...x, id: x.id }); break; }
+    case 'video-cal': { const x = [...CALENTAMIENTO.espalda, ...CALENTAMIENTO.pierna, ...CALENTAMIENTO.pecho].find(c => c.id === b.dataset.id), e = ejercicio(x.id); hojaVideo(e ? { ...e, n: x.n } : { ...x }); break; }
     case 'revertir': revertir(f, card.dataset.slot); break;
     case 'elegir-dia': hojaDia(f); break;
     case 'volver-plan': quitarRecuperada(f); guardar(); refrescar(); break;
@@ -415,86 +466,78 @@ function slotDe(f, slotId) {
   return { p, ss, s: ss.find(x => x.slot === slotId) };
 }
 
-function marcarSerie(f, card, i, btn) {
-  const { p, s } = slotDe(f, card.dataset.slot);
-  const d = dia(f);
-  d.series ||= {};
-  d.t0 ||= Date.now();
-  const arr = (d.series[s.slot] = s.hechas.slice());
-  arr[i] = !arr[i];
-  btn.classList.toggle('hecha', arr[i]);
-  btn.setAttribute('aria-pressed', arr[i]);
-  if (arr[i]) { btn.classList.remove('pop'); void btn.offsetWidth; btn.classList.add('pop'); vibrar(); sonar.serie(); }
+// Lee las filas del ejercicio, las cambia y las guarda (con lo que devuelva fn: notas, etc.)
+function conFilas(f, card, fn) {
+  const { s } = slotDe(f, card.dataset.slot), fs = filasDe(f, s);
+  guardarFilas(f, s, fs, fn(fs, s) || {});
+  return s;
+}
+function repintarCard(f, slot) {
+  const { s } = slotDe(f, slot), viejo = raiz.querySelector(`.ej[data-slot="${slot}"]`);
+  if (!viejo || !s) return null;
+  viejo.outerHTML = tarjeta(f, s);
+  return raiz.querySelector(`.ej[data-slot="${slot}"]`);
+}
+// Cambia el peso o las repeticiones de una serie; las de abajo que no tocaste ni marcaste la copian
+function editarFila(f, card, k, campo, v, esPaso) {
+  conFilas(f, card, (fs, s) => {
+    const x = fs[k];
+    if (campo === 'w') x.w = esPaso ? siguientePeso(s.ej.id, x.w, v) ?? x.w : v;
+    else x.r = Math.max(0, esPaso ? x.r + v * (objetivo(s.reps).seg ? 5 : 1) : Math.round(v));
+    x.t = true;
+    for (let j = k + 1; j < fs.length; j++) if (!fs[j].ok && !fs[j].t) fs[j][campo] = x[campo];
+  });
+  repintarCard(f, card.dataset.slot);
+}
+function actualizarCompleto(f) {
+  const p = planDe(f), ss = slots(f, p.variante, p.diaPlan), d = dia(f);
+  const antes = !!d.completo;
+  d.completo = seriesHechas(ss) === totalSeries(ss);
+  guardar();
+  return d.completo && !antes;
+}
 
-  const completa = arr.every(Boolean);
-  card.classList.toggle('completa', completa);
-  card.querySelector('.ej-num').innerHTML = completa ? ico('check') : s.i + 1;
+function marcarSerie(f, card, i) {
+  const { p } = slotDe(f, card.dataset.slot);
+  let ok = false;
+  const s = conFilas(f, card, fs => { ok = fs[i].ok = !fs[i].ok; if (!ok) fs[i].s = null; });
+  const el = repintarCard(f, s.slot);
+  if (ok) { el?.querySelector(`[data-a="serie"][data-i="${i}"]`)?.classList.add('pop'); vibrar(); sonar.serie(); }
+  mostrarCrono(f, p);
 
-  const ss = slots(f, p.variante, p.diaPlan);
+  const ss = slots(f, p.variante, p.diaPlan), fs = filasDe(f, ss.find(x => x.slot === s.slot));
   const tot = totalSeries(ss), h = seriesHechas(ss);
   moverAnillo($('#hero-anillo'), h / tot);
   $('#hero-anillo .an-num').textContent = h;
-  const antes = !!d.completo;
-  d.completo = h === tot;
-  guardar();
-
-
-  if (d.completo && !antes) {
+  if (actualizarCompleto(f)) {
     setTimeout(() => { confeti(); sonar.logro(); vibrar([80, 60, 80]); aviso(FRASES_FIN[semilla(f) % FRASES_FIN.length], 'trofeo'); }, 220);
-    // Terminaste: abre la vuelta a la calma
+    // Terminaste: abre el estiramiento final
     const enf = $('#enfria');
     if (enf) { enf.open = true; setTimeout(() => enf.scrollIntoView({ behavior: 'smooth', block: 'start' }), 900); }
     return;
   }
-  if (!arr[i] || fechaVista) return;
-  const quedan = arr.filter(x => !x).length;
+  if (!ok || fechaVista) return;
+  const hechas = fs.filter(x => x.ok).length, quedan = fs.length - hechas, completa = !quedan;
   const sig = ss.find(x => x.i > s.i && !x.hechas.every(Boolean)) || ss.find(x => !x.hechas.every(Boolean));
-  const sub = quedan ? `Serie ${arr.filter(Boolean).length} de ${s.series} lista · faltan ${quedan}` : `Siguiente: ${sig?.ej.n ?? '¡ya casi!'}`;
+  const sub = quedan ? `Serie ${hechas} de ${fs.length} lista · faltan ${quedan}` : `Siguiente: ${sig?.ej.n ?? '¡ya casi!'}`;
   iniciarDescanso(s.descanso, s.ej.n, sub);
-  if (completa && sig) {
-    setTimeout(() => raiz.querySelector(`[data-slot="${sig.slot}"]`)?.scrollIntoView({ behavior: 'smooth', block: 'center' }), 450);
+  if (completa && sig) setTimeout(() => raiz.querySelector(`[data-slot="${sig.slot}"]`)?.scrollIntoView({ behavior: 'smooth', block: 'center' }), 450);
+}
+
+// Escribir a mano: se guarda al salir del campo
+const leerNum = v => parseFloat(String(v).replace(',', '.'));
+const alEscribir = () => {};
+const alCambiar = e => {
+  const t = e.target, card = t.closest('.ej'), f = fechaHoy();
+  if (!card) return;
+  if (t.matches('[data-fw], [data-fr]')) {
+    const v = leerNum(t.value);
+    if (!Number.isFinite(v) || v < 0) { repintarCard(f, card.dataset.slot); return; }
+    editarFila(f, card, Number(t.closest('.sfila').dataset.k), t.matches('[data-fw]') ? 'w' : 'r', Math.round(v * 100) / 100, false);
+  } else if (t.matches('[data-nota-txt]')) {
+    conFilas(f, card, () => ({ txt: t.value.trim() || undefined }));
   }
-}
-
-function pasoPeso(f, card, delta) {
-  const inp = card.querySelector('input[data-peso]');
-  // Sin nada escrito, parte de lo sugerido (última vez o "Empieza con")
-  const actual = inp.value !== '' ? parseFloat(inp.value) : (parseFloat(inp.placeholder) || 0);
-  inp.value = Math.max(0, actual + delta);
-  card.querySelectorAll('[data-a="repetir"], .subir').forEach(x => x.remove());
-  guardarPeso(f, inp, true);
-  vibrar(8);
-}
-
-// Actualiza "cómo armar el peso" con lo que está escrito (o lo sugerido)
-function actualizarCarga(inp) {
-  const p = inp.closest('.ej')?.querySelector('[data-carga]');
-  if (!p) return;
-  const v = parseFloat(String(inp.value || inp.placeholder).replace(',', '.'));
-  const t = Number.isFinite(v) ? comoCargar(inp.dataset.peso, v) : '';
-  p.hidden = !t;
-  p.querySelector('span').textContent = t;
-  const q = inp.closest('.ej')?.querySelector('[data-equiv]');
-  if (q) q.textContent = Number.isFinite(v) ? equivalencia(inp.dataset.peso, v) : '';
-}
-
-function guardarPeso(f, inp, revisarRecord) {
-  actualizarCarga(inp);
-  const d = dia(f), id = inp.dataset.peso, v = parseFloat(String(inp.value).replace(',', '.'));
-  d.pesos ||= {};
-  if (Number.isFinite(v) && v >= 0) d.pesos[id] = aLbs(id, v); else delete d.pesos[id];
-  guardar();
-  if (!revisarRecord || !Number.isFinite(v)) return;
-  const mejor = mejorPeso(id, f);
-  if (mejor != null && aLbs(id, v) > mejor + 0.01) {
-    const card = inp.closest('.ej');
-    card.classList.remove('record'); void card.offsetWidth; card.classList.add('record');
-    clearTimeout(guardarPeso.t);
-    guardarPeso.t = setTimeout(() => { aviso(`¡Nuevo récord! ${num(v)} ${unidadDe(id)} en ${ejercicio(id).n}`, 'trofeo'); sonar.logro(); }, 500);
-  }
-}
-const alEscribir = e => { if (e.target.matches('input[data-peso]')) guardarPeso(fechaHoy(), e.target, false); };
-const alCambiar = e => { if (e.target.matches('input[data-peso]')) guardarPeso(fechaHoy(), e.target, true); };
+};
 
 // ── Cambiar ejercicio ───────────────────────────────────────
 function hojaCambio(f, slotId) {

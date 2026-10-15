@@ -1,5 +1,6 @@
 // Pantalla "Ajustes": fecha de inicio, sonido, vibración, respaldo y reinicio
-import { EQUIPO, EJERCICIOS } from './data.js';
+import { EQUIPO_GYM, EJERCICIOS, PESOS_CAT } from './data.js';
+import { equipoActivo, pesosDisp } from './rutina.js';
 import { S, guardar, exportar, importar, reiniciar } from './store.js';
 import { hoy, info, fechaLarga, lunesDe } from './calendario.js';
 import { $, ico, vibrar, sonar, desbloquearAudio, estadoAudio, usoRespaldo, aviso } from './util.js';
@@ -33,11 +34,18 @@ export function renderAjustes(el) {
     </section>
 
     <section class="card" id="aj-equipo">
-      <div class="card-cab"><h3>Equipo que no tengo en mi gimnasio</h3></div>
-      <p class="txt2 peq">Lo que actives no aparece en la app: en tu rutina se cambia solo por una alternativa que sí puedas hacer.</p>
-      ${Object.entries(EQUIPO).map(([k, x]) => `<label class="sw"><span><b>${x.n}</b></span><input type="checkbox" data-eq="${k}" ${(a.sinEquipo || []).includes(k) ? 'checked' : ''}><i aria-hidden="true"></i></label>`).join('')}
+      <div class="card-cab"><h3>Equipo de mi gimnasio</h3></div>
+      <p class="txt2 peq">Si apagas algo, sus ejercicios desaparecen y la app usa la siguiente alternativa que sí puedas hacer.</p>
+      ${EQUIPO_GYM.map(g => `<h4 class="aj-sub">${g.g}</h4>${g.items.map(([k, n, nota]) => `<label class="sw"><span><b>${n}</b>${nota ? `<small>${nota}</small>` : ''}</span><input type="checkbox" data-eq="${k}" ${equipoActivo().includes(k) ? 'checked' : ''}><i aria-hidden="true"></i></label>`).join('')}`).join('')}
+      <p class="txt2 peq">No hay: prensa de 45°, hack squat, barra hexagonal, femoral sentado, laterales en máquina, posterior en máquina, remo en máquina T, máquina de encogimientos ni pantorrilla de pie en máquina.</p>
       ${(a.ocultos || []).length ? `<h4 class="aj-sub">Ejercicios que ocultaste</h4>
         ${a.ocultos.map(id => `<label class="sw"><span><b>${EJERCICIOS[id]?.n || id}</b><small>Apágalo para que vuelva a aparecer</small></span><input type="checkbox" data-oculto="${id}" checked><i aria-hidden="true"></i></label>`).join('')}` : ''}
+    </section>
+
+    <section class="card" id="aj-pesos">
+      <div class="card-cab"><h3>Pesos disponibles</h3></div>
+      <p class="txt2 peq">Marca los discos y mancuernas que existen en tu gimnasio. Los botones + y − y las sugerencias para la próxima vez solo usan estos pesos.</p>
+      ${Object.entries(PESOS_CAT).map(([k, x]) => `<h4 class="aj-sub">${x.n}</h4><div class="pesos-chips">${x.v.map(w => `<button class="chip-p ${pesosDisp()[k].includes(w) ? 'on' : ''}" data-peso-disp="${k}" data-w="${w}" aria-pressed="${pesosDisp()[k].includes(w)}">${String(w).replace('.', ',')}</button>`).join('')}</div>`).join('')}
     </section>
 
     <section class="card">
@@ -73,9 +81,9 @@ function alCambiar(e) {
     guardar();
     vibrar(10);
   } else if (t.dataset.eq) {
-    const lista = new Set(S().ajustes.sinEquipo || []);
+    const lista = new Set(equipoActivo());
     t.checked ? lista.add(t.dataset.eq) : lista.delete(t.dataset.eq);
-    S().ajustes.sinEquipo = [...lista];
+    S().ajustes.equipo = [...lista];
     guardar(); vibrar(10);
   } else if (t.dataset.oculto) {
     if (!t.checked) S().ajustes.ocultos = (S().ajustes.ocultos || []).filter(x => x !== t.dataset.oculto);
@@ -106,9 +114,18 @@ function textoAudio() {
 }
 
 async function alTocar(e) {
-  const b = e.target.closest('[data-a]');
+  const b = e.target.closest('[data-a], [data-peso-disp]');
   if (!b) return;
   const a = b.dataset.a;
+  if (b.dataset.pesoDisp) {
+    // Prender o apagar un disco o una mancuerna
+    const k = b.dataset.pesoDisp, w = Number(b.dataset.w), pd = pesosDisp(), l = new Set(pd[k]);
+    l.has(w) ? l.delete(w) : l.add(w);
+    S().ajustes.pesosDisp = { ...pd, [k]: [...l].sort((x, y) => x - y) };
+    guardar(); vibrar(8);
+    b.classList.toggle('on', l.has(w)); b.setAttribute('aria-pressed', l.has(w));
+    return;
+  }
   if (a === 'probar') {
     desbloquearAudio(); vibrar(30);
     if (!S().ajustes.sonido) aviso('El sonido está apagado');

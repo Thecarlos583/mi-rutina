@@ -1,5 +1,5 @@
 // Lógica del plan: qué toca hoy, qué ejercicio está activo en cada puesto, historial de pesos
-import { EJERCICIOS, PLAN, INICIO, BARRA, EQUIPO } from './data.js';
+import { EJERCICIOS, PLAN, INICIO, BARRA, REQ, NUNCA, PROHIBIDOS, EQUIPO_TODO, PESOS_INICIAL } from './data.js';
 import { S, leerDia } from './store.js';
 import { info, sumar, diaDe } from './calendario.js';
 
@@ -12,13 +12,18 @@ export function ejercicio(id, padreId) {
   return { id, g: p.g, z: p.z, s: p.s, t: p.t, d: p.d, ...e };
 }
 
-// Ejercicios que no se pueden hacer: equipo que no hay en el gimnasio u ocultados a mano
-export const esPolea = id => /polea|jalon|cuerda|face-pull|triceps-sobre-cabeza|triceps-barra-v|cruces|gironda/.test(id);
+// ¿Usa la torre de poleas? (la máquina de jalón y la de remo sentado van aparte)
+export const esPolea = id => (REQ[id] ? REQ[id].includes('poleas') : /polea|cuerda|face-pull|triceps-sobre-cabeza|triceps-barra-v|cruces|gironda/.test(id));
 
+// Equipo que hay en el gimnasio (Ajustes → "Equipo de mi gimnasio"); por defecto, todo el de la lista
+export const equipoActivo = () => S().ajustes.equipo ?? EQUIPO_TODO;
+// Ejercicios que no se pueden hacer: equipo que no hay, prohibidos u ocultados a mano
 export function estaOculto(id) {
-  const a = S().ajustes, sin = a.sinEquipo || [];
-  return (a.ocultos || []).includes(id) || sin.some(k => EQUIPO[k]?.ej.includes(id));
+  const a = S().ajustes, eq = equipoActivo();
+  return (a.ocultos || []).includes(id) || NUNCA.has(id) || PROHIBIDOS.has(id) || (REQ[id] || []).some(k => !eq.includes(k));
 }
+// "B anterior", "A anterior": las rutinas viejas que solo sirven para ver lo que se anotó
+export const nombreVariante = v => (/^[AB]\d$/.test(v) ? `${v[0]} anterior` : v);
 
 // Qué se entrena en una fecha (según el calendario o lo que se eligió a mano)
 export function planDe(f) {
@@ -33,11 +38,12 @@ export function slots(f, variante, diaPlan) {
   const log = leerDia(f);
   // Cada Semana B usa sus propios puestos ("B3-…" la actual) para no chocar con lo anotado en las anteriores
   const pre = d.pre ?? variante;
-  return d.e.map(([baseId, series, reps, nota, desc, altsPlan, tip], i) => {
+  return d.e.map(([baseId, series, reps, nota, desc, altsPlan, tip, zona], i) => {
     const slot = `${pre}-${diaPlan}-${i}`;
     const base = ejercicio(baseId);
-    // La polea casi siempre está ocupada: las alternativas sin polea van primero
-    const alts = (altsPlan || base.a || []).filter(a => !estaOculto(a[0])).sort((x, y) => esPolea(x[0]) - esPolea(y[0]));
+    // La polea casi siempre está ocupada: las alternativas sin polea van primero.
+    // En las rutinas viejas no se esconde nada: se ven tal cual se entrenaron.
+    const alts = (altsPlan || base.a || []).filter(a => (d.vieja ? !PROHIBIDOS.has(a[0]) : !estaOculto(a[0]))).sort((x, y) => esPolea(x[0]) - esPolea(y[0]));
     // "Usar siempre" de la Semana B se guarda aparte: no toca los cambios de la Semana A
     const clave = d.propia ? `B|${baseId}` : baseId;
     const h = log.cambios?.[slot], swGuardado = S().siempre[clave];
@@ -46,7 +52,7 @@ export function slots(f, variante, diaPlan) {
     if (h && h !== baseId) { ejId = h; cambio = 'hoy'; }
     else if (!h && sw) { ejId = sw; cambio = 'siempre'; }
     // Sin esa máquina: la primera alternativa que sí se puede hacer
-    if (estaOculto(ejId) && alts.length) { ejId = alts[0][0]; cambio = 'equipo'; }
+    if (!d.vieja && estaOculto(ejId) && alts.length) { ejId = alts[0][0]; cambio = 'equipo'; }
     let s = series, r = reps, n = nota;
     if (cambio) {
       const alt = alts.find(a => a[0] === ejId);
@@ -58,7 +64,7 @@ export function slots(f, variante, diaPlan) {
     return {
       slot, i, base, ej: cambio ? ejercicio(ejId, baseId) : base,
       series: s, reps: r, nota: n, descanso: desc ?? base.d, cambio, orig: { series, reps },
-      alts, clave, tip: tip ?? null,
+      alts, clave, tip: tip ?? null, zona: zona ?? null,
       hechas: Array.from({ length: s }, (_, k) => !!marcadas[k]),
     };
   });
@@ -68,7 +74,7 @@ export const totalSeries = ss => ss.reduce((a, s) => a + s.series, 0);
 
 // Días con series anotadas en una rutina que hoy ya no es la que toca (por ejemplo, la Semana B anterior):
 // se les fija esa rutina para que se vean con lo que se hizo y cuenten como entrenados.
-const PREFIJO = { A: 'A', B3: 'B', B2: 'B1', B: 'B0' }; // cómo empieza el puesto → semana
+const PREFIJO = { A2: 'A', B4: 'B', A: 'A0', B3: 'B2', B2: 'B1', B: 'B0' }; // cómo empieza el puesto → semana
 // v17: el martes A, el viernes A y el martes B cambiaron de orden (entraron las prensas y salió el femoral sentado).
 // Lo anotado se mueve al puesto nuevo de su mismo ejercicio; lo de un ejercicio que ya no está se guarda aparte.
 const ORDEN_VIEJO = {
@@ -81,7 +87,7 @@ export function migrarPuestosV17() {
   if (st.migrado?.v17) return false;
   for (const [clave, viejos] of Object.entries(ORDEN_VIEJO)) {
     const [pre, dia] = clave.split('-');
-    const nuevos = PLAN[pre === 'B2' ? 'B1' : pre][dia].e.map(x => x[0]);
+    const nuevos = PLAN[{ A: 'A0', B2: 'B1' }[pre] || pre][dia].e.map(x => x[0]);
     const re = new RegExp(`^${pre}-${dia}-([0-9]+)$`);
     for (const d of Object.values(st.log)) for (const campo of ['series', 'cambios']) {
       const o = d[campo];
@@ -107,7 +113,7 @@ export function reconciliarDias() {
     if (!marcadas.length) continue;
     const p = planDe(f), actuales = new Set(slots(f, p.variante, p.diaPlan).map(s => s.slot));
     if (marcadas.some(k => actuales.has(k))) continue;
-    const m = /^(A|B3|B2|B)-(lun|mar|mie|jue|vie)-\d+$/.exec(marcadas[0]);
+    const m = /^(A2|B4|A|B3|B2|B)-(lun|mar|mie|jue|vie)-\d+$/.exec(marcadas[0]);
     if (!m || !PLAN[PREFIJO[m[1]]]?.[m[2]]) continue;
     d.plan = { variante: PREFIJO[m[1]], dia: m[2] };
     cambio = true;
@@ -241,4 +247,43 @@ export function tocaSubir(ejId, antesDe) {
 export function mejorPeso(ejId, antesDe) {
   const h = historialPesos(ejId).filter(x => x.f < antesDe);
   return h.length ? Math.max(...h.map(x => x.w)) : null;
+}
+
+// ── Duración estimada del día ───────────────────────────────
+// Calentamiento 10 min + aproximación 3 min + estiramiento 5 min + cada serie (40 s, u 80 s si es por brazo o por pierna)
+// + su descanso. Después de la última serie de cada ejercicio no se descansa: ahí van los 60 s de cambio.
+export const porLadoReps = reps => /\/(brazo|pierna)|por (brazo|pierna)/.test(String(reps));
+export function duracionEstimada(ss) {
+  let s = 600 + 180 + 300;
+  ss.forEach((x, i) => { s += x.series * (porLadoReps(x.reps) ? 80 : 40) + (x.series - 1) * x.descanso; if (i) s += 60; });
+  return Math.round(s / 60);
+}
+
+// ── Pesos que existen en el gimnasio ────────────────────────
+export const pesosDisp = () => ({ ...PESOS_INICIAL, ...(S().ajustes.pesosDisp || {}) });
+// Todos los pesos que se pueden armar para un ejercicio, en la unidad que se ve (null: máquina de pasador o peso corporal)
+export function pesosPosibles(id) {
+  const tipo = INICIO[id]?.[1], kg = unidadDe(id) === 'kg', pd = pesosDisp();
+  if (tipo === 'c/u' || tipo === 'una') return [...(pd[kg ? 'mancKg' : 'mancLb'] || [])].sort((a, b) => a - b);
+  if (tipo !== 'barra' && tipo !== 'discos') return null;
+  // Lo que se puede poner por lado con hasta 4 discos de los que hay
+  const discos = pd[kg ? 'discosKg' : 'discosLb'] || [];
+  const lados = new Set([0]);
+  for (let k = 0; k < 4; k++) for (const l of [...lados]) for (const d of discos) lados.add(Math.round((l + d) * 100) / 100);
+  const barra = tipo === 'barra' ? barraDe(id).w : 0;
+  return [...new Set([...lados].map(l => Math.round((barra + 2 * l) * 100) / 100))].filter(w => w > 0).sort((a, b) => a - b);
+}
+// El peso que sigue (dir +1) o el anterior (dir -1) que existe; en máquinas, de 5 en 5 lbs o de 2,5 en 2,5 kg
+export function siguientePeso(id, v, dir) {
+  const lista = pesosPosibles(id), paso = pasoDe(id);
+  if (!lista?.length) return v == null ? (dir > 0 ? paso : null) : Math.max(0, Math.round((v + dir * paso) * 100) / 100);
+  if (v == null) return dir > 0 ? lista[0] : null;
+  const c = dir > 0 ? lista.find(w => w > v + 1e-6) : [...lista].reverse().find(w => w < v - 1e-6);
+  return c ?? null;
+}
+// El peso que existe más cercano
+export function pesoCercano(id, v) {
+  const lista = pesosPosibles(id);
+  if (!lista?.length || v == null) return v;
+  return lista.reduce((a, w) => (Math.abs(w - v) < Math.abs(a - v) ? w : a), lista[0]);
 }

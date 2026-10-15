@@ -1,5 +1,5 @@
 // Pantalla "Guía": reglas, el plan completo y el mapa de colores
-import { GRUPOS, ZONAS, PLAN, REGLAS, TROTE, INICIO, EJERCICIOS } from './data.js';
+import { GRUPOS, ZONAS, PLAN, REGLAS, TROTE, INICIO, EJERCICIOS, EN_USO } from './data.js';
 import { guiaAgarresHTML } from './agarres.js';
 import { NOMBRE_DIA } from './calendario.js';
 import { ejercicio, unidadDe, sugeridoVista } from './rutina.js';
@@ -27,16 +27,16 @@ export function renderGuia(el) {
       <div class="plan">${['lun', 'mar', 'mie', 'jue', 'vie'].map(d => {
         const p = PLAN[variante][d];
         return `<details class="plan-dia"><summary><span class="dia-n">${NOMBRE_DIA[d]}</span><span class="dia-t">${p.t} · ${p.sub}</span>${ico('abajo')}</summary>
-          ${p.comp ? `<p class="txt2 peq comp-g">Complementa a la Semana A: ${p.comp}</p>` : ''}<ul>${p.e.map(x => fila(x)).join('')}</ul></details>`;
+          ${p.comp ? `<p class="txt2 peq comp-g">Complementa a la Semana ${variante === 'A' ? 'B' : 'A'}: ${p.comp}</p>` : ''}<ul>${p.e.map(x => fila(x)).join('')}</ul></details>`;
       }).join('')}
         <details class="plan-dia"><summary><span class="dia-n">Sábado</span><span class="dia-t">Trote y afloje</span>${ico('abajo')}</summary>
           <ul>${[1, 2, 3, 4].map(k => `<li style="--c:#38BDF8"><i class="punto"></i><span>Semana ${k}</span><b class="trote-b">${TROTE[k].resumen}</b></li>`).join('')}</ul>
-          <p class="txt2 peq">Antes: movilidad 5-10 min. Después: core 3 rondas y 10 min de estiramiento.</p></details>
+          <p class="txt2 peq">Antes: movilidad 5-10 min. Después: abdomen 3 rondas (A o B según la semana) y 10 min de estiramiento.</p></details>
         <div class="plan-dia quieto"><span class="dia-n">Domingo</span><span class="dia-t">Descanso</span></div>
       </div>
     </section>
 
-    ${guiaAgarresHTML(Object.values(EJERCICIOS))}
+    ${guiaAgarresHTML(Object.entries(EJERCICIOS).filter(([id]) => EN_USO.has(id)).map(([, e]) => e))}
 
     <section class="card">
       <div class="card-cab"><h3>Colores de cada músculo</h3></div>

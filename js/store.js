@@ -3,7 +3,7 @@ const KEY = 'mi-rutina:v1';
 
 const base = () => ({
   v: 1,
-  ajustes: { inicio: null, sonido: true, haptica: true, pantalla: true, unidad: 'lbs', sinEquipo: ['femoral-sentado', 'hexagonal'], ocultos: [] },
+  ajustes: { inicio: null, sonido: true, haptica: true, pantalla: true, unidad: 'lbs', ocultos: [] }, // equipo y pesosDisp: si faltan, todo lo del gimnasio (ver data.js)
   log: {},       // 'AAAA-MM-DD' → { plan, series, pesos, cambios, sab } (habitos: de versiones viejas, ya no se usa)
   siempre: {},   // ejercicio original → alternativa elegida con "Usar siempre" (en la Semana B: 'B|ejercicio')
   noSentida: {}, // ejercicio de espalda → { f, w } la última vez que no se sintió la espalda

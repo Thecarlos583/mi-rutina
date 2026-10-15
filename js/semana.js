@@ -4,13 +4,13 @@
 import { PLAN, GRUPOS } from './data.js';
 import { S, dia, leerDia, guardar } from './store.js';
 import { info, sumar, lunesDe, diaDe, fechaCorta, NOMBRE_DIA } from './calendario.js';
-import { planDe, resumenDia, ejercicio } from './rutina.js';
+import { planDe, resumenDia, ejercicio, nombreVariante } from './rutina.js';
 import { $, ico, abrirHoja, cerrarHoja, vibrar, aviso } from './util.js';
 
 const CORTO = { lun: 'Lun', mar: 'Mar', mie: 'Mié', jue: 'Jue', vie: 'Vie', sab: 'Sáb', dom: 'Dom' };
 const esGym = p => p.diaPlan !== 'sab' && p.diaPlan !== 'dom' && !!PLAN[p.variante]?.[p.diaPlan];
 const nombre = p => (p.diaPlan === 'sab' ? 'Trote y afloje' : p.diaPlan === 'dom' ? 'Descanso' : PLAN[p.variante][p.diaPlan].t);
-const sub = p => (p.diaPlan === 'sab' ? 'Cardio suave y movilidad' : p.diaPlan === 'dom' ? 'Recuperar' : `${PLAN[p.variante][p.diaPlan].sub} · Rutina ${/^B[01]$/.test(p.variante) ? 'B anterior' : p.variante}`);
+const sub = p => (p.diaPlan === 'sab' ? 'Cardio suave y movilidad' : p.diaPlan === 'dom' ? 'Recuperar' : `${PLAN[p.variante][p.diaPlan].sub} · Rutina ${nombreVariante(p.variante)}`);
 const color = p => (p.diaPlan === 'sab' ? GRUPOS.cardio.c : p.diaPlan === 'dom' ? 'var(--txt2)' : GRUPOS[ejercicio(PLAN[p.variante][p.diaPlan].e[0][0]).g].c);
 
 // Guarda la rutina p en la fecha x (si es la que ya tocaba por calendario, quita el cambio)

@@ -1,9 +1,10 @@
 // Sábado: movilidad → trote guiado por intervalos → core → estiramiento
-import { SABADO, TROTE, FASES, GRUPOS } from './data.js';
+import { SABADO, SABADO_CORE, TROTE, FASES, GRUPOS } from './data.js';
 import { S, dia, leerDia, guardar } from './store.js';
 import { $, ico, anillo, vibrar, sonar, aviso, confeti, fmt, pantallaEncendida } from './util.js';
 import { iniciarDescanso } from './timer.js';
-import { pasosSabado } from './rutina.js';
+import { pasosSabado, ejercicio } from './rutina.js';
+import { tieneVideo } from './anim.js';
 
 const tag = g => `<span class="tag" style="--c:${GRUPOS[g].c}">${GRUPOS[g].n}</span>`;
 
@@ -15,15 +16,15 @@ export function sabadoHTML(f, p) {
       <div class="hero-txt">
         <p class="eyebrow">Sábado · Semana ${p.semana}</p>
         <h2>Trote y afloje</h2>
-        <p class="hero-sub">Movilidad → trote → core → estiramiento</p>
+        <p class="hero-sub">Movilidad → trote → abdomen → estiramiento</p>
         <div class="chips">${tag('cardio')}${tag('core')}</div>
       </div>
       <div id="hero-anillo">${anillo(n / 4, { tam: 94, grosor: 9, id: 'as', c1: '#38BDF8', c2: '#2ED47A', centro: `<b class="an-num">${n}</b><span>de 4</span>` })}</div>
     </section>
-    <div class="lista-ej">${SABADO.map((x, i) => paso(x, i, ps[x.id], log, sem)).join('')}</div>`;
+    <div class="lista-ej">${SABADO.map((x, i) => paso(x, i, ps[x.id], log, sem, p.variante)).join('')}</div>`;
 }
 
-function paso(x, i, hecho, log, sem) {
+function paso(x, i, hecho, log, sem, variante) {
   let cuerpo = '';
   if (x.id === 'trote') {
     const t = TROTE[sem], total = t.fases.reduce((a, f) => a + f.s, 0) / 60;
@@ -35,7 +36,10 @@ function paso(x, i, hecho, log, sem) {
       <button class="btn-pri" data-a="trote-iniciar" data-s="${sem}">${ico('play')} Empezar trote guiado</button>`;
   } else if (x.id === 'core') {
     const r = log.sab?.core || [];
-    cuerpo = `<ol class="pasos">${x.items.map(it => `<li>${it}</li>`).join('')}</ol>
+    // El abdomen de la semana: A o B, todo en el piso o en la barra
+    const lista = SABADO_CORE[variante === 'B' ? 'B' : 'A'];
+    cuerpo = `<p class="txt2 peq">Abdomen ${variante === 'B' ? 'B' : 'A'}: haz los 4 seguidos y descansa 60 s al final de cada ronda.</p>
+      <ol class="cal-lista core-lista">${lista.map(c => { const e = ejercicio(c.id); return `<li><span><b>${e.n} · ${c.r}</b><small>${c.d}</small><small class="alt-t">Alternativa: ${c.alt.map(a => ejercicio(a).n.toLowerCase()).join(' · ')}</small></span>${tieneVideo(c.id) ? `<button class="ver-mini" data-a="video-ej" data-id="${c.id}" aria-label="Ver cómo se hace ${e.n}">${ico('play')}</button>` : ''}</li>`; }).join('')}</ol>
       <p class="txt2 peq nota-core">Toca cada ronda al terminarla: arranca el descanso de 60 s.</p>
       <div class="series">${[0, 1, 2].map(k => `<button class="serie ${r[k] ? 'hecha' : ''}" data-a="core-ronda" data-i="${k}" aria-pressed="${!!r[k]}" aria-label="Ronda ${k + 1}"><span class="serie-n">${k + 1}</span>${ico('check', 'serie-ok')}</button>`).join('')}</div>`;
   } else {
@@ -67,7 +71,7 @@ export function accionSabado(a, b, f, refrescar) {
     if (r[i]) {
       vibrar(); sonar.serie();
       const hechas = r.filter(Boolean).length;
-      if (hechas < 3) iniciarDescanso(60, 'Core', `Ronda ${hechas} de 3 lista`);
+      if (hechas < 3) iniciarDescanso(60, 'Abdomen', `Ronda ${hechas} de 3 lista`);
     }
   } else if (a === 'trote-iniciar') {
     iniciarCarrera(f, Number(b.dataset.s));
@@ -175,7 +179,7 @@ function terminar() {
   $('#car-desc').textContent = `Trote de la semana ${car.sem} completado`;
   $('#car-ronda').textContent = '';
   $('#car-reloj').textContent = `${Math.round(total() / 60)} min`;
-  $('#car-sig').textContent = 'Ahora toca core y estiramiento.';
+  $('#car-sig').textContent = 'Ahora toca abdomen y estiramiento.';
   $('#car-total').textContent = '';
   $('#car-marca').style.left = '100%';
   sonar.logro(); vibrar([120, 80, 120]); confeti();
